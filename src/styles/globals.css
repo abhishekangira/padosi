@@ -1,0 +1,13 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  background-color: rgba(234, 245, 255);
+}
+
+@media (prefers-color-scheme: dark) {
+  body {
+    background-color: #006394;
+  }
+}
