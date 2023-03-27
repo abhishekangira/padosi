@@ -62,8 +62,8 @@ export function PrivacyPolicyPage() {
           How Long We Keep Personal Information
         </h2>
         <p className="mb-4">
-          We keep personal information for as long as the user's account remains
-          active. Users can delete their account at any time.
+          We keep personal information for as long as the user&apos;s account
+          remains active. Users can delete their account at any time.
         </p>
 
         <h2 className="mb-2 text-xl font-semibold">User Rights</h2>
