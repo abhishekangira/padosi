@@ -2,12 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  background-color: rgba(234, 245, 255);
+html,
+body,
+#__next,
+main {
+  min-height: 100%;
 }
-
-@media (prefers-color-scheme: dark) {
-  body {
-    background-color: #006394;
-  }
+body {
+  background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
+  color: #c4d6e7;
 }

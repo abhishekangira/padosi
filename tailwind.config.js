@@ -6,11 +6,11 @@ module.exports = {
       colors: {
         primary: {
           light: "#94d2ff",
-          DEFAULT: "#44b1ff",
+          DEFAULT: "#5bbaff",
         },
       },
       animation: {
-        fade: "fade .5s ease-in",
+        fade: "fade 1s ease-in",
       },
       keyframes: {
         fade: {
