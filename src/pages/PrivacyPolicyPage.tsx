@@ -8,9 +8,7 @@ export function PrivacyPolicyPage() {
         <meta name="description" content="Privacy policy for our website" />
       </Head>
       <div className="container mx-auto px-4 py-8">
-        <h1 className="mb-4 text-3xl font-bold dark:text-red-500">
-          Privacy Policy
-        </h1>
+        <h1 className="mb-4 text-3xl font-bold">Privacy Policy</h1>
         <p className="mb-4">
           This privacy policy sets out how we collect, use, protect and share
           personal information that we obtain from users of our website.
