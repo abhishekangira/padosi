@@ -66,7 +66,7 @@ export function LoginWidget() {
             </div>
           )}
           <button
-            className="btn-primary no-animation btn mt-6"
+            className="btn-primary btn mt-6"
             type="submit"
             onClick={() => signInWithRedirect(auth, provider)}
           >
