@@ -1,8 +1,8 @@
 import { getApp, getApps, initializeApp } from "firebase/app";
-import { getAuth, GoogleAuthProvider } from "firebase/auth";
+import { getAuth, GoogleAuthProvider, onAuthStateChanged } from "firebase/auth";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBlLSF2esUXhpfaYg-JJkxB4L5NG5aglgM",
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
   authDomain: "padosi-webapp.firebaseapp.com",
   projectId: "padosi-webapp",
   storageBucket: "padosi-webapp.appspot.com",
