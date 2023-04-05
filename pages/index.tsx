@@ -1,18 +1,11 @@
-import { useAuth } from "@/lib/AuthContext";
-import { auth } from "@/lib/firebase";
+import FullPageLoader from "@/components/FullPageLoader";
+import { useAuth } from "@/lib/Auth";
 import { HomePage } from "@/pages/HomePage/HomePage";
+import { LoginPage } from "@/pages/LoginPage/LoginPage";
 
-export default function Home() {
+export default function Index() {
   const { user, loading } = useAuth();
-  if (loading) return <div>Loading...</div>;
-  if (user)
-    return (
-      <div>
-        You are logged in
-        <button className="btn" onClick={() => auth.signOut()}>
-          Logout
-        </button>
-      </div>
-    );
-  return <HomePage />;
+  if (loading) return <FullPageLoader />;
+  if (user) return <HomePage />;
+  return <LoginPage />;
 }
