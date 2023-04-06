@@ -1,3 +1,5 @@
+import { useUser } from "@/lib/hooks/useUser";
+import { auth } from "@/lib/firebase";
 import Script from "next/script";
 import { useEffect } from "react";
 
@@ -15,6 +17,7 @@ export function SetLocationPage() {
       </Script>
 
       <div>Set Location</div>
+      <button onClick={() => auth.signOut()}>Logout</button>
       <div id="map" style={{ height: "500px", width: "60%" }}></div>
     </>
   );

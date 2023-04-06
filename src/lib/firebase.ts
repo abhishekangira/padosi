@@ -22,4 +22,4 @@ provider.setCustomParameters({ prompt: "select_account" });
 const db = getFirestore(app);
 connectFirestoreEmulator(db, "localhost", 8080);
 
-export { auth, provider };
+export { auth, provider, db };

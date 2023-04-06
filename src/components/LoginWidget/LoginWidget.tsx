@@ -1,6 +1,6 @@
 import { signInWithRedirect } from "firebase/auth";
 import { auth, provider } from "@/lib/firebase";
-import { BsGoogle, BsTelephoneFill } from "react-icons/bs";
+import { BsGoogle } from "react-icons/bs";
 import { useLoginWidget, FormViewType } from "./useLoginWidget";
 
 export function LoginWidget() {
