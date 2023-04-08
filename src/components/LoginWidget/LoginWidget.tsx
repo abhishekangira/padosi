@@ -37,15 +37,26 @@ export function LoginWidget() {
         <div className="card-body">
           <h2 className="card-title">{message}</h2>
           <form className="form-control" onSubmit={handleSubmit}>
+            {formView === "Sign Up" && (
+              <div className="form-control">
+                <label htmlFor="displayName" className="label">
+                  <span className="label-text">Name</span>
+                </label>
+                <input type="text" id="displayName" placeholder="Simran Raj" className="input" />
+                <label className="label min-h-8">
+                  {errors.displayName && (
+                    <span className="label-text-alt text-error">Name cannot be empty</span>
+                  )}
+                </label>
+              </div>
+            )}
             <div className="form-control">
               <label htmlFor="email" className="label">
                 <span className="label-text">Email</span>
               </label>
               <input type="email" id="email" placeholder="simran@rajmail.com" className="input" />
               <label className="label min-h-8">
-                {errors.email && (
-                  <span className="label-text-alt text-error">Please enter a valid email</span>
-                )}
+                {errors.email && <span className="label-text-alt text-error">{errors.email}</span>}
               </label>
             </div>
             {formView !== "forgotPassword" && (
