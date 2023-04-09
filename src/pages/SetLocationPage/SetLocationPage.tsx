@@ -1,116 +1,44 @@
-import { useUser } from "@/lib/hooks/useUser";
-import { auth } from "@/lib/firebase";
-import Script from "next/script";
-import { useEffect } from "react";
+import FullPageLoader from "@/components/FullPageLoader";
+import { TopBar } from "@/components/TopBar";
+import { BiCurrentLocation } from "react-icons/bi";
+import { setUserPosition, getCurrentPosition } from "./locationUtils";
+import { useSetLocationPage } from "./useSetLocationPage";
 
 export function SetLocationPage() {
-  useEffect(() => {
-    initMap();
-  }, []);
-
+  const { loading, mapRef, addressInputRef, locationLoading, setLocationLoading } =
+    useSetLocationPage();
+  if (loading) return <FullPageLoader />;
   return (
     <>
-      <Script id="google-maps-script">
-        {`(g=>{var h,a,k,p="The Google Maps JavaScript API",c="google",l="importLibrary",q="__ib__",m=document,b=window;b=b[c]||(b[c]={});var d=b.maps||(b.maps={}),r=new Set,e=new URLSearchParams,u=()=>h||(h=new Promise(async(f,n)=>{await (a=m.createElement("script"));e.set("libraries",[...r]+"");for(k in g)e.set(k.replace(/[A-Z]/g,t=>"_"+t[0].toLowerCase()),g[k]);e.set("callback",c+".maps."+q);a.src="https://maps."+c+"apis.com/maps/api/js?"+e;d[q]=f;a.onerror=()=>h=n(Error(p+" could not load."));a.nonce=m.querySelector("script[nonce]")?.nonce||"";m.head.append(a)}));d[l]?console.warn(p+" only loads once. Ignoring:",g):d[l]=(f,...n)=>r.add(f)&&u().then(()=>d[l](f,...n))})({key: '` +
-          apiKey +
-          `',});`}
-      </Script>
-
-      <div>Set Location</div>
-      <button onClick={() => auth.signOut()}>Logout</button>
-      <div id="map" style={{ height: "500px", width: "60%" }}></div>
+      <TopBar title="Set Location" />
+      <main className="mx-auto flex w-full max-w-4xl flex-col items-center gap-5 p-4">
+        <h1 className="self-start text-lg">
+          Auto detect, type your address or click on the map to set your location
+        </h1>
+        <div className="input-group">
+          <input type="text" ref={addressInputRef} className="input w-full" autoComplete="off" />
+          <div className="tooltip" data-tip="Auto Detect Location">
+            <button
+              className={`btn-square btn text-xl text-primary ${locationLoading ? "loading" : ""}`}
+              onClick={async () => {
+                if (navigator.geolocation) {
+                  await getCurrentPosition(setLocationLoading, {
+                    enableHighAccuracy: true,
+                  });
+                } else {
+                  console.warn("Geolocation is not supported by your browser");
+                }
+              }}
+            >
+              {!locationLoading && <BiCurrentLocation />}
+            </button>
+          </div>
+        </div>
+        <button className="btn-primary btn-sm btn" onClick={setUserPosition}>
+          Confirm Location
+        </button>
+        <div ref={mapRef} id="map" className="h-96 w-full rounded-lg"></div>
+      </main>
     </>
   );
-}
-
-let map: google.maps.Map;
-const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
-async function initMap(): Promise<void> {
-  //@ts-ignore
-  const { Map } = await google.maps.importLibrary("maps");
-  map = new Map(document.getElementById("map") as HTMLElement, {
-    center: { lat: 28.612894, lng: 77.229446 },
-    zoom: 10,
-    disableDefaultUI: true,
-    styles: [
-      { elementType: "geometry", stylers: [{ color: "#242f3e" }] },
-      { elementType: "labels.text.stroke", stylers: [{ color: "#242f3e" }] },
-      { elementType: "labels.text.fill", stylers: [{ color: "#746855" }] },
-      {
-        featureType: "administrative.locality",
-        elementType: "labels.text.fill",
-        stylers: [{ color: "#5bbaff" }],
-      },
-      {
-        featureType: "poi",
-        elementType: "labels.text.fill",
-        stylers: [{ color: "#1FB2A5" }],
-      },
-      {
-        featureType: "poi.park",
-        elementType: "geometry",
-        stylers: [{ color: "#263c3f" }],
-      },
-      {
-        featureType: "poi.park",
-        elementType: "labels.text.fill",
-        stylers: [{ color: "#6b9a76" }],
-      },
-      {
-        featureType: "road",
-        elementType: "geometry",
-        stylers: [{ color: "#38414e" }],
-      },
-      {
-        featureType: "road",
-        elementType: "geometry.stroke",
-        stylers: [{ color: "#212a37" }],
-      },
-      {
-        featureType: "road",
-        elementType: "labels.text.fill",
-        stylers: [{ color: "#9ca5b3" }],
-      },
-      {
-        featureType: "road.highway",
-        elementType: "geometry",
-        stylers: [{ color: "#746855" }],
-      },
-      {
-        featureType: "road.highway",
-        elementType: "geometry.stroke",
-        stylers: [{ color: "#1f2835" }],
-      },
-      {
-        featureType: "road.highway",
-        elementType: "labels.text.fill",
-        stylers: [{ color: "#f3d19c" }],
-      },
-      {
-        featureType: "transit",
-        elementType: "geometry",
-        stylers: [{ color: "#2f3948" }],
-      },
-      {
-        featureType: "transit.station",
-        elementType: "labels.text.fill",
-        stylers: [{ color: "#d59563" }],
-      },
-      {
-        featureType: "water",
-        elementType: "geometry",
-        stylers: [{ color: "#17263c" }],
-      },
-      {
-        featureType: "water",
-        elementType: "labels.text.fill",
-        stylers: [{ color: "#515c6d" }],
-      },
-      {
-        featureType: "water",
-        elementType: "labels.text.stroke",
-        stylers: [{ color: "#17263c" }],
-      },
-    ],
-  });
 }

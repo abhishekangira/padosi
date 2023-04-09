@@ -4,12 +4,46 @@
 
 html,
 body,
-#__next,
-main {
+#__next {
   min-height: 100%;
   min-height: 100dvh;
+  width: 100vw;
 }
 
 body {
   background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
+}
+
+/* .btn {
+  letter-spacing: 1px;
+} */
+
+/* google maps autocomplete related styling */
+.pac-container {
+  background-color: #1b2735;
+  border: none;
+  /* display: block !important; */
+}
+
+.pac-item {
+  color: #94d2ff;
+  border-top: black;
+}
+
+.pac-item:hover {
+  background-color: #5bbaff;
+  color: #1b2735;
+  cursor: pointer;
+}
+
+.pac-item-query {
+  color: #5bbaff;
+}
+
+.pac-item:hover .pac-item-query {
+  color: black;
+}
+
+.pac-item:hover .pac-icon {
+  filter: invert(1);
 }

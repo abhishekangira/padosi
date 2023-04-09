@@ -54,7 +54,13 @@ export function LoginWidget() {
               <label htmlFor="email" className="label">
                 <span className="label-text">Email</span>
               </label>
-              <input type="email" id="email" placeholder="simran@rajmail.com" className="input" />
+              <input
+                type="email"
+                id="email"
+                name="email"
+                placeholder="simran@rajmail.com"
+                className="input"
+              />
               <label className="label min-h-8">
                 {errors.email && <span className="label-text-alt text-error">{errors.email}</span>}
               </label>
@@ -73,7 +79,7 @@ export function LoginWidget() {
                     </button>
                   )}
                 </label>
-                <input type="password" id="password" placeholder="********" className="input" />
+                <input type="password" id="password" name="password" className="input" />
                 <label className="label min-h-8">
                   {errors.password && (
                     <span className="label-text-alt text-error">
@@ -88,12 +94,7 @@ export function LoginWidget() {
                 <label htmlFor="confirmPassword" className="label">
                   <span className="label-text">Confirm Password</span>
                 </label>
-                <input
-                  type="password"
-                  id="confirmPassword"
-                  placeholder="********"
-                  className="input"
-                />
+                <input type="password" id="confirmPassword" className="input" />
                 <label className="label min-h-8">
                   {errors.confirmPassword && (
                     <span className="label-text-alt text-error">Passwords do not match</span>
