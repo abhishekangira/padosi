@@ -22,6 +22,9 @@ dependencies:
   firebase:
     specifier: ^9.18.0
     version: 9.18.0
+  geofire-common:
+    specifier: ^6.0.0
+    version: 6.0.0
   next:
     specifier: 13.2.4
     version: 13.2.4(@babel/core@7.21.3)(react-dom@18.2.0)(react@18.2.0)(sass@1.60.0)
@@ -40,11 +43,17 @@ dependencies:
   react-icons:
     specifier: ^4.8.0
     version: 4.8.0(react@18.2.0)
+  react-virtuoso:
+    specifier: ^4.2.0
+    version: 4.2.0(react-dom@18.2.0)(react@18.2.0)
   typescript:
     specifier: 5.0.2
     version: 5.0.2
 
 devDependencies:
+  '@faker-js/faker':
+    specifier: ^7.6.0
+    version: 7.6.0
   '@playwright/test':
     specifier: ^1.32.1
     version: 1.32.1
@@ -443,6 +452,11 @@ packages:
     resolution: {integrity: sha512-lxJ9R5ygVm8ZWgYdUweoq5ownDlJ4upvoWmO4eLxBYHdMo+vZ/Rx0EN6MbKWDJOSUGrqJy2Gt+Dyv/VKml0fjg==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
     dev: false
+
+  /@faker-js/faker@7.6.0:
+    resolution: {integrity: sha512-XK6BTq1NDMo9Xqw/YkYyGjSsg44fbNwYRx7QK2CuoQgyy+f1rrTDHoExVM5PsyXCtfl2vs2vVJ0MN0yN6LppRw==}
+    engines: {node: '>=14.0.0', npm: '>=6.0.0'}
+    dev: true
 
   /@firebase/analytics-compat@0.2.4(@firebase/app-compat@0.2.5)(@firebase/app@0.9.5):
     resolution: {integrity: sha512-ZN4K49QwOR8EWIUTV03VBdcVkz8sVsfJmve4g2+FEIj0kyTK0MdoVTWNOwWj9TVi2p/7FvKRKkpWxkydmi9x7g==}
@@ -2977,6 +2991,10 @@ packages:
     resolution: {integrity: sha512-3hN7NaskYvMDLQY55gnW3NQ+mesEAepTqlg+VEbj7zzqEMBVNhzcGYYeqFo/TlYz6eQiFcp1HcsCZO+nGgS8zg==}
     engines: {node: '>=6.9.0'}
 
+  /geofire-common@6.0.0:
+    resolution: {integrity: sha512-dQ2qKWMtHUEKT41Kw4dmAtMjvEyhWv1XPnHHlK5p5l5+0CgwHYQjhonGE2QcPP60cBYijbJ/XloeKDMU4snUQg==}
+    dev: false
+
   /get-caller-file@2.0.5:
     resolution: {integrity: sha512-DyFP3BM/3YHTQOCUL/w0OZHR0lpKeGrxotcHWcqNEdnltqFwXVfhEBQ94eIo34AfQpo0rGki4cyIiftY06h2Fg==}
     engines: {node: 6.* || 8.* || >= 10.*}
@@ -4740,6 +4758,17 @@ packages:
   /react-is@18.2.0:
     resolution: {integrity: sha512-xWGDIW6x921xtzPkhiULtthJHoJvBbF3q26fzloPCK0hsvxtPVelvftw3zjbHWSkR2km9Z+4uxbDDK/6Zw9B8w==}
     dev: true
+
+  /react-virtuoso@4.2.0(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-lO1akVyALlDMp+eIo4E99HjSQ8Cn2AKXBVfq7GaBjdlnlJaRvou8az6tVYGHFD6Az5EcPUc7OfzHvAyojOhgqw==}
+    engines: {node: '>=10'}
+    peerDependencies:
+      react: '>=16 || >=17 || >= 18'
+      react-dom: '>=16 || >=17 || >= 18'
+    dependencies:
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
+    dev: false
 
   /react@18.2.0:
     resolution: {integrity: sha512-/3IjMdb2L9QbBdWiW5e3P2/npwMBaU9mHCSCUzNln0ZCYbcfTsGbTJrU/kGemdH2IWmB2ioZ+zkxtmq6g09fGQ==}

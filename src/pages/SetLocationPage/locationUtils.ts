@@ -15,7 +15,7 @@ export async function initMap(
 
   const autocomplete = new google.maps.places.Autocomplete(inputElement);
 
-  const map = new Map(mapElement, {
+  map = new Map(mapElement, {
     center,
     zoom: 10,
     disableDefaultUI: true,
@@ -101,7 +101,7 @@ export async function initMap(
     ],
   });
 
-  const marker = new google.maps.Marker({
+  marker = new google.maps.Marker({
     position: center,
     map,
     title: "Home",
@@ -130,8 +130,9 @@ export async function initMap(
   return { map, marker };
 }
 
-export function setUserPosition() {
+export function getMarkerPosition() {
   const pos = { lat: marker.getPosition()?.lat(), lng: marker.getPosition()?.lng() };
+  return pos;
 }
 
 export function getCurrentPosition(

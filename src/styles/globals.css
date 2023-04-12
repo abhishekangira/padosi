@@ -5,18 +5,17 @@
 html,
 body,
 #__next {
-  min-height: 100%;
+  min-height: 100vh;
   min-height: 100dvh;
-  width: 100vw;
 }
 
-body {
+.bg-radial {
   background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
 }
 
-/* .btn {
-  letter-spacing: 1px;
-} */
+.bg-glass {
+  @apply bg-transparent backdrop-blur-sm;
+}
 
 /* google maps autocomplete related styling */
 .pac-container {
@@ -46,4 +45,8 @@ body {
 
 .pac-item:hover .pac-icon {
   filter: invert(1);
+}
+
+.auto-expand-textarea {
+  transition: height 0.2s ease;
 }

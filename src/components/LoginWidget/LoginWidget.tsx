@@ -24,16 +24,16 @@ export function LoginWidget() {
     <>
       <div className="tabs">
         {["Sign In", "Sign Up"].map((tab) => (
-          <a
+          <button
             className={`tab-lifted tab tab-lg ${formView === tab ? "tab-active" : ""}`}
             onClick={() => setFormView(tab as FormViewType)}
             key={tab}
           >
             {tab}
-          </a>
+          </button>
         ))}
       </div>
-      <div className="card rounded-none rounded-b-2xl rounded-tr-2xl text-neutral-content shadow-2xl backdrop-blur-sm sm:card-normal lg:card-side">
+      <div className="bg-glass card rounded-none rounded-b-2xl rounded-tr-2xl sm:card-normal lg:card-side">
         <div className="card-body">
           <h2 className="card-title">{message}</h2>
           <form className="form-control" onSubmit={handleSubmit}>

@@ -1,16 +1,10 @@
 import logo from "public/images/logo.png";
 import Image from "next/image";
-import { Acme } from "next/font/google";
 import { auth } from "@/lib/firebase";
 
-const acme = Acme({
-  weight: "400",
-  subsets: ["latin"],
-});
-
-export function TopBar({ title }: Props) {
+export function TopNav({ title }: Props) {
   return (
-    <nav className="navbar bg-base-100">
+    <nav className="navbar fixed top-0 z-10 bg-base-100/20 shadow-lg backdrop-blur-sm">
       <div className="navbar-start">
         <Image src={logo} alt="Logo of Padosi" width={30} height={30} />
       </div>
@@ -27,5 +21,5 @@ export function TopBar({ title }: Props) {
 }
 
 type Props = {
-  title: string;
+  title?: string;
 };

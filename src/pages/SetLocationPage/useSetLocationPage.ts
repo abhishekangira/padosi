@@ -1,12 +1,36 @@
 import { useUserContext } from "@/lib/user-context";
-import { initMap } from "./locationUtils";
+import { getMarkerPosition, initMap } from "./locationUtils";
 import { useEffect, useRef, useState } from "react";
+import { auth, db } from "@/lib/firebase";
+import { doc, serverTimestamp, updateDoc } from "firebase/firestore";
+import { geohashForLocation } from "geofire-common";
+import { UserType } from "@/lib/hooks/useUser";
 
 export function useSetLocationPage() {
-  const { loading } = useUserContext();
+  const { setUser } = useUserContext();
   const mapRef = useRef<HTMLDivElement>(null);
   const addressInputRef = useRef<HTMLInputElement>(null);
   const [locationLoading, setLocationLoading] = useState(false);
+
+  const handleSubmit = () => {
+    const pos = getMarkerPosition();
+    if (auth.currentUser && pos.lat && pos.lng) {
+      updateDoc(doc(db, "users", auth.currentUser.uid), {
+        geoHash: geohashForLocation([pos.lat, pos.lng]),
+        location: {
+          lat: pos.lat,
+          lng: pos.lng,
+        },
+        updatedAt: serverTimestamp(),
+      })
+        .then(() => {
+          setUser((prev) => ({ ...prev, isUserLocationSet: true } as UserType));
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    }
+  };
 
   useEffect(() => {
     if (mapRef.current && addressInputRef.current) {
@@ -14,5 +38,11 @@ export function useSetLocationPage() {
     }
   }, [mapRef.current, addressInputRef.current]);
 
-  return { loading, mapRef, addressInputRef, locationLoading, setLocationLoading };
+  return {
+    mapRef,
+    addressInputRef,
+    locationLoading,
+    setLocationLoading,
+    handleSubmit,
+  };
 }

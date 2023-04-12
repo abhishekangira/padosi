@@ -52,7 +52,6 @@ export function useLoginWidget() {
   const [formView, setFormView] = useState<FormViewType>("Sign In");
   const [errors, setErrors] = useState(defaultErrors);
   const [loading, setLoading] = useState(false);
-  const { setUser } = useUserContext();
 
   useEffect(() => {
     setErrors(defaultErrors);

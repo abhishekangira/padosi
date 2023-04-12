@@ -1,16 +1,8 @@
-import React, { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { User } from "firebase/auth";
 import { auth, db } from "../firebase";
 import { useRouter } from "next/router";
-import {
-  FieldValue,
-  Firestore,
-  doc,
-  getDoc,
-  serverTimestamp,
-  setDoc,
-  updateDoc,
-} from "firebase/firestore";
+import { doc, getDoc, serverTimestamp, setDoc, updateDoc } from "firebase/firestore";
 
 export type UserType = (User & { isUserLocationSet: boolean }) | null;
 
@@ -21,6 +13,8 @@ export function useUser() {
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (firebaseUser) => {
+      console.log("Auth state changed");
+
       if (firebaseUser) {
         try {
           const userRef = doc(db, "users", firebaseUser.uid);
@@ -63,16 +57,13 @@ export function useUser() {
   }, []);
 
   useEffect(() => {
-    if (!loading) {
-      if (user) {
-        if (!user.isUserLocationSet) {
-          router.push("/set-location");
-        }
+    if (!loading && ["/", "/set-location"].includes(router.pathname)) {
+      if (user && !user.isUserLocationSet) {
+        router.push("/set-location");
       } else {
         router.push("/");
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loading, user]);
 
   return { user, loading, setUser };
