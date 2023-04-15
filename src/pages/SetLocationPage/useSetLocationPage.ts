@@ -1,7 +1,7 @@
-import { useUserContext } from "@/lib/user-context";
+import { useUserContext } from "@/lib/contexts/user-context";
 import { getMarkerPosition, initMap } from "./locationUtils";
 import { useEffect, useRef, useState } from "react";
-import { auth, db } from "@/lib/firebase";
+import { auth, db } from "@/lib/firebase/firebase";
 import { doc, serverTimestamp, updateDoc } from "firebase/firestore";
 import { geohashForLocation } from "geofire-common";
 import { UserType } from "@/lib/hooks/useUser";

@@ -1,10 +1,10 @@
 import logo from "public/images/logo.png";
 import Image from "next/image";
-import { auth } from "@/lib/firebase";
+import { auth } from "@/lib/firebase/firebase";
 
 export function TopNav({ title }: Props) {
   return (
-    <nav className="navbar fixed top-0 z-10 bg-base-100/20 shadow-lg backdrop-blur-sm">
+    <nav className="bg-glass navbar fixed top-0 z-10">
       <div className="navbar-start">
         <Image src={logo} alt="Logo of Padosi" width={30} height={30} />
       </div>

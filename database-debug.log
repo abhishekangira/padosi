@@ -1,4 +1,4 @@
-17:05:39.444 [NamespaceSystem-akka.actor.default-dispatcher-4] INFO akka.event.slf4j.Slf4jLogger - Slf4jLogger started
-17:05:39.536 [main] INFO com.firebase.server.forge.App$ - Listening at 127.0.0.1:9000
-17:05:43.819 [NamespaceSystem-akka.actor.default-dispatcher-5] INFO com.firebase.core.namespace.NamespaceActor - padosi-webapp-default-rtdb successfully activated FBKV (SurveyIdle(0)) wait: 69ms, init: 0ms
-17:05:43.850 [NamespaceSystem-blocking-namespace-operation-dispatcher-6] INFO com.firebase.core.namespace.StateManager - Namespace padosi-webapp-default-rtdb status Active to Active
+12:54:02.013 [NamespaceSystem-akka.actor.default-dispatcher-6] INFO akka.event.slf4j.Slf4jLogger - Slf4jLogger started
+12:54:02.099 [main] INFO com.firebase.server.forge.App$ - Listening at 127.0.0.1:9000
+12:54:06.540 [NamespaceSystem-akka.actor.default-dispatcher-7] INFO com.firebase.core.namespace.NamespaceActor - padosi-webapp-default-rtdb successfully activated FBKV (SurveyIdle(0)) wait: 69ms, init: 0ms
+12:54:06.564 [NamespaceSystem-blocking-namespace-operation-dispatcher-8] INFO com.firebase.core.namespace.StateManager - Namespace padosi-webapp-default-rtdb status Active to Active

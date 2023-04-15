@@ -2,6 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer components {
+  .bg-glass {
+    @apply bg-base-300/30 backdrop-blur;
+  }
+}
+
 html,
 body,
 #__next {
@@ -11,10 +17,6 @@ body,
 
 .bg-radial {
   background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
-}
-
-.bg-glass {
-  @apply bg-transparent backdrop-blur-sm;
 }
 
 /* google maps autocomplete related styling */

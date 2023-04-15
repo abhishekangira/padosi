@@ -7,7 +7,7 @@ import { useLayout } from "@/lib/hooks/useLayout";
 const gmapsApiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
 export function SetLocationPage() {
-  useLayout({ noLayout: true });
+  // useLayout({ noLayout: true });
   const { mapRef, addressInputRef, locationLoading, setLocationLoading, handleSubmit } =
     useSetLocationPage();
   return (

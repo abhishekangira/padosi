@@ -1,6 +1,6 @@
-import { auth } from "@/lib/firebase";
-import { UserType } from "@/lib/hooks/useUser";
-import { useUserContext } from "@/lib/user-context";
+import { auth, db } from "@/lib/firebase/firebase";
+import { collection, doc, getDoc, getDocs, query, where } from "firebase/firestore";
+
 import {
   createUserWithEmailAndPassword,
   sendPasswordResetEmail,
@@ -8,6 +8,143 @@ import {
   updateProfile,
 } from "firebase/auth";
 import { useCallback, useEffect, useState } from "react";
+import { useUserContext } from "@/lib/contexts/user-context";
+import { UserType } from "@/lib/hooks/useUser";
+
+export function useLoginWidget() {
+  const [formView, setFormView] = useState<FormViewType>("Sign In");
+  const [errors, setErrors] = useState(defaultErrors);
+  const [loading, setLoading] = useState(false);
+  const { setUser } = useUserContext();
+
+  useEffect(() => {
+    setErrors(defaultErrors);
+  }, [formView]);
+
+  const handleSubmit = useCallback(
+    async function submitForm(event: React.FormEvent<HTMLFormElement>) {
+      event.preventDefault();
+      setErrors(defaultErrors);
+
+      const email = (event.currentTarget as HTMLFormElement).email.value;
+      const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+      let password = "";
+      let displayName = "";
+      let username = "";
+
+      if (!emailRegex.test(email)) {
+        setErrors((prevErrors) => ({ ...prevErrors, email: "Please enter a valid email" }));
+        return;
+      } else {
+        setErrors((prevErrors) => ({ ...prevErrors, email: "" }));
+      }
+
+      if (formView !== "forgotPassword") {
+        password = (event.currentTarget as HTMLFormElement).password.value;
+        if (password.length < 6) {
+          setErrors((prevErrors) => ({ ...prevErrors, password: true }));
+          return;
+        } else {
+          setErrors((prevErrors) => ({ ...prevErrors, password: false }));
+        }
+        if (formView === "Sign Up") {
+          const confirmPassword = (event.currentTarget as HTMLFormElement).confirmPassword.value;
+          displayName = (event.currentTarget as HTMLFormElement).displayName.value;
+          username = (event.currentTarget as HTMLFormElement).username.value;
+          const usernameRegex = /^[a-zA-Z0-9_]{3,30}$/;
+
+          if (!displayName) {
+            setErrors((prevErrors) => ({ ...prevErrors, displayName: true }));
+            return;
+          } else {
+            setErrors((prevErrors) => ({ ...prevErrors, displayName: false }));
+          }
+          if (password !== confirmPassword) {
+            setErrors((prevErrors) => ({ ...prevErrors, confirmPassword: true }));
+            return;
+          } else {
+            setErrors((prevErrors) => ({ ...prevErrors, confirmPassword: false }));
+          }
+          if (!username) {
+            setErrors((prevErrors) => ({ ...prevErrors, username: "Please enter a username" }));
+            return;
+          } else if (!usernameRegex.test(username)) {
+            setErrors((prevErrors) => ({
+              ...prevErrors,
+              username:
+                "Username must be 3-30 characters long and contain only letters, numbers, and underscores",
+            }));
+            return;
+          } else {
+            const usernameExists = await checkUsernameExists(username);
+            if (usernameExists) {
+              setErrors((prevErrors) => ({
+                ...prevErrors,
+                username: "Sorry, this username is taken",
+              }));
+              return;
+            }
+            setErrors((prevErrors) => ({ ...prevErrors, username: "" }));
+            setUser((prev) => ({ ...prev, username } as UserType));
+          }
+        }
+      }
+
+      setLoading(true);
+      if (formView === "forgotPassword") {
+        try {
+          await sendPasswordResetEmail(auth, email);
+        } catch (err) {
+          setErrors((prevErrors) => ({
+            ...prevErrors,
+            server: "Sorry, we could not find a user with this email",
+          }));
+        } finally {
+          setLoading(false);
+        }
+      } else {
+        const errorCode = await handleSubmitWithPassword(
+          formView,
+          email,
+          password,
+          setLoading,
+          displayName
+        );
+        if (errorCode)
+          if (errorCode === "auth/wrong-password") {
+            setErrors((prevErrors) => ({
+              ...prevErrors,
+              server: "Please enter the correct password",
+            }));
+          } else if (errorCode === "auth/user-not-found") {
+            setErrors((prevErrors) => ({
+              ...prevErrors,
+              server: "Sorry, we could not find a user with this email",
+            }));
+          } else if (errorCode === "auth/email-already-in-use") {
+            setErrors((prevErrors) => ({
+              ...prevErrors,
+              email: "Sorry, this email is already in use",
+            }));
+          } else {
+            setErrors((prevErrors) => ({
+              ...prevErrors,
+              server: "Sorry, something went wrong. Please try again later",
+            }));
+          }
+      }
+    },
+    [formView]
+  );
+
+  return { handleSubmit, formView, setFormView, errors, loading };
+}
+
+async function checkUsernameExists(username: string) {
+  const q = query(collection(db, "users"), where("username", "==", username));
+  const querySnapshot = await getDocs(q);
+  return querySnapshot.size > 0;
+}
 
 async function handleSubmitWithPassword(
   type: "Sign In" | "Sign Up",
@@ -46,100 +183,5 @@ export const defaultErrors = {
   confirmPassword: false,
   displayName: false,
   server: "",
+  username: "",
 };
-
-export function useLoginWidget() {
-  const [formView, setFormView] = useState<FormViewType>("Sign In");
-  const [errors, setErrors] = useState(defaultErrors);
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    setErrors(defaultErrors);
-  }, [formView]);
-
-  const handleSubmit = useCallback(
-    async function submitForm(event: React.FormEvent<HTMLFormElement>) {
-      event.preventDefault();
-      setErrors(defaultErrors);
-
-      const email = (event.currentTarget as HTMLFormElement).email.value;
-      const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
-      let password = "";
-      let displayName = "";
-
-      if (!emailRegex.test(email)) {
-        setErrors((prevErrors) => ({ ...prevErrors, email: "Please enter a valid email" }));
-        return;
-      } else {
-        setErrors((prevErrors) => ({ ...prevErrors, email: "" }));
-      }
-
-      if (formView !== "forgotPassword") {
-        password = (event.currentTarget as HTMLFormElement).password.value;
-        if (password.length < 6) {
-          setErrors((prevErrors) => ({ ...prevErrors, password: true }));
-          return;
-        } else {
-          setErrors((prevErrors) => ({ ...prevErrors, password: false }));
-        }
-        if (formView === "Sign Up") {
-          const confirmPassword = (event.currentTarget as HTMLFormElement).confirmPassword.value;
-          displayName = (event.currentTarget as HTMLFormElement).displayName.value;
-          if (!displayName) {
-            setErrors((prevErrors) => ({ ...prevErrors, displayName: true }));
-            return;
-          } else {
-            setErrors((prevErrors) => ({ ...prevErrors, displayName: false }));
-          }
-          if (password !== confirmPassword) {
-            setErrors((prevErrors) => ({ ...prevErrors, confirmPassword: true }));
-            return;
-          } else {
-            setErrors((prevErrors) => ({ ...prevErrors, confirmPassword: false }));
-          }
-        }
-      }
-
-      setLoading(true);
-      if (formView === "forgotPassword") {
-        try {
-          await sendPasswordResetEmail(auth, email);
-        } catch (err) {
-          setErrors((prevErrors) => ({
-            ...prevErrors,
-            server: "Sorry, we could not find a user with this email",
-          }));
-        } finally {
-          setLoading(false);
-        }
-      } else {
-        const errorCode = await handleSubmitWithPassword(
-          formView,
-          email,
-          password,
-          setLoading,
-          displayName
-        );
-        if (errorCode === "auth/wrong-password") {
-          setErrors((prevErrors) => ({
-            ...prevErrors,
-            server: "Please enter the correct password",
-          }));
-        } else if (errorCode === "auth/user-not-found") {
-          setErrors((prevErrors) => ({
-            ...prevErrors,
-            server: "Sorry, we could not find a user with this email",
-          }));
-        } else if (errorCode === "auth/email-already-in-use") {
-          setErrors((prevErrors) => ({
-            ...prevErrors,
-            email: "Sorry, this email is already in use",
-          }));
-        }
-      }
-    },
-    [formView]
-  );
-
-  return { handleSubmit, formView, setFormView, errors, loading };
-}

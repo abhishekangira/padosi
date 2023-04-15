@@ -1,8 +1,8 @@
-import { useLayoutContext } from "@/lib/layout-context";
+import { useLayoutContext } from "@/lib/contexts/layout-context";
 import Head from "next/head";
 import { TopNav } from "../TopNav";
 import { BottomNav } from "../BottomNav";
-import { useUserContext } from "@/lib/user-context";
+import { useUserContext } from "@/lib/contexts/user-context";
 import FullPageLoader from "../FullPageLoader/FullPageLoader";
 
 export function Layout({ children }: { children: React.ReactNode }) {

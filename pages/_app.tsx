@@ -1,8 +1,8 @@
 import "../src/styles/globals.css";
 import type { AppProps } from "next/app";
 import { Inter, Lexend_Deca } from "next/font/google";
-import { UserContextProvider } from "@/lib/user-context";
-import { LayoutContextProvider } from "@/lib/layout-context";
+import { UserContextProvider } from "@/lib/contexts/user-context";
+import { LayoutContextProvider } from "@/lib/contexts/layout-context";
 import { Layout } from "@/components/Layout/Layout";
 
 const font = Lexend_Deca({ subsets: ["latin"] });

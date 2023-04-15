@@ -1,5 +1,5 @@
 import { signInWithRedirect } from "firebase/auth";
-import { auth, provider } from "@/lib/firebase";
+import { auth, provider } from "@/lib/firebase/firebase";
 import { BsGoogle } from "react-icons/bs";
 import { useLoginWidget, FormViewType } from "./useLoginWidget";
 
@@ -38,17 +38,30 @@ export function LoginWidget() {
           <h2 className="card-title">{message}</h2>
           <form className="form-control" onSubmit={handleSubmit}>
             {formView === "Sign Up" && (
-              <div className="form-control">
-                <label htmlFor="displayName" className="label">
-                  <span className="label-text">Name</span>
-                </label>
-                <input type="text" id="displayName" placeholder="Simran Raj" className="input" />
-                <label className="label min-h-8">
-                  {errors.displayName && (
-                    <span className="label-text-alt text-error">Name cannot be empty</span>
-                  )}
-                </label>
-              </div>
+              <>
+                <div className="form-control">
+                  <label htmlFor="displayName" className="label">
+                    <span className="label-text">Name</span>
+                  </label>
+                  <input type="text" id="displayName" placeholder="Simran Raj" className="input" />
+                  <label className="label min-h-8">
+                    {errors.displayName && (
+                      <span className="label-text-alt text-error">Name cannot be empty</span>
+                    )}
+                  </label>
+                </div>
+                <div className="form-control">
+                  <label htmlFor="username" className="label">
+                    <span className="label-text">Username</span>
+                  </label>
+                  <input type="text" id="username" placeholder="simmiddlj" className="input" />
+                  <label className="label min-h-8">
+                    {errors.username && (
+                      <span className="label-text-alt text-error">{errors.username}</span>
+                    )}
+                  </label>
+                </div>
+              </>
             )}
             <div className="form-control">
               <label htmlFor="email" className="label">

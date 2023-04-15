@@ -44,7 +44,7 @@ function PostCard() {
         </ul>
       </div>
 
-      <p className="col-span-full overflow-hidden text-sm font-light leading-snug text-slate-400 sm:text-base">
+      <p className="col-span-full overflow-hidden text-sm font-light leading-snug sm:text-base">
         {postText.slice(0, 220) + "... "}
         <a tabIndex={0} className="link-primary link">
           Read More
@@ -61,7 +61,7 @@ function PostCard() {
 
 function PostList() {
   return (
-    <div className="mx-auto flex max-w-2xl flex-col py-6">
+    <div className="flex-col ">
       {Array.from({ length: 10 }).map((_, i) => (
         <PostCard key={i} />
       ))}
@@ -72,7 +72,7 @@ function PostList() {
 export function HomePage() {
   useLayout({ navbarTitle: "Home" });
   return (
-    <>
+    <div className="mx-auto max-w-2xl py-6">
       <NewPost />
       <PostList />
       <Link
@@ -82,7 +82,7 @@ export function HomePage() {
       >
         <TbPencilPlus className="h-1/2 w-1/2" />
       </Link>
-    </>
+    </div>
   );
 }
 

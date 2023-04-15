@@ -1,5 +1,5 @@
 import { createContext, useContext } from "react";
-import { UserType, useUser } from "./hooks/useUser";
+import { UserType, useUser } from "../hooks/useUser";
 
 export type UserContextType = {
   user: UserType;
