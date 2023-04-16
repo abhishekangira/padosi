@@ -1,12 +1,17 @@
+import { useUserContext } from "@/lib/contexts/user-context";
 import { addPost } from "@/lib/firebase/posts";
-import { useMutation } from "@/lib/hooks/useMutation";
+import { useApi } from "@/lib/hooks/useApi";
 import Image from "next/image";
 import React, { useEffect, useRef, useState } from "react";
 
 export function NewPost({ maxLength = 500 }) {
+  const { user } = useUserContext();
   const [text, setText] = useState("");
   const textareaRef = useRef(null);
-  const [addPostMutation, addPostLoading, addPostError] = useMutation(addPost);
+  const [addPostMutation, { loading: addPostLoading, error: addPostError }] = useApi<"mutation">(
+    "mutation",
+    addPost
+  );
 
   useEffect(() => {
     const textArea = textareaRef.current! as HTMLTextAreaElement;
@@ -41,7 +46,7 @@ export function NewPost({ maxLength = 500 }) {
         disabled={text.length === 0}
         className={`btn-ghost btn-sm btn text-primary ${
           addPostLoading ? "loading" : "hidden"
-        } self-end active:block peer-focus:block`}
+        } self-end focus:block active:block peer-focus:block`}
       >
         Post
       </button>
