@@ -10,7 +10,8 @@ let isUserSet = false;
 
 export function useUser() {
   const [user, setUser] = useState<UserType>(null);
-  const [loading, setLoading] = useState(true);
+  const [userLoading, setUserLoading] = useState(true);
+  const [routeLoading, setRouteLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
@@ -88,18 +89,57 @@ export function useUser() {
         setUser(null);
         isUserSet = false;
       }
-      setLoading(false);
+      setUserLoading(false);
     });
 
     return () => unsubscribe();
   }, []);
 
   useEffect(() => {
-    if (!loading && ["/", "/set-location"].includes(router.pathname)) {
-      if (user?.uid && !user.isUserLocationSet) router.push("/set-location");
+    console.log("Route/user useEffect", router.pathname, routeLoading);
+    if (userLoading) return;
+
+    const handleRouteChangeComplete = () => {
+      setRouteLoading(false);
+      router.events.off("routeChangeComplete", handleRouteChangeComplete);
+      console.log("Route change complete", router.pathname);
+    };
+
+    if (routeLoading) router.events.on("routeChangeComplete", handleRouteChangeComplete);
+
+    if (user?.uid) {
+      if (!user.isUserLocationSet) {
+        if (router.pathname !== "/set-location") router.push("/set-location");
+      } else if (["/set-location", "/"].includes(router.pathname)) router.push("/home");
+      else setRouteLoading(false);
+    } else {
+      if (router.pathname === "/") setRouteLoading(false);
       else router.push("/");
     }
-  }, [loading, user]);
 
-  return { user, loading, setUser };
+    return () => {
+      router.events.off("routeChangeComplete", handleRouteChangeComplete);
+    };
+  }, [user, router.pathname, routeLoading, userLoading, setRouteLoading]);
+
+  return { user, loading: userLoading || routeLoading, setUser };
 }
+
+// useEffect(() => {
+//   console.log("Router changed", router.pathname);
+//   if (userLoading) return;
+//   const handleRouteChange = () => {
+//     setRouteLoading(true);
+//   }
+//   const handleRouteChangeComplete = () => {
+//     setRouteLoading(false);
+//   }
+//   router.events.on("routeChangeStart", handleRouteChange);
+//   router.events.on("routeChangeComplete", handleRouteChangeComplete);
+//   router.events.on("routeChangeError", handleRouteChangeComplete);
+//   return () => {
+//     router.events.off("routeChangeStart", handleRouteChange);
+//     router.events.off("routeChangeComplete", handleRouteChangeComplete);
+//     router.events.off("routeChangeError", handleRouteChangeComplete);
+//   }
+// }, [user, router.pathname, userLoading, setRouteLoading]);

@@ -7,7 +7,12 @@ export function PostCard({ post }) {
     <div className="grid w-full grid-cols-[min-content_auto_min-content] grid-rows-[min-content_auto_auto] gap-3 border-b border-b-sky-900 p-3 sm:gap-4">
       <div className="avatar">
         <div className="relative h-12 rounded-full sm:h-16">
-          <Image src="https://picsum.photos/101" alt="avatar" fill />
+          <Image
+            src="https://picsum.photos/101"
+            alt="avatar"
+            fill
+            sizes="(min-width: 640px) 64px, 48px"
+          />
         </div>
       </div>
       <div className="flex h-full flex-col justify-evenly self-center">

@@ -168,10 +168,11 @@ async function handleSubmitWithPassword(
         "🚀 ~ file: useLoginWidget.ts:27 ~ handleSubmitWithPassword ~ errorCode:",
         errorCode
       );
+      setLoading(false);
       return errorCode;
     })
     .finally(() => {
-      setLoading(false);
+      // setLoading(false);
     });
 }
 
