@@ -47,3 +47,5 @@ realtimedb.rules.json
 remoteconfig.template.json
 storage.rules
 ui-debug.log
+firestore.indexes.json
+.firebaserc
