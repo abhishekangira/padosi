@@ -36,7 +36,7 @@ export function NewPost({ maxLength = 500 }) {
       <div className="avatar absolute top-0 left-3">
         <div className="relative h-12 rounded-full sm:h-16">
           <Image
-            src="https://picsum.photos/101"
+            src={user?.photoURL || "/images/avatar.jpg"}
             alt="avatar"
             fill
             sizes="(min-width: 640px) 64px, 48px"

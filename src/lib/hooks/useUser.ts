@@ -22,7 +22,6 @@ export function useUser() {
         console.log("in getDoc", user);
         if (userSnap.exists()) {
           console.log("User snap exists", user);
-
           updateDoc(userRef, {
             username: user.username,
             updatedAt: serverTimestamp(),
@@ -110,6 +109,7 @@ export function useUser() {
     if (user?.uid) {
       if (!user.isUserLocationSet) {
         if (router.pathname !== "/set-location") router.push("/set-location");
+        else setRouteLoading(false);
       } else if (["/set-location", "/"].includes(router.pathname)) router.push("/home");
       else setRouteLoading(false);
     } else {
@@ -124,22 +124,3 @@ export function useUser() {
 
   return { user, loading: userLoading || routeLoading, setUser };
 }
-
-// useEffect(() => {
-//   console.log("Router changed", router.pathname);
-//   if (userLoading) return;
-//   const handleRouteChange = () => {
-//     setRouteLoading(true);
-//   }
-//   const handleRouteChangeComplete = () => {
-//     setRouteLoading(false);
-//   }
-//   router.events.on("routeChangeStart", handleRouteChange);
-//   router.events.on("routeChangeComplete", handleRouteChangeComplete);
-//   router.events.on("routeChangeError", handleRouteChangeComplete);
-//   return () => {
-//     router.events.off("routeChangeStart", handleRouteChange);
-//     router.events.off("routeChangeComplete", handleRouteChangeComplete);
-//     router.events.off("routeChangeError", handleRouteChangeComplete);
-//   }
-// }, [user, router.pathname, userLoading, setRouteLoading]);
