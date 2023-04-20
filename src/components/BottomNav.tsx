@@ -6,7 +6,7 @@ const activeLink = "active bg-transparent text-primary";
 
 export function BottomNav({ active }: { active?: string }) {
   return (
-    <div className="btm-nav btm-nav-xs bg-base-100/20 shadow-lg backdrop-blur-sm">
+    <div className="bg-glass btm-nav shadow-inner shadow-black">
       <Link href="/home" className={`${active === "Home" ? activeLink : ""}`}>
         <GoHome />
       </Link>

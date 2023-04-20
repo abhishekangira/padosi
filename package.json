@@ -9,7 +9,7 @@
     "lint": "next lint",
     "test:e2e": "playwright test",
     "test": "jest --watch",
-    "firebase:emulate": "firebase emulators:start"
+    "firebase": "firebase emulators:start"
   },
   "dependencies": {
     "@types/node": "18.15.9",

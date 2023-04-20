@@ -5,7 +5,7 @@ import Image from "next/image";
 export default function FullPageLoader() {
   return (
     // ignore the warning
-    <div className="grid h-[100dvh] h-screen w-full place-items-center">
+    <div className="relative grid h-[100dvh] h-screen w-full place-items-center">
       <div className={styles.spinner}>
         <div className={styles.spinner1}></div>
       </div>

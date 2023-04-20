@@ -44,6 +44,7 @@ firestore-indexes.json
 firestore.rules
 pubsub-debug.log
 realtimedb.rules.json
+database.rules.json
 remoteconfig.template.json
 storage.rules
 ui-debug.log

@@ -13,7 +13,7 @@ export function HomePage() {
       <Link
         href="/create-post"
         title="Create New Post"
-        className="bg-glass fixed bottom-16 right-4 grid h-12 w-12 place-items-center rounded-full shadow-inner shadow-primary md:hidden"
+        className="bg-glass fixed bottom-20 right-4 grid h-12 w-12 place-items-center rounded-full shadow-inner shadow-primary md:hidden"
       >
         <TbPencilPlus className="h-1/2 w-1/2" />
       </Link>
