@@ -1,6 +1,7 @@
 import { useUserContext } from "@/lib/contexts/user-context";
 import { addPost } from "@/lib/firebase/posts";
 import { useApi } from "@/lib/hooks/useApi";
+import { useMutation } from "@tanstack/react-query";
 import Image from "next/image";
 import React, { useEffect, useRef, useState } from "react";
 
@@ -8,10 +9,11 @@ export function NewPost({ maxLength = 500 }) {
   const { user } = useUserContext();
   const [text, setText] = useState("");
   const textareaRef = useRef(null);
-  const [addPostMutation, { loading: addPostLoading, error: addPostError }] = useApi<"mutation">(
-    "mutation",
-    addPost
-  );
+  const {
+    mutate: addPostMutation,
+    isLoading: addPostLoading,
+    isError: addPostError,
+  } = useMutation({ mutationFn: addPost });
 
   useEffect(() => {
     const textArea = textareaRef.current! as HTMLTextAreaElement;
@@ -45,7 +47,14 @@ export function NewPost({ maxLength = 500 }) {
       </div>
       <button
         onClick={() => {
-          addPostMutation({ text });
+          const geoHash = user?.geoHash;
+          const location = user?.location;
+          const author = user?.displayName;
+
+          console.log({ user });
+
+          if (!geoHash || !location) return;
+          addPostMutation({ text, geoHash, location });
           setText("");
         }}
         disabled={text.length === 0}

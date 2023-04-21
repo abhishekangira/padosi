@@ -37,7 +37,7 @@ export function useApi<T = "query" | "lazy-query" | "mutation">(
     if (!hasQueryRun) setLoading(true);
     firebaseFnCallback(...args)
       .then((res: { data: DocumentData[]; dataCount: number }) => {
-        dataCount = res.dataCount;
+        dataCount = res?.dataCount;
         setLoading(false);
         setData((prev) => [...prev, ...res.data]);
       })

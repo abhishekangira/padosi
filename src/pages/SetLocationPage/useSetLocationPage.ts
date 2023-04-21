@@ -24,7 +24,18 @@ export function useSetLocationPage() {
         updatedAt: serverTimestamp(),
       })
         .then(() => {
-          setUser((prev) => ({ ...prev, isUserLocationSet: true } as UserType));
+          setUser(
+            (prev) =>
+              ({
+                ...prev,
+                isUserLocationSet: true,
+                geoHash: geohashForLocation([pos.lat!, pos.lng!]),
+                location: {
+                  lat: pos.lat,
+                  lng: pos.lng,
+                },
+              } as UserType)
+          );
         })
         .catch((error) => {
           console.error(error);

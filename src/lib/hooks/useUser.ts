@@ -4,7 +4,14 @@ import { auth, db } from "../firebase/firebase";
 import { useRouter } from "next/router";
 import { doc, getDoc, serverTimestamp, setDoc, updateDoc } from "firebase/firestore";
 
-export type UserType = (User & { isUserLocationSet: boolean; username: string }) | null;
+export type UserType =
+  | (User & {
+      isUserLocationSet: boolean;
+      username: string;
+      geoHash: string;
+      location: { lat: number; lng: number };
+    })
+  | null;
 
 let isUserSet = false;
 
@@ -74,6 +81,7 @@ export function useUser() {
             (prev) =>
               ({
                 ...prev,
+                ...(userSnap.data() ?? {}),
                 uid,
                 email,
                 displayName: firebaseUser.displayName,

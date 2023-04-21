@@ -14,28 +14,20 @@ import {
 } from "firebase/firestore";
 import { db } from "./firebase";
 
-export const addPost = async (post: {}) => {
-  const newPostRef = doc(collection(db, "posts"));
-  await setDoc(newPostRef, { ...post, id: newPostRef.id, timestamp: serverTimestamp() });
+export const addPost = (post: {}) => {
+  console.log("test");
+
+  return addDoc(collection(db, "posts"), { ...post, createdAt: serverTimestamp() });
 };
 
-let lastVisibleDoc: DocumentData, dataCount: number;
-export const getPosts = async () => {
-  const data: DocumentData[] = [];
-  const q = lastVisibleDoc
-    ? query(
-        collection(db, "posts"),
-        orderBy("timestamp", "desc"),
-        startAfter(lastVisibleDoc),
-        limit(4)
-      )
-    : query(collection(db, "posts"), orderBy("timestamp", "desc"), limit(4));
-  const documentSnapshots = await getDocs(q);
-  if (!dataCount) dataCount = (await getCountFromServer(collection(db, "posts"))).data().count;
-  console.log("🚀 ~ file: posts.ts:33 ~ getPosts ~ documentSnapshots:", documentSnapshots);
-  lastVisibleDoc = documentSnapshots.docs[documentSnapshots.docs.length - 1];
-  documentSnapshots.forEach((doc) => {
-    data.push(doc.data());
-  });
-  return { data, dataCount };
+export const fetchPosts = async ({ pageParam }) => {
+  let q;
+  if (pageParam) {
+    q = query(collection(db, "posts"), orderBy("createdAt", "desc"), startAfter(pageParam), limit(10));
+  } else {
+    q = query(collection(db, "posts"), orderBy("createdAt", "desc"), limit(10));
+  }
+  const querySnapshot = await getDocs(q);
+  const posts = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+  return { posts, lastDoc: querySnapshot.docs[querySnapshot.docs.length - 1] };
 };
