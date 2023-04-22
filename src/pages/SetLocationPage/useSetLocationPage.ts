@@ -11,6 +11,7 @@ export function useSetLocationPage() {
   const mapRef = useRef<HTMLDivElement>(null);
   const addressInputRef = useRef<HTMLInputElement>(null);
   const [locationLoading, setLocationLoading] = useState(false);
+  const [usernameState, setUsernameState] = useState<"loading" | "unavailable" | "available" | null>(null);
 
   const handleSubmit = () => {
     const pos = getMarkerPosition();
@@ -26,15 +27,15 @@ export function useSetLocationPage() {
         .then(() => {
           setUser(
             (prev) =>
-              ({
-                ...prev,
-                isUserLocationSet: true,
-                geoHash: geohashForLocation([pos.lat!, pos.lng!]),
-                location: {
-                  lat: pos.lat,
-                  lng: pos.lng,
-                },
-              } as UserType)
+            ({
+              ...prev,
+              isUserLocationSet: true,
+              geoHash: geohashForLocation([pos.lat!, pos.lng!]),
+              location: {
+                lat: pos.lat,
+                lng: pos.lng,
+              },
+            } as UserType)
           );
         })
         .catch((error) => {
@@ -55,5 +56,7 @@ export function useSetLocationPage() {
     locationLoading,
     setLocationLoading,
     handleSubmit,
+    usernameState,
+    setUsernameState
   };
 }

@@ -1,4 +1,4 @@
-import { BiCurrentLocation } from "react-icons/bi";
+import { BiCheck, BiCurrentLocation, BiLoader, BiX } from "react-icons/bi";
 import { getCurrentPosition } from "./locationUtils";
 import { useSetLocationPage } from "./useSetLocationPage";
 import Script from "next/script";
@@ -13,7 +13,8 @@ const debouncedCheckUsernameExists = debounce(checkUsernameExists, 500);
 
 export function SetLocationPage() {
   const { user } = useUserContext();
-  const { mapRef, addressInputRef, locationLoading, setLocationLoading, handleSubmit } =
+  const { mapRef, addressInputRef, locationLoading, setLocationLoading, handleSubmit,
+    usernameState, setUsernameState } =
     useSetLocationPage();
   return (
     <>
@@ -26,15 +27,26 @@ export function SetLocationPage() {
         {!user?.username && (
           <>
             <h1 className="self-start text-lg">1. Select a username</h1>
-            <input
-              type="text"
-              id="username"
-              onChange={async (e) => {
-                const ret = await debouncedCheckUsernameExists(e.target.value);
-              }}
-              placeholder="simmiddlj"
-              className="input self-start"
-            />
+            <div className="flex self-start">
+              <input
+                type="text"
+                id="username"
+                onChange={(e) => {
+                  setUsernameState("loading");
+                  debouncedCheckUsernameExists(e.target.value).then((res) => {
+                    console.log("hello", e.target.value.length, res);
+                    setUsernameState(e.target.value.length < 3 || res ? "unavailable" : "available");
+                  })
+                }}
+                placeholder="simmiddlj"
+                className="input self-start"
+              />
+              <div className="text-xl text-primary grid place-items-center px-2">
+                {usernameState === "loading" && <BiLoader className="animate-spin" />}
+                {usernameState === "available" && <BiCheck />}
+                {usernameState === "unavailable" && <BiX />}
+              </div>
+            </div>
           </>
         )}
         {/* <label className="label min-h-8">
@@ -50,9 +62,8 @@ export function SetLocationPage() {
           <input type="text" ref={addressInputRef} className="input w-full" autoComplete="off" />
           <div className="tooltip tooltip-left" data-tip="Auto Detect Location">
             <button
-              className={`btn-square btn rounded-l-none text-xl text-primary ${
-                locationLoading ? "loading" : ""
-              }`}
+              className={`btn-square btn rounded-l-none text-xl text-primary ${locationLoading ? "loading" : ""
+                }`}
               onClick={async () => {
                 if (navigator.geolocation) {
                   await getCurrentPosition(setLocationLoading, {
