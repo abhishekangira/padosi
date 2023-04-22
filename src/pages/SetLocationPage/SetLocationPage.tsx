@@ -10,12 +10,17 @@ import { debounce } from "@/lib/utils/utils";
 const gmapsApiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 const debouncedCheckUsernameExists = debounce(checkUsernameExists, 500);
 
-
 export function SetLocationPage() {
   const { user } = useUserContext();
-  const { mapRef, addressInputRef, locationLoading, setLocationLoading, handleSubmit,
-    usernameState, setUsernameState } =
-    useSetLocationPage();
+  const {
+    mapRef,
+    addressInputRef,
+    locationLoading,
+    setLocationLoading,
+    handleSubmit,
+    usernameState,
+    setUsernameState,
+  } = useSetLocationPage();
   return (
     <>
       <Script id="google-maps-script">
@@ -35,35 +40,48 @@ export function SetLocationPage() {
                   setUsernameState("loading");
                   debouncedCheckUsernameExists(e.target.value).then((res) => {
                     console.log("hello", e.target.value.length, res);
-                    setUsernameState(e.target.value.length < 3 || res ? "unavailable" : "available");
-                  })
+                    setUsernameState(
+                      e.target.value.length < 3 ||
+                        e.target.value.length > 20 ||
+                        res
+                        ? "unavailable"
+                        : "available"
+                    );
+                  });
                 }}
                 placeholder="simmiddlj"
                 className="input self-start"
               />
               <div className="text-xl text-primary grid place-items-center px-2">
-                {usernameState === "loading" && <BiLoader className="animate-spin" />}
-                {usernameState === "available" && <BiCheck />}
-                {usernameState === "unavailable" && <BiX />}
+                {usernameState === "loading" && (
+                  <BiLoader className="animate-spin" />
+                )}
+                {usernameState === "available" && (
+                  <BiCheck className="text-success" />
+                )}
+                {usernameState === "unavailable" && (
+                  <BiX className="text-error" />
+                )}
               </div>
             </div>
           </>
         )}
-        {/* <label className="label min-h-8">
-                    {errors.username && (
-                      <span className="label-text-alt text-error">{errors.username}</span>
-                    )}
-                  </label> */}
         <h1 className="self-start text-lg">
-          {!user?.username && "2."} Auto detect, type your address or click on the map to set your
-          location
+          {!user?.username && "2."} Auto detect, type your address or click on
+          the map to set your location
         </h1>
         <div className="input-group">
-          <input type="text" ref={addressInputRef} className="input w-full" autoComplete="off" />
+          <input
+            type="text"
+            ref={addressInputRef}
+            className="input w-full"
+            autoComplete="off"
+          />
           <div className="tooltip tooltip-left" data-tip="Auto Detect Location">
             <button
-              className={`btn-square btn rounded-l-none text-xl text-primary ${locationLoading ? "loading" : ""
-                }`}
+              className={`btn-square btn rounded-l-none text-xl text-primary ${
+                locationLoading ? "loading" : ""
+              }`}
               onClick={async () => {
                 if (navigator.geolocation) {
                   await getCurrentPosition(setLocationLoading, {
