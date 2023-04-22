@@ -140,9 +140,11 @@ export function useLoginWidget() {
   return { handleSubmit, formView, setFormView, errors, loading };
 }
 
-async function checkUsernameExists(username: string) {
+export async function checkUsernameExists(username: string) {
   const q = query(collection(db, "users"), where("username", "==", username));
   const querySnapshot = await getDocs(q);
+  console.log("running");
+  
   return querySnapshot.size > 0;
 }
 

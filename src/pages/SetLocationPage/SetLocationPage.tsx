@@ -3,11 +3,16 @@ import { getCurrentPosition } from "./locationUtils";
 import { useSetLocationPage } from "./useSetLocationPage";
 import Script from "next/script";
 import { useLayout } from "@/lib/hooks/useLayout";
+import { useUserContext } from "@/lib/contexts/user-context";
+import { checkUsernameExists } from "@/components/LoginWidget/useLoginWidget";
+import { debounce } from "@/lib/utils/utils";
 
 const gmapsApiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+const debouncedCheckUsernameExists = debounce(checkUsernameExists, 500);
+
 
 export function SetLocationPage() {
-  // useLayout({ noLayout: true });
+  const { user } = useUserContext();
   const { mapRef, addressInputRef, locationLoading, setLocationLoading, handleSubmit } =
     useSetLocationPage();
   return (
@@ -18,8 +23,28 @@ export function SetLocationPage() {
           `',});`}
       </Script>
       <main className="mx-auto flex w-full max-w-4xl flex-col items-center gap-5 p-4">
+        {!user?.username && (
+          <>
+            <h1 className="self-start text-lg">1. Select a username</h1>
+            <input
+              type="text"
+              id="username"
+              onChange={async (e) => {
+                const ret = await debouncedCheckUsernameExists(e.target.value);
+              }}
+              placeholder="simmiddlj"
+              className="input self-start"
+            />
+          </>
+        )}
+        {/* <label className="label min-h-8">
+                    {errors.username && (
+                      <span className="label-text-alt text-error">{errors.username}</span>
+                    )}
+                  </label> */}
         <h1 className="self-start text-lg">
-          Auto detect, type your address or click on the map to set your location
+          {!user?.username && "2."} Auto detect, type your address or click on the map to set your
+          location
         </h1>
         <div className="input-group">
           <input type="text" ref={addressInputRef} className="input w-full" autoComplete="off" />
@@ -43,7 +68,7 @@ export function SetLocationPage() {
           </div>
         </div>
         <button className="btn-primary btn-sm btn" onClick={handleSubmit}>
-          Confirm Location
+          Done
         </button>
         <div ref={mapRef} id="map" className="h-96 w-full rounded-lg"></div>
       </main>
