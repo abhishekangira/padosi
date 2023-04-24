@@ -11,7 +11,7 @@ export function useSetLocationPage() {
   const mapRef = useRef<HTMLDivElement>(null);
   const addressInputRef = useRef<HTMLInputElement>(null);
   const [locationLoading, setLocationLoading] = useState(false);
-  const [usernameState, setUsernameState] = useState<"loading" | "unavailable" | "available" | null>(null);
+  const [username, setUsername] = useState<{ value: string, state: "loading" | "unavailable" | "available" | null }>({ value: "", state: null });
 
   const handleSubmit = () => {
     const pos = getMarkerPosition();
@@ -35,6 +35,7 @@ export function useSetLocationPage() {
                 lat: pos.lat,
                 lng: pos.lng,
               },
+              registerUsername: username.value
             } as UserType)
           );
         })
@@ -56,7 +57,7 @@ export function useSetLocationPage() {
     locationLoading,
     setLocationLoading,
     handleSubmit,
-    usernameState,
-    setUsernameState
+    username,
+    setUsername
   };
 }

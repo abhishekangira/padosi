@@ -5,8 +5,8 @@ export function useLayout(props: LayoutState) {
   const { setLayout } = useLayoutContext();
   useEffect(() => {
     setLayout(props);
-    // return () => {
-    //   setLayout(initialLayout);
-    // };
+    return () => {
+      setLayout(initialLayout);
+    };
   }, []);
 }

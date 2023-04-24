@@ -4,7 +4,8 @@ import { BsGoogle } from "react-icons/bs";
 import { useLoginWidget, FormViewType } from "./useLoginWidget";
 
 export function LoginWidget() {
-  const { handleSubmit, formView, setFormView, errors, loading } = useLoginWidget();
+  const { handleSubmit, formView, setFormView, errors, loading } =
+    useLoginWidget();
 
   let message;
   switch (formView) {
@@ -25,7 +26,9 @@ export function LoginWidget() {
       <div className="tabs">
         {["Sign In", "Sign Up"].map((tab) => (
           <button
-            className={`tab-lifted tab tab-lg ${formView === tab ? "tab-active" : ""}`}
+            className={`tab-lifted tab tab-lg ${
+              formView === tab ? "tab-active" : ""
+            }`}
             onClick={() => setFormView(tab as FormViewType)}
             key={tab}
           >
@@ -43,10 +46,17 @@ export function LoginWidget() {
                   <label htmlFor="displayName" className="label">
                     <span className="label-text">Name</span>
                   </label>
-                  <input type="text" id="displayName" placeholder="Simran Raj" className="input" />
+                  <input
+                    type="text"
+                    id="displayName"
+                    placeholder="Simran Raj"
+                    className="input"
+                  />
                   <label className="label min-h-8">
                     {errors.displayName && (
-                      <span className="label-text-alt text-error">Name cannot be empty</span>
+                      <span className="label-text-alt text-error">
+                        Name cannot be empty
+                      </span>
                     )}
                   </label>
                 </div>
@@ -54,10 +64,17 @@ export function LoginWidget() {
                   <label htmlFor="username" className="label">
                     <span className="label-text">Username</span>
                   </label>
-                  <input type="text" id="username" placeholder="simmiddlj" className="input" />
+                  <input
+                    type="text"
+                    id="username"
+                    placeholder="simmiddlj"
+                    className="input"
+                  />
                   <label className="label min-h-8">
                     {errors.username && (
-                      <span className="label-text-alt text-error">{errors.username}</span>
+                      <span className="label-text-alt text-error">
+                        {errors.username}
+                      </span>
                     )}
                   </label>
                 </div>
@@ -75,7 +92,11 @@ export function LoginWidget() {
                 className="input"
               />
               <label className="label min-h-8">
-                {errors.email && <span className="label-text-alt text-error">{errors.email}</span>}
+                {errors.email && (
+                  <span className="label-text-alt text-error">
+                    {errors.email}
+                  </span>
+                )}
               </label>
             </div>
             {formView !== "forgotPassword" && (
@@ -92,7 +113,12 @@ export function LoginWidget() {
                     </button>
                   )}
                 </label>
-                <input type="password" id="password" name="password" className="input" />
+                <input
+                  type="password"
+                  id="password"
+                  name="password"
+                  className="input"
+                />
                 <label className="label min-h-8">
                   {errors.password && (
                     <span className="label-text-alt text-error">
@@ -110,18 +136,26 @@ export function LoginWidget() {
                 <input type="password" id="confirmPassword" className="input" />
                 <label className="label min-h-8">
                   {errors.confirmPassword && (
-                    <span className="label-text-alt text-error">Passwords do not match</span>
+                    <span className="label-text-alt text-error">
+                      Passwords do not match
+                    </span>
                   )}
                 </label>
               </div>
             )}
             <div className="form-control mt-4">
               <button className={`${loading ? "loading" : ""} btn-primary btn`}>
-                {loading ? "Loading" : formView === "forgotPassword" ? "Reset Password" : formView}
+                {loading
+                  ? "Loading"
+                  : formView === "forgotPassword"
+                  ? "Reset Password"
+                  : formView}
               </button>
               <label className="label min-h-8 justify-center">
                 {errors.server && (
-                  <span className="label-text-alt text-error">{errors.server}</span>
+                  <span className="label-text-alt text-error">
+                    {errors.server}
+                  </span>
                 )}
               </label>
             </div>

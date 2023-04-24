@@ -51,7 +51,7 @@ export function useLoginWidget() {
           const confirmPassword = (event.currentTarget as HTMLFormElement).confirmPassword.value;
           displayName = (event.currentTarget as HTMLFormElement).displayName.value;
           username = (event.currentTarget as HTMLFormElement).username.value;
-          const usernameRegex = /^[a-zA-Z0-9_]{3,30}$/;
+          const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/;
 
           if (!displayName) {
             setErrors((prevErrors) => ({ ...prevErrors, displayName: true }));
@@ -72,7 +72,7 @@ export function useLoginWidget() {
             setErrors((prevErrors) => ({
               ...prevErrors,
               username:
-                "Username must be 3-30 characters long and contain only letters, numbers, and underscores",
+                "Username must be 3-20 characters long and contain only letters, numbers, and underscores",
             }));
             return;
           } else {
@@ -85,7 +85,7 @@ export function useLoginWidget() {
               return;
             }
             setErrors((prevErrors) => ({ ...prevErrors, username: "" }));
-            setUser((prev) => ({ ...prev, username } as UserType));
+            setUser((prev) => ({ ...prev, registerUsername: username } as UserType));
           }
         }
       }
@@ -142,7 +142,7 @@ export function useLoginWidget() {
 
 export async function checkUsernameExists(username: string) {
   const q = query(collection(db, "users"), where("username", "==", username));
-  const querySnapshot = await getDocs(q);  
+  const querySnapshot = await getDocs(q);
   return querySnapshot.size > 0;
 }
 

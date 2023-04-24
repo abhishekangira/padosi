@@ -6,11 +6,12 @@ import { doc, getDoc, serverTimestamp, setDoc, updateDoc } from "firebase/firest
 
 export type UserType =
   | (User & {
-      isUserLocationSet: boolean;
-      username: string;
-      geoHash: string;
-      location: { lat: number; lng: number };
-    })
+    isUserLocationSet: boolean;
+    username: string;
+    registerUsername: string;
+    geoHash: string;
+    location: { lat: number; lng: number };
+  })
   | null;
 
 let isUserSet = false;
@@ -22,15 +23,12 @@ export function useUser() {
   const router = useRouter();
 
   useEffect(() => {
-    if (user?.uid && user?.username && !isUserSet) {
-      console.log("User useeffect", user);
+    if (user?.uid && user?.registerUsername && !isUserSet) {
       const userRef = doc(db, "users", user?.uid);
       getDoc(userRef).then((userSnap) => {
-        console.log("in getDoc", user);
         if (userSnap.exists()) {
-          console.log("User snap exists", user);
           updateDoc(userRef, {
-            username: user.username,
+            username: user.registerUsername,
             updatedAt: serverTimestamp(),
           });
           isUserSet = true;
@@ -79,15 +77,15 @@ export function useUser() {
           const isUserLocationSet = !!userSnap.data()?.geoHash;
           setUser(
             (prev) =>
-              ({
-                ...prev,
-                ...(userSnap.data() ?? {}),
-                uid,
-                email,
-                displayName: firebaseUser.displayName,
-                photoURL,
-                isUserLocationSet,
-              } as UserType)
+            ({
+              ...prev,
+              ...(userSnap.data() ?? {}),
+              uid,
+              email,
+              displayName: firebaseUser.displayName,
+              photoURL,
+              isUserLocationSet,
+            } as UserType)
           );
         } catch (error) {
           console.error(error);
