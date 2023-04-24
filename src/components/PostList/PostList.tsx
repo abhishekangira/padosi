@@ -1,7 +1,7 @@
-import { useApi } from "@/lib/hooks/useApi";
 import { PostCard } from "../PostCard/PostCard";
 import { fetchPosts } from "@/lib/firebase/posts";
 import { useInfiniteQuery } from "@tanstack/react-query";
+import { Virtuoso } from "react-virtuoso";
 
 export function PostList() {
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status, error } = useInfiniteQuery({
@@ -17,17 +17,23 @@ export function PostList() {
   }
   const posts = data.pages.flatMap((page) => page.posts);
 
-  console.log("posts", data);
+  // posts.map((post) => <PostCard key={post.id} post={post} />
 
   return (
     <div className="flex-col">
-      {posts.length
-        ? posts.map((post) => <PostCard key={post.id} post={post} />)
-        : "no posts in your area!"}
-      {hasNextPage && (
-        <button className="btn-primary btn" onClick={() => fetchNextPage()}>
-          {isFetchingNextPage ? "Loading" : "Load More"}
-        </button>
+      {posts.length ? (
+        <Virtuoso
+          useWindowScroll
+          data={posts}
+          endReached={() => fetchNextPage()}
+          overscan={200}
+          itemContent={(index, post) => {
+            return <PostCard key={post.id} post={post} />;
+          }}
+          components={{ Footer: () => (isFetchingNextPage ? <div>Loading...</div> : null) }}
+        />
+      ) : (
+        "no posts in your area!"
       )}
     </div>
   );

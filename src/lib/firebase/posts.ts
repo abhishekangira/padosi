@@ -15,17 +15,17 @@ import {
 import { db } from "./firebase";
 
 export const addPost = (post: {}) => {
-  console.log("test");
-
   return addDoc(collection(db, "posts"), { ...post, createdAt: serverTimestamp() });
 };
 
-export const fetchPosts = async ({ pageParam }) => {
+export const fetchPosts = async ({ pageParam }: { pageParam: DocumentData }) => {
+  console.log("fetching posts", pageParam);
+
   let q;
   if (pageParam) {
-    q = query(collection(db, "posts"), orderBy("createdAt", "desc"), startAfter(pageParam), limit(10));
+    q = query(collection(db, "posts"), orderBy("createdAt", "desc"), startAfter(pageParam), limit(6));
   } else {
-    q = query(collection(db, "posts"), orderBy("createdAt", "desc"), limit(10));
+    q = query(collection(db, "posts"), orderBy("createdAt", "desc"), limit(6));
   }
   const querySnapshot = await getDocs(q);
   const posts = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));

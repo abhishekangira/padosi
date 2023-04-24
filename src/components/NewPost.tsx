@@ -47,14 +47,18 @@ export function NewPost({ maxLength = 500 }) {
       </div>
       <button
         onClick={() => {
-          const geoHash = user?.geoHash;
-          const location = user?.location;
-          const author = user?.displayName;
-
-          console.log({ user });
-
-          if (!geoHash || !location) return;
-          addPostMutation({ text, geoHash, location });
+          if (!user) return;
+          const { geoHash, location, displayName, username, registerUsername, photoURL, uid } =
+            user;
+          addPostMutation({
+            text,
+            geoHash,
+            location,
+            displayName,
+            username: username ?? registerUsername,
+            photoURL,
+            uid,
+          });
           setText("");
         }}
         disabled={text.length === 0}
