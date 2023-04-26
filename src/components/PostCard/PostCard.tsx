@@ -5,10 +5,11 @@ import { useUserContext } from "@/lib/contexts/user-context";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { distanceBetween } from "geofire-common";
+import Link from "next/link";
 
 dayjs.extend(relativeTime);
 
-export function PostCard({ post }) {
+export function PostCard({ post, full = false, index = 0 }) {
   const { user } = useUserContext();
   const ownPost = user?.uid === post.uid;
   const distanceInKm = distanceBetween(
@@ -54,26 +55,31 @@ export function PostCard({ post }) {
               </button>
             </li>
           )}
-          <li>
-            <button className="gap-2 text-primary">
-              <BsPersonFillAdd /> Follow @{post.username}
-            </button>
-          </li>
+          {!ownPost && (
+            <li>
+              <button className="gap-2 text-primary">
+                <BsPersonFillAdd /> Follow @{post.username}
+              </button>
+            </li>
+          )}
         </ul>
       </div>
-
-      <p className="col-span-full overflow-hidden text-sm font-light leading-snug sm:text-base">
-        {post.text.length > 220 ? (
-          <>
-            {post.text.slice(0, 220) + "... "}
-            <a tabIndex={0} className="link-primary link">
-              Read More
-            </a>
-          </>
-        ) : (
-          post.text
-        )}
-      </p>
+      <Link scroll={false} href={`/post/${post.id}`} className="col-span-full grid gap-2">
+        <h2 className="text-base font-bold text-primary-light sm:text-lg">
+          You wont believe what delhi police did to me !! 👮‍♀️🚓 it was unbelievable i was dead holy
+          shit someone halp me!!!!
+        </h2>
+        <p className="overflow-hidden text-sm font-light leading-snug sm:text-base">
+          {!full && post.text.length > 220 ? (
+            <>
+              {post.text.slice(0, 220) + "... "}
+              <a className="link-primary link">Read More</a>
+            </>
+          ) : (
+            post.text
+          )}
+        </p>
+      </Link>
       <div className="card-actions col-span-full text-sm">
         <button className="link-hover link-primary link">Like</button>
         <button className="link-hover link-primary link">Comment</button>
@@ -82,16 +88,3 @@ export function PostCard({ post }) {
     </div>
   );
 }
-
-const postText = `Anyone can connect with their audience through blogging and enjoy the myriad benefits that
-  blogging provides: organic traffic from search engines, promotional content for social
-  media, and recognition from a new audience you haven’t tapped into yet. If you’ve heard
-  about blogging but are a beginner and don’t know where to start, the time for excuses is
-  over. Not only can you create an SEO-friendly blog, but we’ll cover how to write and manage
-  your businesss blog as well as provide helpful templates to simplify your blogging efforts.
-  Anyone can connect with their audience through blogging and enjoy the myriad benefits that
-  blogging provides: organic traffic from search engines, promotional content for social
-  media, and recognition from a new audience you haven’t tapped into yet. If you’ve heard
-  about blogging but are a beginner and don’t know where to start, the time for excuses is
-  over. Not only can you create an SEO-friendly blog, but we’ll cover how to write and manage
-  your businesss blog as well as provide helpful templates to simplify your blogging efforts.`;

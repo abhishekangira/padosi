@@ -7,7 +7,7 @@ import { PostList } from "@/components/PostList/PostList";
 export function HomePage() {
   useLayout({ navbarTitle: "Home" });
   return (
-    <div className="mx-auto max-w-2xl py-6">
+    <div className="mx-auto max-w-3xl py-6">
       <NewPost />
       <PostList />
       <Link

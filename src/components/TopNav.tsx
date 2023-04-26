@@ -13,9 +13,9 @@ export function TopNav({ title }: Props) {
         <h1 className={`text-2xl font-bold text-primary`}>{title}</h1>
       </div>
       <div className="navbar-end">
-        <a onClick={() => auth.signOut()} className="btn-ghost btn capitalize">
+        <button onClick={() => auth.signOut()} className="btn-ghost btn capitalize">
           Sign Out
-        </a>
+        </button>
       </div>
     </nav>
   );

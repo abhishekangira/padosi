@@ -35,7 +35,7 @@ export function useSetLocationPage() {
                 lat: pos.lat,
                 lng: pos.lng,
               },
-              registerUsername: username.value
+              registerUsername: (prev?.registerUsername || username.value).toLowerCase(),
             } as UserType)
           );
         })

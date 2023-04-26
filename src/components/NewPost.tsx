@@ -1,19 +1,29 @@
 import { useUserContext } from "@/lib/contexts/user-context";
 import { addPost } from "@/lib/firebase/posts";
 import { useApi } from "@/lib/hooks/useApi";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { getDoc } from "firebase/firestore";
 import Image from "next/image";
 import React, { useEffect, useRef, useState } from "react";
 
 export function NewPost({ maxLength = 500 }) {
   const { user } = useUserContext();
+  console.log(user, "user");
+
   const [text, setText] = useState("");
   const textareaRef = useRef(null);
+  const queryClient = useQueryClient();
   const {
     mutate: addPostMutation,
     isLoading: addPostLoading,
     isError: addPostError,
-  } = useMutation({ mutationFn: addPost });
+  } = useMutation({
+    mutationFn: addPost,
+    onSuccess: () => {
+      setText("");
+      return queryClient.invalidateQueries({ queryKey: ["posts"] });
+    },
+  });
 
   useEffect(() => {
     const textArea = textareaRef.current! as HTMLTextAreaElement;
@@ -34,6 +44,23 @@ export function NewPost({ maxLength = 500 }) {
         placeholder="What's up in the neighborhood?"
         value={text}
         onChange={handleChange}
+        onKeyDown={(event) => {
+          if (event.key === "Enter" && !event.shiftKey) {
+            event.preventDefault();
+            if (!user) return;
+            const { geoHash, location, displayName, username, registerUsername, photoURL, uid } =
+              user;
+            addPostMutation({
+              text,
+              geoHash,
+              location,
+              displayName,
+              username: username || registerUsername,
+              photoURL,
+              uid,
+            });
+          }
+        }}
       />
       <div className="avatar absolute top-0 left-3">
         <div className="relative h-12 rounded-full sm:h-16">
@@ -55,16 +82,15 @@ export function NewPost({ maxLength = 500 }) {
             geoHash,
             location,
             displayName,
-            username: username ?? registerUsername,
+            username: username || registerUsername,
             photoURL,
             uid,
           });
-          setText("");
         }}
         disabled={text.length === 0}
         className={`btn-ghost btn-sm btn text-primary ${
           addPostLoading ? "loading" : "hidden"
-        } self-end focus:block active:block peer-focus:block`}
+        } self-end focus:inline-flex active:inline-flex peer-focus:inline-flex`}
       >
         Post
       </button>

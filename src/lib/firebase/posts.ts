@@ -4,6 +4,7 @@ import {
   collection,
   doc,
   getCountFromServer,
+  getDoc,
   getDocs,
   limit,
   orderBy,
@@ -23,11 +24,17 @@ export const fetchPosts = async ({ pageParam }: { pageParam: DocumentData }) => 
 
   let q;
   if (pageParam) {
-    q = query(collection(db, "posts"), orderBy("createdAt", "desc"), startAfter(pageParam), limit(6));
+    q = query(collection(db, "posts"), orderBy("createdAt", "desc"), startAfter(pageParam), limit(10));
   } else {
-    q = query(collection(db, "posts"), orderBy("createdAt", "desc"), limit(6));
+    q = query(collection(db, "posts"), orderBy("createdAt", "desc"), limit(10));
   }
   const querySnapshot = await getDocs(q);
   const posts = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
   return { posts, lastDoc: querySnapshot.docs[querySnapshot.docs.length - 1] };
 };
+
+export const fetchPost = async (id: string) => {
+  const docRef = doc(db, "posts", id);
+  const docSnap = await getDoc(docRef);
+  return { id: docSnap.id, ...docSnap.data() };
+}
