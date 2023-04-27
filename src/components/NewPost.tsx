@@ -28,6 +28,21 @@ export function NewPost({ maxLength = 1000 }) {
     },
   });
 
+  const handleSubmit = () => {
+    if (!user) return;
+    const { geoHash, location, displayName, username, registerUsername, photoURL, uid } = user;
+    addPostMutation({
+      text,
+      title: showTitleInput ? title : "",
+      geoHash,
+      location,
+      displayName,
+      username: username || registerUsername,
+      photoURL,
+      uid,
+    });
+  };
+
   useEffect(() => {
     const textAreas = [
       textRef.current! as HTMLTextAreaElement,
@@ -45,7 +60,7 @@ export function NewPost({ maxLength = 1000 }) {
     else setText(target.value);
   };
   return (
-    <div className="relative hidden flex-col border-b border-b-sky-900 pb-4 sm:flex">
+    <div className="relative flex-col border-b border-b-sky-900 pb-4 flex">
       <textarea
         ref={titleRef}
         value={title}
@@ -56,6 +71,12 @@ export function NewPost({ maxLength = 1000 }) {
           showTitleInput ? "block" : "hidden"
         }`}
         placeholder="Your catchy title"
+        onKeyDown={(event) => {
+          if (event.key === "Enter" && !event.shiftKey && text && title) {
+            event.preventDefault();
+            handleSubmit();
+          }
+        }}
       />
       <textarea
         ref={textRef}
@@ -67,19 +88,7 @@ export function NewPost({ maxLength = 1000 }) {
         onKeyDown={(event) => {
           if (event.key === "Enter" && !event.shiftKey && text) {
             event.preventDefault();
-            if (!user) return;
-            const { geoHash, location, displayName, username, registerUsername, photoURL, uid } =
-              user;
-            addPostMutation({
-              text,
-              title: showTitleInput ? title : "",
-              geoHash,
-              location,
-              displayName,
-              username: username || registerUsername,
-              photoURL,
-              uid,
-            });
+            handleSubmit();
           }
         }}
       />
@@ -104,21 +113,7 @@ export function NewPost({ maxLength = 1000 }) {
           {showTitleInput ? "Remove Title" : "Add Title"}
         </button>
         <button
-          onClick={() => {
-            if (!user) return;
-            const { geoHash, location, displayName, username, registerUsername, photoURL, uid } =
-              user;
-            addPostMutation({
-              text,
-              title: showTitleInput ? title : "",
-              geoHash,
-              location,
-              displayName,
-              username: username || registerUsername,
-              photoURL,
-              uid,
-            });
-          }}
+          onClick={handleSubmit}
           disabled={text.length === 0}
           className={`btn-ghost btn-sm btn text-primary ${addPostLoading ? "loading" : ""} `}
         >

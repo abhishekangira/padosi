@@ -6,12 +6,14 @@ import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { distanceBetween } from "geofire-common";
 import Link from "next/link";
+import { useRef } from "react";
 
 dayjs.extend(relativeTime);
 
 export function PostCard({ post, full = false, index = 0 }) {
   const { user } = useUserContext();
   const ownPost = user?.uid === post.uid;
+  const dropdownRef = useRef(null);
   const distanceInKm = distanceBetween(
     [post.location.lat, post.location.lng],
     [user?.location.lat ?? 0, user?.location.lng ?? 0]
@@ -19,7 +21,7 @@ export function PostCard({ post, full = false, index = 0 }) {
   return (
     <div className="grid w-full grid-cols-[min-content_auto_min-content] grid-rows-[min-content_auto_auto] gap-3 border-b border-b-sky-900 p-3 sm:gap-4">
       <div className="avatar">
-        <div className="relative h-12 rounded-full sm:h-16">
+        <div className="relative h-12 sm:h-16 mask mask-squircle">
           <Image
             src={post.photoURL || "/images/avatar.jpg"}
             alt="avatar"
@@ -47,7 +49,10 @@ export function PostCard({ post, full = false, index = 0 }) {
         <label tabIndex={0} className="btn-ghost btn">
           <TbDots />
         </label>
-        <ul className="bg-glass dropdown-content menu rounded-box w-52 p-2 text-sm shadow">
+        <ul
+          ref={dropdownRef}
+          className="bg-glass dropdown-content menu rounded-box w-52 p-2 text-sm shadow"
+        >
           {ownPost && (
             <li>
               <button className="gap-2 text-error">
