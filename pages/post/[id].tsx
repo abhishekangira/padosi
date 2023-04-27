@@ -10,15 +10,9 @@ export default function Post() {
     queryKey: ["post", id],
     queryFn: () => fetchPost(id),
   });
-  return (
-    <div>
-      {isLoading ? (
-        <div>Loading...</div>
-      ) : isError ? (
-        <div>{error}</div>
-      ) : (
-        <PostCard post={data} full />
-      )}
-    </div>
-  );
+
+  if (isLoading) return <div>Loading...</div>;
+  if (isError) return <pre>{JSON.stringify(error)}</pre>;
+
+  return <PostCard post={data} full />;
 }

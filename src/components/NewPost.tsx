@@ -6,12 +6,14 @@ import { getDoc } from "firebase/firestore";
 import Image from "next/image";
 import React, { useEffect, useRef, useState } from "react";
 
-export function NewPost({ maxLength = 500 }) {
+export function NewPost({ maxLength = 1000 }) {
   const { user } = useUserContext();
-  console.log(user, "user");
 
+  const [showTitleInput, setShowTitleInput] = useState(false);
   const [text, setText] = useState("");
-  const textareaRef = useRef(null);
+  const [title, setTitle] = useState("");
+  const textRef = useRef(null);
+  const titleRef = useRef(null);
   const queryClient = useQueryClient();
   const {
     mutate: addPostMutation,
@@ -21,37 +23,56 @@ export function NewPost({ maxLength = 500 }) {
     mutationFn: addPost,
     onSuccess: () => {
       setText("");
+      setTitle("");
       return queryClient.invalidateQueries({ queryKey: ["posts"] });
     },
   });
 
   useEffect(() => {
-    const textArea = textareaRef.current! as HTMLTextAreaElement;
-    textArea.style.height = "auto";
-    textArea.style.height = textArea.scrollHeight + "px";
-  }, [text]);
+    const textAreas = [
+      textRef.current! as HTMLTextAreaElement,
+      titleRef.current! as HTMLTextAreaElement,
+    ];
+    textAreas.forEach((textArea) => {
+      textArea.style.height = "auto";
+      textArea.style.height = textArea.scrollHeight + "px";
+    });
+  }, [text, title]);
 
   const handleChange = (event: React.SyntheticEvent) => {
     const target = event.target as HTMLTextAreaElement;
-    setText(target.value);
+    if (target.id === "postTitle") setTitle(target.value);
+    else setText(target.value);
   };
   return (
     <div className="relative hidden flex-col border-b border-b-sky-900 pb-4 sm:flex">
       <textarea
-        ref={textareaRef}
-        className="auto-expand-textarea peer textarea-ghost textarea w-full resize-none overflow-hidden p-3 pl-24 text-base focus:bg-inherit focus:outline-none"
+        ref={titleRef}
+        value={title}
+        id="postTitle"
+        onChange={handleChange}
+        maxLength={150}
+        className={`peer textarea pl-24 resize-none overflow-hidden textarea-ghost focus:bg-inherit focus:outline-none sm:text-lg font-bold ${
+          showTitleInput ? "block" : "hidden"
+        }`}
+        placeholder="Your catchy title"
+      />
+      <textarea
+        ref={textRef}
+        className="peer textarea-ghost textarea resize-none overflow-hidden pl-24 text-base focus:bg-inherit focus:outline-none"
         maxLength={maxLength}
         placeholder="What's up in the neighborhood?"
         value={text}
         onChange={handleChange}
         onKeyDown={(event) => {
-          if (event.key === "Enter" && !event.shiftKey) {
+          if (event.key === "Enter" && !event.shiftKey && text) {
             event.preventDefault();
             if (!user) return;
             const { geoHash, location, displayName, username, registerUsername, photoURL, uid } =
               user;
             addPostMutation({
               text,
+              title: showTitleInput ? title : "",
               geoHash,
               location,
               displayName,
@@ -72,28 +93,39 @@ export function NewPost({ maxLength = 500 }) {
           />
         </div>
       </div>
-      <button
-        onClick={() => {
-          if (!user) return;
-          const { geoHash, location, displayName, username, registerUsername, photoURL, uid } =
-            user;
-          addPostMutation({
-            text,
-            geoHash,
-            location,
-            displayName,
-            username: username || registerUsername,
-            photoURL,
-            uid,
-          });
-        }}
-        disabled={text.length === 0}
-        className={`btn-ghost btn-sm btn text-primary ${
-          addPostLoading ? "loading" : "hidden"
-        } self-end focus:inline-flex active:inline-flex peer-focus:inline-flex`}
-      >
-        Post
-      </button>
+      <div className="self-end hidden focus:flex active:flex peer-focus:flex">
+        <button
+          className="btn btn-sm capitalize"
+          onClick={() => {
+            setShowTitleInput((prev) => !prev);
+            textRef.current?.focus();
+          }}
+        >
+          {showTitleInput ? "Remove Title" : "Add Title"}
+        </button>
+        <button
+          onClick={() => {
+            if (!user) return;
+            const { geoHash, location, displayName, username, registerUsername, photoURL, uid } =
+              user;
+            addPostMutation({
+              text,
+              title: showTitleInput ? title : "",
+              geoHash,
+              location,
+              displayName,
+              username: username || registerUsername,
+              photoURL,
+              uid,
+            });
+          }}
+          disabled={text.length === 0}
+          className={`btn-ghost btn-sm btn text-primary ${addPostLoading ? "loading" : ""} `}
+        >
+          Post
+        </button>
+      </div>
+
       {!!addPostError && (
         <div className="alert alert-error shadow-lg active:hidden">
           <div>

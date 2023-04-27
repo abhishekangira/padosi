@@ -7,11 +7,14 @@ import { geohashForLocation } from "geofire-common";
 import { UserType } from "@/lib/hooks/useUser";
 
 export function useSetLocationPage() {
-  const { setUser } = useUserContext();
+  const { setUser, user } = useUserContext();
   const mapRef = useRef<HTMLDivElement>(null);
   const addressInputRef = useRef<HTMLInputElement>(null);
   const [locationLoading, setLocationLoading] = useState(false);
-  const [username, setUsername] = useState<{ value: string, state: "loading" | "unavailable" | "available" | null }>({ value: "", state: null });
+  const [username, setUsername] = useState<{
+    value: string;
+    state: "loading" | "unavailable" | "available" | null;
+  }>({ value: "", state: null });
 
   const handleSubmit = () => {
     const pos = getMarkerPosition();
@@ -25,19 +28,29 @@ export function useSetLocationPage() {
         updatedAt: serverTimestamp(),
       })
         .then(() => {
-          setUser(
-            (prev) =>
-            ({
-              ...prev,
+          setUser((prev) => {
+            console.log("prev", prev);
+            const locationData = {
               isUserLocationSet: true,
               geoHash: geohashForLocation([pos.lat!, pos.lng!]),
               location: {
                 lat: pos.lat,
                 lng: pos.lng,
               },
-              registerUsername: (prev?.registerUsername || username.value).toLowerCase(),
-            } as UserType)
-          );
+            };
+            return (
+              prev?.username || prev?.registerUsername
+                ? {
+                    ...prev,
+                    ...locationData,
+                  }
+                : {
+                    ...prev,
+                    ...locationData,
+                    registerUsername: username.value.toLowerCase(),
+                  }
+            ) as UserType;
+          });
         })
         .catch((error) => {
           console.error(error);
@@ -58,6 +71,6 @@ export function useSetLocationPage() {
     setLocationLoading,
     handleSubmit,
     username,
-    setUsername
+    setUsername,
   };
 }

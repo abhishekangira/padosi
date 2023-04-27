@@ -64,22 +64,7 @@ export function PostCard({ post, full = false, index = 0 }) {
           )}
         </ul>
       </div>
-      <Link scroll={false} href={`/post/${post.id}`} className="col-span-full grid gap-2">
-        <h2 className="text-base font-bold text-primary-light sm:text-lg">
-          You wont believe what delhi police did to me !! 👮‍♀️🚓 it was unbelievable i was dead holy
-          shit someone halp me!!!!
-        </h2>
-        <p className="overflow-hidden text-sm font-light leading-snug sm:text-base">
-          {!full && post.text.length > 220 ? (
-            <>
-              {post.text.slice(0, 220) + "... "}
-              <a className="link-primary link">Read More</a>
-            </>
-          ) : (
-            post.text
-          )}
-        </p>
-      </Link>
+      <PostBody post={post} full={full} />
       <div className="card-actions col-span-full text-sm">
         <button className="link-hover link-primary link">Like</button>
         <button className="link-hover link-primary link">Comment</button>
@@ -88,3 +73,25 @@ export function PostCard({ post, full = false, index = 0 }) {
     </div>
   );
 }
+
+const PostBody = ({ post, full }) =>
+  full ? (
+    <div className="col-span-full grid gap-2">
+      <h2 className="text-base font-bold text-primary-light sm:text-lg">{post.title}</h2>
+      <p className="overflow-hidden text-sm font-light leading-snug sm:text-base">{post.text}</p>
+    </div>
+  ) : (
+    <Link scroll={false} href={`/post/${post.id}`} className="col-span-full grid gap-2">
+      <h2 className="text-base font-bold text-primary-light sm:text-lg">{post.title}</h2>
+      <p className="overflow-hidden text-sm font-light leading-snug sm:text-base">
+        {post.text.length > 220 ? (
+          <>
+            {post.text.slice(0, 220) + "... "}
+            <button className="link-primary link text-sm">Read More</button>
+          </>
+        ) : (
+          post.text
+        )}
+      </p>
+    </Link>
+  );

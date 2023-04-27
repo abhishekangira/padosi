@@ -50,7 +50,7 @@ export function useLoginWidget() {
         if (formView === "Sign Up") {
           const confirmPassword = (event.currentTarget as HTMLFormElement).confirmPassword.value;
           displayName = (event.currentTarget as HTMLFormElement).displayName.value;
-          username = (event.currentTarget as HTMLFormElement).username.value;
+          username = (event.currentTarget as HTMLFormElement).username.value.toLowerCase();
           const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/;
 
           if (!displayName) {

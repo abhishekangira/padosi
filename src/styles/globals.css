@@ -48,7 +48,3 @@ body,
 .pac-item:hover .pac-icon {
   filter: invert(1);
 }
-
-.auto-expand-textarea {
-  transition: height 0.2s ease;
-}
