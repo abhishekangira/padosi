@@ -81,7 +81,7 @@ const PostBody = ({ post, full }) =>
       <p className="overflow-hidden text-sm font-light leading-snug sm:text-base">{post.text}</p>
     </div>
   ) : (
-    <Link scroll={false} href={`/post/${post.id}`} className="col-span-full grid gap-2">
+    <Link href={`/post/${post.id}`} className="col-span-full grid gap-2">
       <h2 className="text-base font-bold text-primary-light sm:text-lg">{post.title}</h2>
       <p className="overflow-hidden text-sm font-light leading-snug sm:text-base">
         {post.text.length > 220 ? (
