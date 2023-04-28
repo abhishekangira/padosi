@@ -12,8 +12,8 @@ export function NewPost({ maxLength = 1000 }) {
   const [showTitleInput, setShowTitleInput] = useState(false);
   const [text, setText] = useState("");
   const [title, setTitle] = useState("");
-  const textRef = useRef(null);
-  const titleRef = useRef(null);
+  const textRef = useRef<HTMLTextAreaElement>(null);
+  const titleRef = useRef<HTMLTextAreaElement>(null);
   const queryClient = useQueryClient();
   const {
     mutate: addPostMutation,
@@ -60,7 +60,7 @@ export function NewPost({ maxLength = 1000 }) {
     else setText(target.value);
   };
   return (
-    <div className="relative flex-col border-b border-b-sky-900 pb-4 flex">
+    <div className="relative flex-col flex">
       <textarea
         ref={titleRef}
         value={title}
@@ -93,7 +93,7 @@ export function NewPost({ maxLength = 1000 }) {
         }}
       />
       <div className="avatar absolute top-0 left-3">
-        <div className="relative h-12 rounded-full sm:h-16">
+        <div className="relative h-12 mask mask-squircle sm:h-16">
           <Image
             src={user?.photoURL || "/images/avatar.jpg"}
             alt="avatar"

@@ -8,7 +8,7 @@ export default function Post() {
   const { id } = router.query;
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ["post", id],
-    queryFn: () => fetchPost(id),
+    queryFn: () => fetchPost(id as string),
   });
 
   if (isLoading) return <div>Loading...</div>;

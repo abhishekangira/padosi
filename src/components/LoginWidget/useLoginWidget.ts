@@ -28,6 +28,8 @@ export function useLoginWidget() {
 
       const email = (event.currentTarget as HTMLFormElement).email.value;
       const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+      const endsWithNonAlphabet = (text: string) =>
+        /[^A-Za-z\u00C0-\u1FFF\u2800-\uFFFD]+$/u.test(text);
       let password = "";
       let displayName = "";
       let username = "";
@@ -54,10 +56,16 @@ export function useLoginWidget() {
           const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/;
 
           if (!displayName) {
-            setErrors((prevErrors) => ({ ...prevErrors, displayName: true }));
+            setErrors((prevErrors) => ({ ...prevErrors, displayName: "Name cannot be empty" }));
+            return;
+          } else if (endsWithNonAlphabet(displayName)) {
+            setErrors((prevErrors) => ({
+              ...prevErrors,
+              displayName: "Name must not end with a non-alphabet character",
+            }));
             return;
           } else {
-            setErrors((prevErrors) => ({ ...prevErrors, displayName: false }));
+            setErrors((prevErrors) => ({ ...prevErrors, displayName: "" }));
           }
           if (password !== confirmPassword) {
             setErrors((prevErrors) => ({ ...prevErrors, confirmPassword: true }));
@@ -182,7 +190,7 @@ export const defaultErrors = {
   email: "",
   password: false,
   confirmPassword: false,
-  displayName: false,
+  displayName: "",
   server: "",
   username: "",
 };

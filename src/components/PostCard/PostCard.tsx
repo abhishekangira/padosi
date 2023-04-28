@@ -10,7 +10,15 @@ import * as Dropdown from "@radix-ui/react-dropdown-menu";
 
 dayjs.extend(relativeTime);
 
-export function PostCard({ post, full = false, index = 0 }) {
+export function PostCard({
+  post,
+  full = false,
+  index = 0,
+}: {
+  post: any;
+  full?: boolean;
+  index?: number;
+}) {
   const { user } = useUserContext();
   const ownPost = user?.uid === post.uid;
   const distanceInKm = distanceBetween(
@@ -29,7 +37,7 @@ export function PostCard({ post, full = false, index = 0 }) {
           />
         </div>
       </div>
-      <div className="flex h-full flex-col justify-evenly self-center">
+      <div className="flex h-full flex-col justify-center gap-1 self-center">
         <div className="flex items-center gap-1">
           <h2 className="text-sm font-bold leading-none text-slate-300 sm:text-base">
             {post.displayName}
@@ -50,15 +58,15 @@ export function PostCard({ post, full = false, index = 0 }) {
         </Dropdown.Trigger>
         <Dropdown.Content
           align="end"
-          className="bg-glass dropdown-content menu rounded-box w-52 p-2 text-sm shadow"
+          className="bg-glass dropdown-content menu rounded-box p-2 text-sm shadow"
         >
           {ownPost && (
-            <Dropdown.Item className="flex gap-2 text-error items-center rounded p-2">
+            <Dropdown.Item className="flex gap-2 cursor-pointer text-error items-center rounded p-2">
               <TbTrash /> Delete Post
             </Dropdown.Item>
           )}
           {!ownPost && (
-            <Dropdown.Item className="flex gap-2 text-primary items-center rounded p-2">
+            <Dropdown.Item className="flex gap-2 cursor-pointer text-primary items-center rounded p-2">
               <BsPersonFillAdd /> Follow @{post.username}
             </Dropdown.Item>
           )}
@@ -74,7 +82,7 @@ export function PostCard({ post, full = false, index = 0 }) {
   );
 }
 
-const PostBody = ({ post, full }) =>
+const PostBody = ({ post, full }: { post: any; full?: boolean }) =>
   full ? (
     <div className="col-span-full grid gap-2">
       <h2 className="text-base font-bold text-primary-light sm:text-lg">{post.title}</h2>

@@ -1,15 +1,12 @@
-export function debounce(func: Function, wait: number): Function {
+export function debounce(func: Function, wait: number): (...args: any[]) => Promise<any> {
   let timeout: string | number | NodeJS.Timeout | undefined;
-  
-  return function() {
-    const context = this;
-    const args = arguments;
-    
+
+  return function (this: any, ...args: any[]): Promise<any> {
     clearTimeout(timeout);
-    
+
     return new Promise((resolve) => {
       timeout = setTimeout(() => {
-        const result = func.apply(context, args);
+        const result = func.apply(this, args);
         resolve(result);
       }, wait);
     });
