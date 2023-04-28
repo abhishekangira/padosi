@@ -6,14 +6,13 @@ import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { distanceBetween } from "geofire-common";
 import Link from "next/link";
-import { useRef } from "react";
+import * as Dropdown from "@radix-ui/react-dropdown-menu";
 
 dayjs.extend(relativeTime);
 
 export function PostCard({ post, full = false, index = 0 }) {
   const { user } = useUserContext();
   const ownPost = user?.uid === post.uid;
-  const dropdownRef = useRef(null);
   const distanceInKm = distanceBetween(
     [post.location.lat, post.location.lng],
     [user?.location.lat ?? 0, user?.location.lng ?? 0]
@@ -45,30 +44,26 @@ export function PostCard({ post, full = false, index = 0 }) {
           <span className="text-xs text-slate-500 sm:text-sm">{distanceInKm} km</span>
         </div>
       </div>
-      <div className="dropdown-bottom dropdown-end dropdown">
-        <label tabIndex={0} className="btn-ghost btn">
+      <Dropdown.Root>
+        <Dropdown.Trigger className="btn-ghost btn">
           <TbDots />
-        </label>
-        <ul
-          ref={dropdownRef}
+        </Dropdown.Trigger>
+        <Dropdown.Content
+          align="end"
           className="bg-glass dropdown-content menu rounded-box w-52 p-2 text-sm shadow"
         >
           {ownPost && (
-            <li>
-              <button className="gap-2 text-error">
-                <TbTrash /> Delete Post
-              </button>
-            </li>
+            <Dropdown.Item className="flex gap-2 text-error items-center rounded p-2">
+              <TbTrash /> Delete Post
+            </Dropdown.Item>
           )}
           {!ownPost && (
-            <li>
-              <button className="gap-2 text-primary">
-                <BsPersonFillAdd /> Follow @{post.username}
-              </button>
-            </li>
+            <Dropdown.Item className="flex gap-2 text-primary items-center rounded p-2">
+              <BsPersonFillAdd /> Follow @{post.username}
+            </Dropdown.Item>
           )}
-        </ul>
-      </div>
+        </Dropdown.Content>
+      </Dropdown.Root>
       <PostBody post={post} full={full} />
       <div className="card-actions col-span-full text-sm">
         <button className="link-hover link-primary link">Like</button>
