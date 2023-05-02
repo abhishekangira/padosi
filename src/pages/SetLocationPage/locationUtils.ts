@@ -1,9 +1,12 @@
-let map: google.maps.Map, marker: google.maps.Marker;
-
+let map: google.maps.Map, marker: google.maps.Marker, geocoder: google.maps.Geocoder;
+let initMapReturnVal: { map: google.maps.Map; marker: google.maps.Marker };
 export async function initMap(
   mapElement: HTMLDivElement,
   inputElement: HTMLInputElement
 ): Promise<{ map: google.maps.Map; marker: google.maps.Marker }> {
+  if (initMapReturnVal) {
+    return initMapReturnVal;
+  }
   //@ts-ignore
   const [{ Map }] = await Promise.all([
     google.maps.importLibrary("maps"),
@@ -107,8 +110,20 @@ export async function initMap(
     title: "Home",
   });
 
+  geocoder = new google.maps.Geocoder();
+
   map.addListener("click", (e: google.maps.MapMouseEvent | google.maps.IconMouseEvent) => {
     marker.setPosition(e.latLng);
+    geocoder
+      .geocode({ location: e.latLng })
+      .then((response) => {
+        if (response.results[0]) {
+          inputElement.value = response.results[0].formatted_address;
+        } else {
+          console.warn("No addresses found for placed marker");
+        }
+      })
+      .catch((e) => console.error("Geocoder failed due to: " + e));
   });
 
   autocomplete.addListener("place_changed", () => {
@@ -126,8 +141,8 @@ export async function initMap(
       }
     }
   });
-
-  return { map, marker };
+  initMapReturnVal = { map, marker };
+  return initMapReturnVal;
 }
 
 export function getMarkerPosition() {
@@ -136,6 +151,7 @@ export function getMarkerPosition() {
 }
 
 export function getCurrentPosition(
+  inputElement: HTMLInputElement,
   setLocationLoading: (loading: boolean) => void,
   options?: PositionOptions
 ): Promise<{ lat: number; lng: number }> {
@@ -151,6 +167,16 @@ export function getCurrentPosition(
         map.setCenter(pos);
         map.setZoom(18);
         marker.setPosition(pos);
+        geocoder
+          .geocode({ location: pos })
+          .then((response) => {
+            if (response.results[0]) {
+              inputElement.value = response.results[0].formatted_address;
+            } else {
+              console.warn("No addresses found for placed marker");
+            }
+          })
+          .catch((e) => console.error("Geocoder failed due to: " + e));
         resolve(pos);
       },
       (error) => {

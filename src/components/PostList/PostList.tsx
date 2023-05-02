@@ -5,15 +5,19 @@ import { useEffect, useRef, useState } from "react";
 import { Virtuoso } from "react-virtuoso";
 import { PostCardSkeleton } from "../PostCard/PostCardSkeleton";
 import { useUserContext } from "@/lib/contexts/user-context";
+import { trpc } from "@/lib/utils/trpc";
 
 export function PostList() {
   const { user } = useUserContext();
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status, error } = useInfiniteQuery({
-    queryKey: ["posts"],
-    queryFn: ({ pageParam }) =>
-      fetchPosts({ pageParam, center: [user?.location.lat!, user?.location.lng!] }),
-    getNextPageParam: (lastPage) => lastPage.lastDoc,
-  });
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status, error } =
+    trpc.infinitePosts.useInfiniteQuery(
+      {
+        limit: 10,
+      },
+      {
+        getNextPageParam: (lastPage) => lastPage.nextCursor,
+      }
+    );
 
   console.log(data, "data");
 
@@ -29,7 +33,7 @@ export function PostList() {
     console.error(error);
     return <div>There was an error</div>;
   }
-  const posts = data.pages.flatMap((page) => page.posts);
+  const posts = data.pages.flatMap((page) => page.posts) || [];
 
   return (
     <div className="flex flex-col gap-4">

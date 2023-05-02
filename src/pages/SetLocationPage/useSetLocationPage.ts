@@ -6,6 +6,8 @@ import { doc, serverTimestamp, updateDoc } from "firebase/firestore";
 import { geohashForLocation } from "geofire-common";
 import { UserType } from "@/lib/hooks/useUser";
 
+let mapInitiated = false;
+
 export function useSetLocationPage() {
   const { setUser, user } = useUserContext();
   const mapRef = useRef<HTMLDivElement>(null);

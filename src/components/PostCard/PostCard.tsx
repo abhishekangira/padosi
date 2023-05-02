@@ -7,6 +7,7 @@ import relativeTime from "dayjs/plugin/relativeTime";
 import { distanceBetween } from "geofire-common";
 import Link from "next/link";
 import * as Dropdown from "@radix-ui/react-dropdown-menu";
+import { Post } from "@prisma/client";
 
 dayjs.extend(relativeTime);
 
@@ -15,22 +16,24 @@ export function PostCard({
   full = false,
   index = 0,
 }: {
-  post: any;
+  post: Post;
   full?: boolean;
   index?: number;
 }) {
   const { user } = useUserContext();
-  const ownPost = user?.uid === post.uid;
-  const distanceInKm = distanceBetween(
-    [post.location.lat, post.location.lng],
-    [user?.location.lat ?? 0, user?.location.lng ?? 0]
-  ).toFixed(2);
+  const ownPost = true || user?.uid === post.uid;
+  const distanceInKm =
+    2 ||
+    distanceBetween(
+      [post.location.lat, post.location.lng],
+      [user?.location.lat ?? 0, user?.location.lng ?? 0]
+    ).toFixed(2);
   return (
     <div className="grid w-full grid-cols-[min-content_auto_min-content] grid-rows-[min-content_auto_auto] gap-3 border-b border-b-sky-900 p-3 sm:gap-4">
       <div className="avatar">
         <div className="relative h-12 sm:h-16 mask mask-squircle">
           <Image
-            src={post.photoURL || "/images/avatar.jpg"}
+            src={post?.photoURL || "/images/avatar.jpg"}
             alt="avatar"
             fill
             sizes="(min-width: 640px) 64px, 48px"
@@ -40,13 +43,13 @@ export function PostCard({
       <div className="flex h-full flex-col justify-center gap-1 self-center">
         <div className="flex items-center gap-1">
           <h2 className="text-sm font-bold leading-none text-slate-300 sm:text-base">
-            {post.displayName}
+            {post?.displayName}
           </h2>
           <span className="text-sm leading-none text-slate-500 sm:text-base">@{post.username}</span>
         </div>
         <div className="flex items-center gap-1">
           <span className="text-xs text-slate-500 sm:text-sm">
-            {dayjs(post.createdAt.toDate()).fromNow()}
+            {dayjs(post.createdAt?.toDate?.()).fromNow()}
           </span>
           <span className="text-xs leading-none text-slate-500">•</span>
           <span className="text-xs text-slate-500 sm:text-sm">{distanceInKm} km</span>
@@ -67,7 +70,7 @@ export function PostCard({
           )}
           {!ownPost && (
             <Dropdown.Item className="flex gap-2 cursor-pointer text-primary items-center rounded p-2">
-              <BsPersonFillAdd /> Follow @{post.username}
+              <BsPersonFillAdd /> Follow @{post?.username}
             </Dropdown.Item>
           )}
         </Dropdown.Content>
@@ -82,7 +85,7 @@ export function PostCard({
   );
 }
 
-const PostBody = ({ post, full }: { post: any; full?: boolean }) =>
+const PostBody = ({ post, full }: { post: Post; full?: boolean }) =>
   full ? (
     <div className="col-span-full grid gap-2">
       <h2 className="text-base font-bold text-primary-light sm:text-lg">{post.title}</h2>
@@ -92,13 +95,13 @@ const PostBody = ({ post, full }: { post: any; full?: boolean }) =>
     <Link href={`/post/${post.id}`} className="col-span-full grid gap-2">
       <h2 className="text-base font-bold text-primary-light sm:text-lg">{post.title}</h2>
       <p className="overflow-hidden text-sm font-light leading-snug sm:text-base">
-        {post.text.length > 220 ? (
+        {post.content.length > 220 ? (
           <>
-            {post.text.slice(0, 220) + "... "}
+            {post.content.slice(0, 220) + "... "}
             <button className="link-primary link text-sm">Read More</button>
           </>
         ) : (
-          post.text
+          post.content
         )}
       </p>
     </Link>

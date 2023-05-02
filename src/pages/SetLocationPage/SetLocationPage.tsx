@@ -63,8 +63,8 @@ export function SetLocationPage() {
                 locationLoading ? "loading" : ""
               }`}
               onClick={async () => {
-                if (navigator.geolocation) {
-                  await getCurrentPosition(setLocationLoading, {
+                if (navigator.geolocation && addressInputRef.current) {
+                  await getCurrentPosition(addressInputRef.current, setLocationLoading, {
                     enableHighAccuracy: true,
                   });
                 } else {

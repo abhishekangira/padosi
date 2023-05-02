@@ -1,6 +1,5 @@
 import { useLayout } from "@/lib/hooks/useLayout";
 import { TbPencilPlus } from "react-icons/tb";
-import Link from "next/link";
 import { NewPost } from "@/components/NewPost";
 import { PostList } from "@/components/PostList/PostList";
 
