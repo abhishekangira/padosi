@@ -1,12 +1,9 @@
 let map: google.maps.Map, marker: google.maps.Marker, geocoder: google.maps.Geocoder;
-let initMapReturnVal: { map: google.maps.Map; marker: google.maps.Marker };
+
 export async function initMap(
   mapElement: HTMLDivElement,
   inputElement: HTMLInputElement
 ): Promise<{ map: google.maps.Map; marker: google.maps.Marker }> {
-  if (initMapReturnVal) {
-    return initMapReturnVal;
-  }
   //@ts-ignore
   const [{ Map }] = await Promise.all([
     google.maps.importLibrary("maps"),
@@ -141,8 +138,7 @@ export async function initMap(
       }
     }
   });
-  initMapReturnVal = { map, marker };
-  return initMapReturnVal;
+  return { map, marker };
 }
 
 export function getMarkerPosition() {

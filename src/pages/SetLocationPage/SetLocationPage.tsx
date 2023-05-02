@@ -2,16 +2,13 @@ import { BiCheck, BiCurrentLocation, BiLoader, BiX } from "react-icons/bi";
 import { getCurrentPosition } from "./locationUtils";
 import { useSetLocationPage } from "./useSetLocationPage";
 import Script from "next/script";
-import { useUserContext } from "@/lib/contexts/user-context";
-import { checkUsernameExists } from "@/components/LoginWidget/useLoginWidget";
 import { debounce } from "@/lib/utils/utils";
-import { ChangeEvent, Dispatch, SetStateAction, useMemo } from "react";
+import { Dispatch, SetStateAction } from "react";
+import { User } from "@prisma/client";
 
 const gmapsApiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
 export function SetLocationPage() {
-  const { user } = useUserContext();
-  const hasUsername = useMemo(() => user?.registerUsername || user?.username, []);
   const {
     mapRef,
     addressInputRef,
@@ -20,6 +17,7 @@ export function SetLocationPage() {
     handleSubmit,
     username,
     setUsername,
+    checkUsername,
   } = useSetLocationPage();
   return (
     <>
@@ -29,31 +27,30 @@ export function SetLocationPage() {
           `',});`}
       </Script>
       <main className="mx-auto flex w-full max-w-4xl flex-col items-center gap-5 p-4">
-        {!hasUsername && (
-          <>
-            <h1 className="self-start text-lg">1. Select a username</h1>
-            <div className="flex self-start">
-              <input
-                type="text"
-                id="username"
-                onChange={(e) => {
-                  setUsername({ value: "", state: "loading" });
-                  debouncedCheckUsernameExists(e, setUsername);
-                }}
-                placeholder="simmiddlj"
-                className="input self-start"
-              />
-              <div className="text-xl text-primary grid place-items-center px-2">
-                {username.state === "loading" && <BiLoader className="animate-spin" />}
-                {username.state === "available" && <BiCheck className="text-success" />}
-                {username.state === "unavailable" && <BiX className="text-error" />}
-              </div>
+        <>
+          <h1 className="self-start text-lg">1. Select a username</h1>
+          <div className="flex self-start">
+            <input
+              type="text"
+              id="username"
+              value={username.value}
+              onChange={(e) => {
+                setUsername({ value: e.target.value, state: "loading" });
+                debouncedCheckUsernameExists(e.target.value, setUsername, checkUsername);
+              }}
+              placeholder="simmiddlj"
+              className="input self-start"
+            />
+            <div className="text-xl text-primary grid place-items-center px-2">
+              {username.state === "loading" && <BiLoader className="animate-spin" />}
+              {username.state === "available" && <BiCheck className="text-success" />}
+              {username.state === "unavailable" && <BiX className="text-error" />}
             </div>
-          </>
-        )}
+          </div>
+        </>
+
         <h1 className="self-start text-lg">
-          {!hasUsername && "2."} Auto detect, type your address or click on the map to set your
-          location
+          2. Auto detect, type your address or click on the map to set your location
         </h1>
         <div className="input-group">
           <input type="text" ref={addressInputRef} className="input w-full" autoComplete="off" />
@@ -79,7 +76,7 @@ export function SetLocationPage() {
         <button
           className="btn-primary btn-sm btn"
           onClick={handleSubmit}
-          disabled={!hasUsername && username.state !== "available"}
+          disabled={username.state !== "available"}
         >
           Done
         </button>
@@ -91,21 +88,25 @@ export function SetLocationPage() {
 
 const debouncedCheckUsernameExists = debounce(
   (
-    e: ChangeEvent<HTMLInputElement>,
+    username: string,
     setUsername: Dispatch<
       SetStateAction<{
         value: string;
         state: "loading" | "unavailable" | "available" | null;
       }>
-    >
+    >,
+    checkUsername: () => Promise<{ data: User }>
   ) => {
-    const inputVal = e.target.value.trim();
+    const inputVal = username.trim().toLowerCase();
     const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/;
     if (!usernameRegex.test(inputVal)) {
-      return setUsername({ value: "", state: "unavailable" });
+      console.log("checking regex fail", inputVal);
+      return setUsername((prev) => ({ ...prev, state: "unavailable" }));
     }
-    checkUsernameExists(inputVal).then((res) => {
-      setUsername({ value: inputVal, state: res ? "unavailable" : "available" });
+    console.log("checking username");
+
+    checkUsername().then((res) => {
+      setUsername((prev) => ({ ...prev, state: res.data ? "unavailable" : "available" }));
     });
   },
   600

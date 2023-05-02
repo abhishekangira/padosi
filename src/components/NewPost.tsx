@@ -1,8 +1,6 @@
 import { useUserContext } from "@/lib/contexts/user-context";
-import { addPost } from "@/lib/firebase/posts";
-import { useApi } from "@/lib/hooks/useApi";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { getDoc } from "firebase/firestore";
+import { trpc } from "@/lib/utils/trpc";
+import { getQueryKey } from "@trpc/react-query";
 import Image from "next/image";
 import React, { useEffect, useRef, useState } from "react";
 
@@ -14,32 +12,27 @@ export function NewPost({ maxLength = 1000 }) {
   const [title, setTitle] = useState("");
   const textRef = useRef<HTMLTextAreaElement>(null);
   const titleRef = useRef<HTMLTextAreaElement>(null);
-  const queryClient = useQueryClient();
+  const utils = trpc.useContext();
   const {
     mutate: addPostMutation,
     isLoading: addPostLoading,
     isError: addPostError,
-  } = useMutation({
-    mutationFn: addPost,
-    onSuccess: () => {
+  } = trpc.post.createPost.useMutation({
+    onSuccess: async (post) => {
       setText("");
       setTitle("");
-      return queryClient.invalidateQueries({ queryKey: ["posts"] });
+      setShowTitleInput(false);
+      return utils.post.infinitePosts.invalidate();
     },
   });
 
   const handleSubmit = () => {
     if (!user) return;
-    const { geoHash, location, displayName, username, registerUsername, photoURL, uid } = user;
+    const { id } = user;
     addPostMutation({
-      text,
-      title: showTitleInput ? title : "",
-      geoHash,
-      location,
-      displayName,
-      username: username || registerUsername,
-      photoURL,
-      uid,
+      authorId: id,
+      title: title || undefined,
+      content: text,
     });
   };
 

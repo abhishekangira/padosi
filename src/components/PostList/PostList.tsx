@@ -1,25 +1,28 @@
 import { PostCard } from "../PostCard/PostCard";
-import { fetchPosts } from "@/lib/firebase/posts";
-import { useInfiniteQuery } from "@tanstack/react-query";
-import { useEffect, useRef, useState } from "react";
 import { Virtuoso } from "react-virtuoso";
 import { PostCardSkeleton } from "../PostCard/PostCardSkeleton";
 import { useUserContext } from "@/lib/contexts/user-context";
 import { trpc } from "@/lib/utils/trpc";
+import { Post, User } from "@prisma/client";
 
 export function PostList() {
   const { user } = useUserContext();
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status, error } =
-    trpc.infinitePosts.useInfiniteQuery(
+    trpc.post.infinitePosts.useInfiniteQuery(
       {
         limit: 10,
+        lat: user!?.latitude,
+        lng: user!?.longitude,
       },
       {
         getNextPageParam: (lastPage) => lastPage.nextCursor,
+        enabled: !!user?.id,
       }
     );
-
-  console.log(data, "data");
+  console.log(
+    "data",
+    data?.pages.flatMap((page) => page.posts)
+  );
 
   if (status === "loading")
     return (
@@ -45,17 +48,13 @@ export function PostList() {
       {posts.length ? (
         <Virtuoso
           useWindowScroll
-          rangeChanged={(range) => {
-            sessionStorage.setItem("startIndex", range.startIndex.toString());
-          }}
-          initialTopMostItemIndex={Number(sessionStorage.getItem("startIndex")) || 0}
           data={posts}
           endReached={() => {
             if (hasNextPage) fetchNextPage();
           }}
           overscan={20}
           itemContent={(index, post) => {
-            return <PostCard key={post.id} post={post} index={index} />;
+            return <PostCard key={post.id} post={post as unknown as User & Post} index={index} />;
           }}
           components={{ Footer: () => (isFetchingNextPage ? <div>Loading...</div> : null) }}
         />

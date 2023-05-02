@@ -1,102 +1,43 @@
 import { useEffect, useState } from "react";
-import { User } from "firebase/auth";
 import { auth, db } from "../firebase/firebase";
 import { useRouter } from "next/router";
 import { doc, getDoc, serverTimestamp, setDoc, updateDoc } from "firebase/firestore";
+import { User } from "@prisma/client";
+import { trpc } from "../utils/trpc";
 
-export type UserType =
-  | (User & {
-    isUserLocationSet: boolean;
-    username: string;
-    registerUsername: string;
-    geoHash: string;
-    location: { lat: number; lng: number };
-  })
-  | null;
-
-let isUserSet = false;
+export type UserType = User | null;
 
 export function useUser() {
   const [user, setUser] = useState<UserType>(null);
   const [userLoading, setUserLoading] = useState(true);
   const [routeLoading, setRouteLoading] = useState(true);
+
+  trpc.user.getUser.useQuery(
+    { uid: user!?.uid },
+    {
+      enabled: !!user?.uid,
+      onSuccess(data) {
+        setUser(data);
+        setUserLoading(false);
+      },
+    }
+  );
+
   const router = useRouter();
 
   useEffect(() => {
-    if (user?.uid && user?.registerUsername && !isUserSet) {
-      const userRef = doc(db, "users", user?.uid);
-      getDoc(userRef).then((userSnap) => {
-        if (userSnap.exists()) {
-          updateDoc(userRef, {
-            username: user.registerUsername,
-            updatedAt: serverTimestamp(),
-          });
-          isUserSet = true;
-        }
-      });
-    }
-  }, [user]);
-
-  useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (firebaseUser) => {
-      console.log("Auth state changed");
-
       if (firebaseUser) {
-        const { uid, email, photoURL } = firebaseUser;
-        try {
-          const userRef = doc(db, "users", firebaseUser.uid);
-          const userSnap = await getDoc(userRef);
-          if (!userSnap.exists()) {
-            setDoc(userRef, {
-              uid,
-              email,
-              displayName: firebaseUser.displayName,
-              photoURL,
-              createdAt: serverTimestamp(),
-            });
-            console.log("Doc create", {
-              uid,
-              email,
-              displayName: firebaseUser.displayName,
-              photoURL,
-              createdAt: serverTimestamp(),
-            });
-          } else if (
-            firebaseUser?.displayName &&
-            userSnap.data()?.displayName !== firebaseUser.displayName
-          ) {
-            updateDoc(userRef, {
-              displayName: firebaseUser.displayName,
-              updatedAt: serverTimestamp(),
-            });
-            console.log("Doc update", {
-              displayName: firebaseUser.displayName,
-              updatedAt: serverTimestamp(),
-            });
-          }
-          const isUserLocationSet = !!userSnap.data()?.geoHash;
-          setUser(
-            (prev) =>
-            ({
-              ...prev,
-              ...(userSnap.data() ?? {}),
-              uid,
-              email,
-              displayName: firebaseUser.displayName,
-              photoURL,
-              isUserLocationSet,
-            } as UserType)
-          );
-        } catch (error) {
-          console.error(error);
-        }
+        if (!user)
+          setUser({
+            uid: firebaseUser.uid,
+          } as UserType);
       } else {
+        console.log("NO FIREBASE USER");
         setUser(null);
-        isUserSet = false;
+        setUserLoading(false);
       }
-      setUserLoading(false);
     });
-
     return () => unsubscribe();
   }, []);
 
@@ -112,8 +53,8 @@ export function useUser() {
 
     if (routeLoading) router.events.on("routeChangeComplete", handleRouteChangeComplete);
 
-    if (user?.uid) {
-      if (!user.isUserLocationSet) {
+    if (auth.currentUser) {
+      if (!user?.id) {
         if (router.pathname !== "/set-location") router.push("/set-location");
         else setRouteLoading(false);
       } else if (["/set-location", "/"].includes(router.pathname)) router.push("/home");
@@ -128,5 +69,5 @@ export function useUser() {
     };
   }, [user, router.pathname, routeLoading, userLoading, setRouteLoading]);
 
-  return { user, loading: userLoading || routeLoading, setUser };
+  return { user, loading: userLoading || routeLoading, setUser, setUserLoading };
 }

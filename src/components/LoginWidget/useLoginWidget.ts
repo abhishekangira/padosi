@@ -1,5 +1,5 @@
 import { auth, db } from "@/lib/firebase/firebase";
-import { collection, doc, getDoc, getDocs, query, where } from "firebase/firestore";
+import { collection, getDocs, query, where } from "firebase/firestore";
 
 import {
   createUserWithEmailAndPassword,
@@ -8,14 +8,11 @@ import {
   updateProfile,
 } from "firebase/auth";
 import { useCallback, useEffect, useState } from "react";
-import { useUserContext } from "@/lib/contexts/user-context";
-import { UserType } from "@/lib/hooks/useUser";
 
 export function useLoginWidget() {
   const [formView, setFormView] = useState<FormViewType>("Sign In");
   const [errors, setErrors] = useState(defaultErrors);
   const [loading, setLoading] = useState(false);
-  const { setUser } = useUserContext();
 
   useEffect(() => {
     setErrors(defaultErrors);
@@ -73,28 +70,6 @@ export function useLoginWidget() {
           } else {
             setErrors((prevErrors) => ({ ...prevErrors, confirmPassword: false }));
           }
-          if (!username) {
-            setErrors((prevErrors) => ({ ...prevErrors, username: "Please enter a username" }));
-            return;
-          } else if (!usernameRegex.test(username)) {
-            setErrors((prevErrors) => ({
-              ...prevErrors,
-              username:
-                "Username must be 3-20 characters long and contain only letters, numbers, and underscores",
-            }));
-            return;
-          } else {
-            const usernameExists = await checkUsernameExists(username);
-            if (usernameExists) {
-              setErrors((prevErrors) => ({
-                ...prevErrors,
-                username: "Sorry, this username is taken",
-              }));
-              return;
-            }
-            setErrors((prevErrors) => ({ ...prevErrors, username: "" }));
-            setUser((prev) => ({ ...prev, registerUsername: username } as UserType));
-          }
         }
       }
 
@@ -148,18 +123,12 @@ export function useLoginWidget() {
   return { handleSubmit, formView, setFormView, errors, loading };
 }
 
-export async function checkUsernameExists(username: string) {
-  const q = query(collection(db, "users"), where("username", "==", username));
-  const querySnapshot = await getDocs(q);
-  return querySnapshot.size > 0;
-}
-
 async function handleSubmitWithPassword(
   type: "Sign In" | "Sign Up",
   email: string,
   password: string,
   setLoading: (loading: boolean) => void,
-  displayName?: string
+  displayName: string
 ) {
   const firebaseFunction =
     type === "Sign In" ? signInWithEmailAndPassword : createUserWithEmailAndPassword;
@@ -192,5 +161,4 @@ export const defaultErrors = {
   confirmPassword: false,
   displayName: "",
   server: "",
-  username: "",
 };

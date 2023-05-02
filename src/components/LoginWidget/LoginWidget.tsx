@@ -50,17 +50,6 @@ export function LoginWidget() {
                     )}
                   </label>
                 </div>
-                <div className="form-control">
-                  <label htmlFor="username" className="label">
-                    <span className="label-text">Username</span>
-                  </label>
-                  <input type="text" id="username" placeholder="simmiddlj" className="input" />
-                  <label className="label min-h-8">
-                    {errors.username && (
-                      <span className="label-text-alt text-error">{errors.username}</span>
-                    )}
-                  </label>
-                </div>
               </>
             )}
             <div className="form-control">
