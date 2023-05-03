@@ -4,7 +4,7 @@ export function PostCardSkeleton() {
   return (
     <div className="grid pointer-events-none animate-pulse w-full grid-cols-[min-content_auto_min-content] grid-rows-[min-content_auto_auto] gap-3 border-b border-b-sky-900 p-3 sm:gap-4">
       <div className="avatar">
-        <div className="relative h-12 rounded-full sm:h-16 bg-base-100"></div>
+        <div className="relative h-12 mask mask-squircle sm:h-16 bg-base-100"></div>
       </div>
       <div className="flex h-full flex-col justify-evenly self-center">
         <div className="flex items-center gap-1">

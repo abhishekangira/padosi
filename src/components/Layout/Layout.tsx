@@ -4,17 +4,24 @@ import { TopNav } from "../TopNav";
 import { BottomNav } from "../BottomNav";
 import { useUserContext } from "@/lib/contexts/user-context";
 import FullPageLoader from "../FullPageLoader/FullPageLoader";
+import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const { hideNavbar, navbarTitle, noLayout } = useLayoutContext();
   const { loading } = useUserContext();
-  if (loading)
-    return (
-      <>
-        <FullPageLoader />
-        <div className="bg-radial fixed top-0 -z-10 min-h-screen w-screen"></div>
-      </>
-    );
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!loading)
+      if (router.pathname === "/home") {
+        setTimeout(() => {
+          window.scrollTo(0, 882);
+          console.log("scrolling to", 882);
+        }, 0);
+      }
+  }, [router.pathname, loading]);
+
   return (
     <>
       <Head>

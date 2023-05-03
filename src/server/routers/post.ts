@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { procedure, trpcRouter } from "../trpc";
-import { Post, User } from "@prisma/client";
+import { Post, Prisma, User } from "@prisma/client";
 
 export const postRouter = trpcRouter({
   infinitePosts: procedure
@@ -15,15 +15,15 @@ export const postRouter = trpcRouter({
     .query(async ({ input, ctx }) => {
       const limit = input.limit ?? 50;
       const { cursor, lat, lng } = input;
-      const km = 10;
+      const km = 20;
       const lowerLatitude = lat - (km / 6371) * (180 / Math.PI);
       const upperLatitude = lat + (km / 6371) * (180 / Math.PI);
       const lowerLongitude =
         lng - ((km / 6371) * (180 / Math.PI)) / Math.cos((lat * Math.PI) / 180);
       const upperLongitude =
         lng + ((km / 6371) * (180 / Math.PI)) / Math.cos((lat * Math.PI) / 180);
-      const cursorCondition = cursor ? `AND Post.id < ${cursor}` : "";
-      const sqlQuery = `SELECT Post.id, Post.title, Post.createdAt, Post.content,
+
+      const sqlQuery = `SELECT Post.id, Post.cuid, Post.title, Post.createdAt, Post.content,
         User.name, User.username, User.latitude, User.longitude, User.id as authorId
         FROM Post INNER JOIN User ON Post.authorId = User.id
         WHERE User.latitude >= ${lowerLatitude}
@@ -33,15 +33,36 @@ export const postRouter = trpcRouter({
             AND ST_Distance_Sphere(
                 POINT(User.longitude, User.latitude),
                 POINT(${lng}, ${lat})) <= ${km * 1000}
-            ${cursorCondition}
+            AND Post.id < ${cursor || Number.MAX_SAFE_INTEGER}
         ORDER BY Post.id DESC
         LIMIT ${limit + 1}
         `;
-      console.log("query", sqlQuery);
-      const res = await ctx.prisma.$queryRawUnsafe(sqlQuery);
-      console.log("res", res);
 
-      const posts = res as (User & Post)[];
+      const res = await ctx.planet.execute(sqlQuery);
+      const posts = res.rows.map((post) => {
+        const {
+          id,
+          cuid,
+          title,
+          createdAt,
+          content,
+          name,
+          username,
+          latitude,
+          longitude,
+          authorId,
+        } = post as User & Post & { authorId: number };
+        return {
+          id,
+          cuid,
+          title,
+          createdAt,
+          content,
+          authorId,
+          author: { name, username, latitude, longitude },
+        };
+      }) as (Post & { author: User })[];
+
       let nextCursor: typeof cursor | undefined = undefined;
       if (posts.length > limit) {
         const nextItem = posts.pop();
@@ -56,7 +77,7 @@ export const postRouter = trpcRouter({
   createPost: procedure
     .input(
       z.object({
-        title: z.string().min(3).max(100).nullish(),
+        title: z.string().min(3).max(150).nullish(),
         content: z.string().min(3).max(1000),
         authorId: z.number(),
       })
@@ -68,6 +89,23 @@ export const postRouter = trpcRouter({
           title,
           content,
           authorId,
+        },
+      });
+      return post;
+    }),
+  getPost: procedure
+    .input(
+      z.object({
+        cuid: z.string(),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const post = await ctx.prisma.post.findUnique({
+        where: {
+          cuid: input.cuid,
+        },
+        include: {
+          author: true,
         },
       });
       return post;

@@ -3,14 +3,13 @@ import { Virtuoso } from "react-virtuoso";
 import { PostCardSkeleton } from "../PostCard/PostCardSkeleton";
 import { useUserContext } from "@/lib/contexts/user-context";
 import { trpc } from "@/lib/utils/trpc";
-import { Post, User } from "@prisma/client";
 
 export function PostList() {
   const { user } = useUserContext();
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status, error } =
     trpc.post.infinitePosts.useInfiniteQuery(
       {
-        limit: 10,
+        limit: 5,
         lat: user!?.latitude,
         lng: user!?.longitude,
       },
@@ -54,7 +53,7 @@ export function PostList() {
           }}
           overscan={20}
           itemContent={(index, post) => {
-            return <PostCard key={post.id} post={post as unknown as User & Post} index={index} />;
+            return <PostCard key={post.cuid} post={post} />;
           }}
           components={{ Footer: () => (isFetchingNextPage ? <div>Loading...</div> : null) }}
         />

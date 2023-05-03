@@ -10,9 +10,12 @@ const planetConfig = {
   password: process.env.DATABASE_PASSWORD,
 };
 
+const prisma = new PrismaClient();
+const planet = connect(planetConfig);
+
 const createContext = () => ({
-  prisma: new PrismaClient(),
-  planet: connect(planetConfig),
+  prisma,
+  planet,
 });
 
 export default trpcNext.createNextApiHandler({

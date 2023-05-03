@@ -9,31 +9,34 @@ import { distanceBetween } from "geofire-common";
 import Link from "next/link";
 import * as Dropdown from "@radix-ui/react-dropdown-menu";
 import { Post, User } from "@prisma/client";
+import { useMemo } from "react";
 
 dayjs.extend(relativeTime);
-dayjs.extend(utc);
 
 export function PostCard({
   post,
   full = false,
-  index = 0,
 }: {
-  post: User & Post;
+  post: Post & { author: User };
   full?: boolean;
-  index?: number;
 }) {
   const { user } = useUserContext();
-  const ownPost = user?.id === post.authorId;
-  const distanceInKm = distanceBetween(
-    [post.latitude, post.longitude],
-    [user?.latitude ?? 0, user?.longitude ?? 0]
-  ).toFixed(2);
+  const ownPost = user?.id === Number(post.authorId);
+  const distanceInKm = useMemo(
+    () =>
+      distanceBetween(
+        [post.author.latitude, post.author.longitude],
+        [user?.latitude ?? 0, user?.longitude ?? 0]
+      ).toFixed(2),
+    [post, user?.latitude, user?.longitude]
+  );
+
   return (
     <div className="grid w-full grid-cols-[min-content_auto_min-content] grid-rows-[min-content_auto_auto] gap-3 border-b border-b-sky-900 p-3 sm:gap-4">
       <div className="avatar">
         <div className="relative h-12 sm:h-16 mask mask-squircle">
           <Image
-            src={post?.photo || "/images/avatar.jpg"}
+            src={post.author.photo || "/images/avatar.jpg"}
             alt="avatar"
             fill
             sizes="(min-width: 640px) 64px, 48px"
@@ -43,13 +46,15 @@ export function PostCard({
       <div className="flex h-full flex-col justify-center gap-1 self-center">
         <div className="flex items-center gap-1">
           <h2 className="text-sm font-bold leading-none text-slate-300 sm:text-base">
-            {post?.name}
+            {post.author.name}
           </h2>
-          <span className="text-sm leading-none text-slate-500 sm:text-base">@{post.username}</span>
+          <span className="text-sm leading-none text-slate-500 sm:text-base">
+            @{post.author.username}
+          </span>
         </div>
         <div className="flex items-center gap-1">
           <span className="text-xs text-slate-500 sm:text-sm">
-            {dayjs(post.createdAt).utc(true).fromNow()}
+            {dayjs(post.createdAt).fromNow()}
           </span>
           <span className="text-xs leading-none text-slate-500">•</span>
           <span className="text-xs text-slate-500 sm:text-sm">{distanceInKm} km</span>
@@ -70,7 +75,7 @@ export function PostCard({
           )}
           {!ownPost && (
             <Dropdown.Item className="flex gap-2 cursor-pointer text-primary items-center rounded p-2">
-              <BsPersonFillAdd /> Follow @{post?.username}
+              <BsPersonFillAdd /> Follow @{post.author.username}
             </Dropdown.Item>
           )}
         </Dropdown.Content>
@@ -92,7 +97,7 @@ const PostBody = ({ post, full }: { post: Post; full?: boolean }) =>
       <p className="overflow-hidden text-sm font-light leading-snug sm:text-base">{post.content}</p>
     </div>
   ) : (
-    <Link href={`/post/${post.id}`} className="col-span-full grid gap-2">
+    <Link href={`/post/${post.cuid}`} className="col-span-full grid gap-2">
       <h2 className="text-base font-bold text-primary-light sm:text-lg">{post.title}</h2>
       <p className="overflow-hidden text-sm font-light leading-snug sm:text-base">
         {post.content.length > 220 ? (

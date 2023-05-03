@@ -88,7 +88,7 @@ export function NewPost({ maxLength = 1000 }) {
       <div className="avatar absolute top-0 left-3">
         <div className="relative h-12 mask mask-squircle sm:h-16">
           <Image
-            src={user?.photoURL || "/images/avatar.jpg"}
+            src={user?.photo || "/images/avatar.jpg"}
             alt="avatar"
             fill
             sizes="(min-width: 640px) 64px, 48px"
