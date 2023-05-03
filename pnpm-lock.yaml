@@ -64,6 +64,9 @@ dependencies:
   react-virtuoso:
     specifier: ^4.3.3
     version: 4.3.3(react-dom@18.2.0)(react@18.2.0)
+  superjson:
+    specifier: ^1.12.3
+    version: 1.12.3
   typescript:
     specifier: 5.0.4
     version: 5.0.4

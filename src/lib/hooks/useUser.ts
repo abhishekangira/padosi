@@ -34,8 +34,8 @@ export function useUser() {
           } as UserType);
       } else {
         console.log("NO FIREBASE USER");
-        setUser(null);
         setUserLoading(false);
+        setUser(null);
       }
     });
     return () => unsubscribe();

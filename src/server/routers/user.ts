@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { prisma, procedure, trpcRouter } from "../trpc";
+import { procedure, trpcRouter } from "../trpc";
 
 export const userRouter = trpcRouter({
   createUser: procedure
@@ -13,10 +13,9 @@ export const userRouter = trpcRouter({
         latitude: z.number(),
       })
     )
-    .mutation(async (opts) => {
-      const { input } = opts;
+    .mutation(async ({ ctx, input }) => {
       const { username, uid, email, name, longitude, latitude } = input;
-      const user = await prisma.user.create({
+      const user = await ctx.prisma.user.create({
         data: {
           username,
           uid,
@@ -36,11 +35,10 @@ export const userRouter = trpcRouter({
         username: z.string().optional(),
       })
     )
-    .query(async (opts) => {
-      const { input } = opts;
-      const user = await prisma.user.findFirst({
+    .query(async ({ ctx, input }) => {
+      const user = await ctx.prisma.user.findFirst({
         where: {
-          OR: [{ uid: input?.uid }, { id: input?.id }, { username: input.username }],
+          OR: [{ uid: input?.uid }, { id: input?.id }, { username: input?.username }],
         },
       });
       return user;

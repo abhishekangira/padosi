@@ -89,7 +89,7 @@ const PostBody = ({ post, full }: { post: Post; full?: boolean }) =>
   full ? (
     <div className="col-span-full grid gap-2">
       <h2 className="text-base font-bold text-primary-light sm:text-lg">{post.title}</h2>
-      <p className="overflow-hidden text-sm font-light leading-snug sm:text-base">{post.text}</p>
+      <p className="overflow-hidden text-sm font-light leading-snug sm:text-base">{post.content}</p>
     </div>
   ) : (
     <Link href={`/post/${post.id}`} className="col-span-full grid gap-2">

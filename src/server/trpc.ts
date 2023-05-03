@@ -1,16 +1,10 @@
 import { initTRPC } from "@trpc/server";
-const t = initTRPC.create();
-import { PrismaClient } from "@prisma/client";
-import { connect } from "@planetscale/database";
+import superjson from "superjson";
+import { TrpcContextType } from "../../pages/api/trpc/[trpc]";
 
-export const prisma = new PrismaClient();
+const t = initTRPC.context<TrpcContextType>().create({
+  transformer: superjson,
+});
+
 export const trpcRouter = t.router;
 export const procedure = t.procedure;
-
-const planetConfig = {
-  host: "aws.connect.psdb.cloud",
-  username: process.env.DATABASE_USERNAME,
-  password: process.env.DATABASE_PASSWORD,
-};
-
-export const planet = connect(planetConfig);

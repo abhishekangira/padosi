@@ -9,61 +9,78 @@ datasource db {
 }
 
 model Post {
-  id        Int       @id @default(autoincrement()) @db.UnsignedInt
-  cuid      String    @unique @default(cuid()) @db.VarChar(30)
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  title     String?
-  content   String    @db.VarChar(1000)
-  authorId  Int
-  author    User      @relation(fields: [authorId], references: [id])
-  likes     Like[]
-  comments  Comment[]
+  id           Int           @id @default(autoincrement()) @db.UnsignedInt
+  cuid         String        @unique @default(cuid()) @db.VarChar(30)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  title        String?
+  content      String        @db.VarChar(1000)
+  authorId     Int           @db.UnsignedInt
+  author       User          @relation(fields: [authorId], references: [id])
+  likeDislikes LikeDislike[]
+  comments     Comment[]
 
   @@index([authorId])
 }
 
 model User {
-  id        Int       @id @default(autoincrement()) @db.UnsignedInt
-  uid       String    @unique
-  email     String    @unique
-  username  String    @unique @db.VarChar(20)
-  name      String
-  photo     String?   @db.VarChar(255)
-  latitude  Float
-  longitude Float
-  tagline   String?   @db.VarChar(60)
-  bio       String?   @db.VarChar(255)
-  posts     Post[]
-  likes     Like[]
-  comments  Comment[]
+  id           Int           @id @default(autoincrement()) @db.UnsignedInt
+  uid          String        @unique
+  email        String        @unique
+  username     String        @unique @db.VarChar(20)
+  name         String
+  photo        String?       @db.VarChar(255)
+  latitude     Float
+  longitude    Float
+  tagline      String?       @db.VarChar(60)
+  bio          String?       @db.VarChar(255)
+  createdAt    DateTime      @default(now())
+  posts        Post[]
+  likeDislikes LikeDislike[]
+  comments     Comment[]
+  following    Follow[]      @relation("follower")
+  followers    Follow[]      @relation("following")
 }
 
-model Like {
-  id          Int        @id @default(autoincrement()) @db.UnsignedInt
-  userId      Int
-  postId      Int?
-  commentId   Int?
-  likedEntity EntityType
-  user        User       @relation(fields: [userId], references: [id])
-  Post        Post?      @relation(fields: [postId], references: [id])
-  Comment     Comment?   @relation(fields: [commentId], references: [id])
+model Follow {
+  followerId  Int
+  followingId Int
+  follower    User @relation("follower", fields: [followerId], references: [id])
+  following   User @relation("following", fields: [followingId], references: [id])
 
+  @@id([followerId, followingId])
+  @@index([followerId])
+  @@index([followingId])
+}
+
+model LikeDislike {
+  id        Int            @id @default(autoincrement()) @db.UnsignedInt
+  userId    Int            @db.UnsignedInt
+  postId    Int?           @db.UnsignedInt
+  commentId Int?           @db.UnsignedInt
+  type      EngagementType
+  entity    EntityType
+  user      User           @relation(fields: [userId], references: [id])
+  Post      Post?          @relation(fields: [postId], references: [id])
+  Comment   Comment?       @relation(fields: [commentId], references: [id])
+
+  @@unique([userId, postId])
+  @@unique([userId, commentId])
   @@index([userId])
   @@index([postId])
   @@index([commentId])
 }
 
 model Comment {
-  id        Int      @id @default(autoincrement()) @db.UnsignedInt
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  content   String   @db.VarChar(1000)
-  authorId  Int
-  postId    Int
-  author    User     @relation(fields: [authorId], references: [id])
-  post      Post     @relation(fields: [postId], references: [id])
-  likes     Like[]
+  id           Int           @id @default(autoincrement()) @db.UnsignedInt
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  content      String        @db.VarChar(1000)
+  authorId     Int           @db.UnsignedInt
+  postId       Int           @db.UnsignedInt
+  author       User          @relation(fields: [authorId], references: [id])
+  post         Post          @relation(fields: [postId], references: [id])
+  likeDislikes LikeDislike[]
 
   @@index([authorId])
   @@index([postId])
@@ -72,4 +89,9 @@ model Comment {
 enum EntityType {
   POST
   COMMENT
+}
+
+enum EngagementType {
+  LIKE
+  DISLIKE
 }

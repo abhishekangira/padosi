@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { planet, prisma, procedure, trpcRouter } from "../trpc";
+import { procedure, trpcRouter } from "../trpc";
 import { Post, User } from "@prisma/client";
 
 export const postRouter = trpcRouter({
@@ -12,8 +12,7 @@ export const postRouter = trpcRouter({
         lng: z.number(),
       })
     )
-    .query(async (opts) => {
-      const { input } = opts;
+    .query(async ({ input, ctx }) => {
       const limit = input.limit ?? 50;
       const { cursor, lat, lng } = input;
       const km = 10;
@@ -25,7 +24,7 @@ export const postRouter = trpcRouter({
         lng + ((km / 6371) * (180 / Math.PI)) / Math.cos((lat * Math.PI) / 180);
       const cursorCondition = cursor ? `AND Post.id < ${cursor}` : "";
       const sqlQuery = `SELECT Post.id, Post.title, Post.createdAt, Post.content,
-        User.name, User.username, User.latitude, User.longitude
+        User.name, User.username, User.latitude, User.longitude, User.id as authorId
         FROM Post INNER JOIN User ON Post.authorId = User.id
         WHERE User.latitude >= ${lowerLatitude}
             AND User.latitude <= ${upperLatitude}
@@ -39,8 +38,10 @@ export const postRouter = trpcRouter({
         LIMIT ${limit + 1}
         `;
       console.log("query", sqlQuery);
-      const res = await planet.execute(sqlQuery);
-      const posts = res.rows as (User & Post)[];
+      const res = await ctx.prisma.$queryRawUnsafe(sqlQuery);
+      console.log("res", res);
+
+      const posts = res as (User & Post)[];
       let nextCursor: typeof cursor | undefined = undefined;
       if (posts.length > limit) {
         const nextItem = posts.pop();
@@ -55,15 +56,14 @@ export const postRouter = trpcRouter({
   createPost: procedure
     .input(
       z.object({
-        title: z.string().min(3).max(100).optional(),
+        title: z.string().min(3).max(100).nullish(),
         content: z.string().min(3).max(1000),
         authorId: z.number(),
       })
     )
-    .mutation(async (opts) => {
-      const { input } = opts;
+    .mutation(async ({ ctx, input }) => {
       const { title, content, authorId } = input;
-      const post = await prisma.post.create({
+      const post = await ctx.prisma.post.create({
         data: {
           title,
           content,

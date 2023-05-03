@@ -31,7 +31,7 @@ export function NewPost({ maxLength = 1000 }) {
     const { id } = user;
     addPostMutation({
       authorId: id,
-      title: title || undefined,
+      title: title || null,
       content: text,
     });
   };

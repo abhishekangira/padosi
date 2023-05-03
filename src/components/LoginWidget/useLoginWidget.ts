@@ -29,7 +29,6 @@ export function useLoginWidget() {
         /[^A-Za-z\u00C0-\u1FFF\u2800-\uFFFD]+$/u.test(text);
       let password = "";
       let displayName = "";
-      let username = "";
 
       if (!emailRegex.test(email)) {
         setErrors((prevErrors) => ({ ...prevErrors, email: "Please enter a valid email" }));
@@ -49,8 +48,6 @@ export function useLoginWidget() {
         if (formView === "Sign Up") {
           const confirmPassword = (event.currentTarget as HTMLFormElement).confirmPassword.value;
           displayName = (event.currentTarget as HTMLFormElement).displayName.value;
-          username = (event.currentTarget as HTMLFormElement).username.value.toLowerCase();
-          const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/;
 
           if (!displayName) {
             setErrors((prevErrors) => ({ ...prevErrors, displayName: "Name cannot be empty" }));

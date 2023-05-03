@@ -17,6 +17,9 @@ export function useSetLocationPage() {
     onSuccess: (data) => {
       setUser(data);
     },
+    onError(error, variables, context) {
+      console.log("Error creating user", error, variables, context);
+    },
   });
   const mapInitiatedRef = useRef(false);
   const { refetch } = trpc.user.getUser.useQuery({ username: username.value }, { enabled: false });
