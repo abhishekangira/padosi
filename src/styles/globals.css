@@ -19,6 +19,10 @@ body,
   background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
 }
 
+[data-test-id="virtuoso-item-list"] > div:last-child > div {
+  border: none;
+}
+
 /* google maps autocomplete related styling */
 .pac-container {
   background-color: #1b2735;

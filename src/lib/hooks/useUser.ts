@@ -43,33 +43,33 @@ export function useUser() {
     return () => unsubscribe();
   }, []);
 
-  // useEffect(() => {
-  //   console.log("Route/user useEffect", router.pathname, routeLoading);
-  //   if (userLoading) return;
+  useEffect(() => {
+    console.log("Route/user useEffect", router.pathname, routeLoading);
+    if (userLoading) return;
 
-  //   const handleRouteChangeComplete = () => {
-  //     setRouteLoading(false);
-  //     router.events.off("routeChangeComplete", handleRouteChangeComplete);
-  //     console.log("Route change complete", router.pathname);
-  //   };
+    const handleRouteChangeComplete = () => {
+      setRouteLoading(false);
+      router.events.off("routeChangeComplete", handleRouteChangeComplete);
+      console.log("Route change complete", router.pathname);
+    };
 
-  //   if (routeLoading) router.events.on("routeChangeComplete", handleRouteChangeComplete);
+    if (routeLoading) router.events.on("routeChangeComplete", handleRouteChangeComplete);
 
-  //   if (auth.currentUser) {
-  //     if (!user?.id) {
-  //       if (router.pathname !== "/set-location") router.push("/set-location");
-  //       else setRouteLoading(false);
-  //     } else if (["/set-location", "/"].includes(router.pathname)) router.push("/home");
-  //     else setRouteLoading(false);
-  //   } else {
-  //     if (router.pathname === "/") setRouteLoading(false);
-  //     else router.push("/");
-  //   }
+    if (auth.currentUser) {
+      if (!user?.id) {
+        if (router.pathname !== "/set-location") router.push("/set-location");
+        else setRouteLoading(false);
+      } else if (["/set-location", "/"].includes(router.pathname)) router.push("/home");
+      else setRouteLoading(false);
+    } else {
+      if (router.pathname === "/") setRouteLoading(false);
+      else router.push("/");
+    }
 
-  //   return () => {
-  //     router.events.off("routeChangeComplete", handleRouteChangeComplete);
-  //   };
-  // }, [user, router.pathname, routeLoading, userLoading, setRouteLoading]);
+    return () => {
+      router.events.off("routeChangeComplete", handleRouteChangeComplete);
+    };
+  }, [user, router.pathname, routeLoading, userLoading, setRouteLoading]);
 
   return { user, loading: userLoading || routeLoading, setUser, setUserLoading };
 }

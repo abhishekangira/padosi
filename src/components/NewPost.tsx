@@ -12,7 +12,7 @@ export function NewPost({ maxLength = 1000 }) {
   const [title, setTitle] = useState("");
   const textRef = useRef<HTMLTextAreaElement>(null);
   const titleRef = useRef<HTMLTextAreaElement>(null);
-  const utils = trpc.useContext();
+  const trpcContext = trpc.useContext();
   const {
     mutate: addPostMutation,
     isLoading: addPostLoading,
@@ -22,7 +22,7 @@ export function NewPost({ maxLength = 1000 }) {
       setText("");
       setTitle("");
       setShowTitleInput(false);
-      return utils.post.infinitePosts.invalidate();
+      return trpcContext.post.infinitePosts.invalidate();
     },
   });
 

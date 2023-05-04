@@ -9,19 +9,67 @@ import { distanceBetween } from "geofire-common";
 import Link from "next/link";
 import * as Dropdown from "@radix-ui/react-dropdown-menu";
 import { Post, User } from "@prisma/client";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
+import { AiOutlineComment, AiOutlineDislike, AiOutlineLike } from "react-icons/ai";
+import { BiShare } from "react-icons/bi";
+import { trpc } from "@/lib/utils/trpc";
 
 dayjs.extend(relativeTime);
+dayjs.extend(utc);
 
 export function PostCard({
   post,
   full = false,
 }: {
-  post: Post & { author: User };
+  post: Post & {
+    author: User;
+    likesCount: number;
+    dislikesCount: number;
+    isLikedByUser: boolean;
+    isDislikedByUser: boolean;
+    commentsCount: number;
+  };
   full?: boolean;
 }) {
   const { user } = useUserContext();
-  const ownPost = user?.id === Number(post.authorId);
+  const trpcUtils = trpc.useContext();
+  const [likes, setLikes] = useState({ count: post.likesCount, isLikedByUser: post.isLikedByUser });
+  const [dislikes, setDislikes] = useState({
+    count: post.dislikesCount,
+    isDislikedByUser: post.isDislikedByUser,
+  });
+  const { mutate: toggleLikeDislike } = trpc.toggleLikeDislike.useMutation({
+    onMutate(variables) {
+      trpcUtils.post.infinitePosts.cancel();
+      switch (variables.action) {
+        case "LIKE":
+          setLikes((prev) => ({
+            count: prev.isLikedByUser ? prev.count - 1 : prev.count + 1,
+            isLikedByUser: !prev.isLikedByUser,
+          }));
+          if (post.isDislikedByUser && dislikes.count > 0)
+            setDislikes((prev) => ({ count: prev.count - 1, isDislikedByUser: false }));
+          break;
+        case "DISLIKE":
+          setDislikes((prev) => ({
+            count: prev.isDislikedByUser ? prev.count - 1 : prev.count + 1,
+            isDislikedByUser: !prev.isDislikedByUser,
+          }));
+          if (post.isLikedByUser && likes.count > 0)
+            setLikes((prev) => ({ count: prev.count - 1, isLikedByUser: false }));
+          break;
+      }
+    },
+    onSettled(data, error, variables, context) {
+      if (error) {
+        setLikes({ count: post.likesCount, isLikedByUser: post.isLikedByUser });
+        setDislikes({ count: post.dislikesCount, isDislikedByUser: post.isDislikedByUser });
+      } else {
+        trpcUtils.post.infinitePosts.invalidate();
+      }
+    },
+  });
+  const ownPost = user?.id === post.authorId;
   const distanceInKm = useMemo(
     () =>
       distanceBetween(
@@ -32,7 +80,7 @@ export function PostCard({
   );
 
   return (
-    <div className="grid w-full grid-cols-[min-content_auto_min-content] grid-rows-[min-content_auto_auto] gap-3 border-b border-b-sky-900 p-3 sm:gap-4">
+    <div className="grid w-full grid-cols-[min-content_auto_min-content] grid-rows-[min-content_auto_auto] gap-3 border-b border-b-black px-3 py-4 sm:gap-4">
       <div className="avatar">
         <div className="relative h-12 sm:h-16 mask mask-squircle">
           <Image
@@ -54,7 +102,7 @@ export function PostCard({
         </div>
         <div className="flex items-center gap-1">
           <span className="text-xs text-slate-500 sm:text-sm">
-            {dayjs(post.createdAt).fromNow()}
+            {dayjs(post.createdAt).utc(true).fromNow()}
           </span>
           <span className="text-xs leading-none text-slate-500">•</span>
           <span className="text-xs text-slate-500 sm:text-sm">{distanceInKm} km</span>
@@ -82,9 +130,43 @@ export function PostCard({
       </Dropdown.Root>
       <PostBody post={post} full={full} />
       <div className="card-actions col-span-full text-sm">
-        <button className="link-hover link-primary link">Like</button>
-        <button className="link-hover link-primary link">Comment</button>
-        <button className="link-hover link-primary link">Share</button>
+        <button
+          className={`btn btn-xs gap-2 ${likes.isLikedByUser ? "btn-primary" : "btn-ghost"}`}
+          onClick={() => {
+            if (user?.id)
+              toggleLikeDislike({
+                userId: user.id,
+                postId: post.id,
+                action: "LIKE",
+              });
+          }}
+        >
+          {likes.count}
+          <AiOutlineLike className="text-lg" />
+        </button>
+        <button
+          className={`btn btn-xs gap-2 ${dislikes.isDislikedByUser ? "btn-error" : "btn-ghost"}`}
+          onClick={() => {
+            if (user?.id)
+              toggleLikeDislike({
+                userId: user.id,
+                postId: post.id,
+                action: "DISLIKE",
+              });
+          }}
+        >
+          ``
+          {dislikes.count}
+          <AiOutlineDislike className="text-lg" />
+        </button>
+        <button className="btn btn-xs btn-ghost gap-2">
+          {post.commentsCount}
+          <AiOutlineComment className="text-lg" />
+        </button>
+        {/* <button className="btn btn-xs btn-ghost gap-2">
+          <div className="badge badge-sm">2</div>
+          <BiShare className="text-lg" />
+        </button> */}
       </div>
     </div>
   );

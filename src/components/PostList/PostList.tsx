@@ -12,6 +12,7 @@ export function PostList() {
         limit: 5,
         lat: user!?.latitude,
         lng: user!?.longitude,
+        userId: user!?.id,
       },
       {
         getNextPageParam: (lastPage) => lastPage.nextCursor,
@@ -41,7 +42,7 @@ export function PostList() {
     <div className="flex flex-col gap-4">
       <div className="tabs self-center">
         <a className="tab tab-bordered tab-active">Latest</a>
-        <a className="tab tab-bordered">Top</a>
+        <a className="tab tab-bordered">Trending</a>
         <a className="tab tab-bordered">Following</a>
       </div>
       {posts.length ? (
