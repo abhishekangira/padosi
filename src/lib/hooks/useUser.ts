@@ -9,16 +9,15 @@ export type UserType = User | null;
 
 export function useUser() {
   const [user, setUser] = useState<UserType>(null);
+  const rerender = useState(false)[1];
   const [userLoading, setUserLoading] = useState(true);
-  const [routeLoading, setRouteLoading] = useState(false);
-
+  const [routeLoading, setRouteLoading] = useState(true);
   trpc.user.getUser.useQuery(
-    { uid: user!?.uid },
+    { uid: auth.currentUser?.uid },
     {
-      enabled: !!user?.uid && !user.id,
+      enabled: !!auth.currentUser && !user?.id,
       onSuccess(data) {
         console.log("useUser getUser onSuccess", data);
-
         setUser(data);
         setUserLoading(false);
       },
@@ -30,10 +29,8 @@ export function useUser() {
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (firebaseUser) => {
       if (firebaseUser) {
-        if (!user)
-          setUser({
-            uid: firebaseUser.uid,
-          } as UserType);
+        // rerender((r) => !r);
+        rerender(true);
       } else {
         console.log("NO FIREBASE USER");
         setUser(null);
@@ -44,7 +41,13 @@ export function useUser() {
   }, []);
 
   useEffect(() => {
-    console.log("Route/user useEffect", router.pathname, routeLoading);
+    console.log("Route/user useEffect", {
+      path: router.pathname,
+      routeloading: routeLoading,
+      userLoading: userLoading,
+      user,
+      auth: auth.currentUser,
+    });
     if (userLoading) return;
 
     const handleRouteChangeComplete = () => {
@@ -63,13 +66,16 @@ export function useUser() {
       else setRouteLoading(false);
     } else {
       if (router.pathname === "/") setRouteLoading(false);
-      else router.push("/");
+      else {
+        console.log("No user, redirecting to /");
+        router.push("/");
+      }
     }
 
     return () => {
       router.events.off("routeChangeComplete", handleRouteChangeComplete);
     };
-  }, [user, router.pathname, routeLoading, userLoading, setRouteLoading]);
+  }, [user, auth, router.pathname, routeLoading, userLoading, setRouteLoading]);
 
   return { user, loading: userLoading || routeLoading, setUser, setUserLoading };
 }

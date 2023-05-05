@@ -25,7 +25,7 @@ export const postRouter = trpcRouter({
         userLon + ((km / 6371) * (180 / Math.PI)) / Math.cos((userLat * Math.PI) / 180);
 
       const sqlQuery = `SELECT Post.id, Post.cuid, Post.title, Post.createdAt, Post.content,
-        User.name, User.username, User.latitude, User.longitude, User.id as authorId,
+        User.name, User.username, User.latitude, User.longitude, User.photo, User.id as authorId,
         SUM(CASE WHEN LikeDislike.type = 'LIKE' THEN 1 ELSE 0 END) AS likesCount,
         SUM(CASE WHEN LikeDislike.type = 'DISLIKE' THEN 1 ELSE 0 END) AS dislikesCount,
         SUM(CASE WHEN LikeDislike.userId = ${userId} AND LikeDislike.type = 'LIKE' THEN 1 ELSE 0 END) AS isLikedByUser,
@@ -58,6 +58,7 @@ export const postRouter = trpcRouter({
           createdAt,
           content,
           name,
+          photo,
           username,
           latitude,
           longitude,
@@ -80,7 +81,7 @@ export const postRouter = trpcRouter({
           isLikedByUser: !!+isLikedByUser,
           isDislikedByUser: !!+isDislikedByUser,
           commentsCount: +commentsCount,
-          author: { name, username, latitude, longitude },
+          author: { name, username, latitude, longitude, photo },
         };
       }) as (Post & {
         author: User;

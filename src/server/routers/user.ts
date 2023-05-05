@@ -11,10 +11,11 @@ export const userRouter = trpcRouter({
         name: z.string().max(191),
         longitude: z.number(),
         latitude: z.number(),
+        photo: z.string().url().optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const { username, uid, email, name, longitude, latitude } = input;
+      const { username, uid, email, name, longitude, latitude, photo } = input;
       const user = await ctx.prisma.user.create({
         data: {
           username,
@@ -23,6 +24,7 @@ export const userRouter = trpcRouter({
           name,
           longitude,
           latitude,
+          photo,
         },
       });
       return user;
