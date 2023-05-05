@@ -9,7 +9,7 @@ import { distanceBetween } from "geofire-common";
 import Link from "next/link";
 import * as Dropdown from "@radix-ui/react-dropdown-menu";
 import { Post, User } from "@prisma/client";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { AiOutlineComment, AiOutlineDislike, AiOutlineLike } from "react-icons/ai";
 import { BiShare } from "react-icons/bi";
 import { trpc } from "@/lib/utils/trpc";
@@ -45,32 +45,36 @@ export function PostCard({
         setLikes({ count: post.likesCount, isLikedByUser: post.isLikedByUser });
         setDislikes({ count: post.dislikesCount, isDislikedByUser: post.isDislikedByUser });
       } else {
-        trpcUtils.post.infinitePosts.invalidate();
+        console.log("data", data);
       }
     },
   });
 
-  const debouncedToggleLikeDislikeWithOptimisticUpdates = (action: "LIKE" | "DISLIKE") => {
-    switch (action) {
-      case "LIKE":
-        setLikes((prev) => ({
-          count: prev.isLikedByUser ? prev.count - 1 : prev.count + 1,
-          isLikedByUser: !prev.isLikedByUser,
-        }));
-        if (post.isDislikedByUser && dislikes.count > 0)
-          setDislikes((prev) => ({ count: prev.count - 1, isDislikedByUser: false }));
-        break;
-      case "DISLIKE":
-        setDislikes((prev) => ({
-          count: prev.isDislikedByUser ? prev.count - 1 : prev.count + 1,
-          isDislikedByUser: !prev.isDislikedByUser,
-        }));
-        if (post.isLikedByUser && likes.count > 0)
-          setLikes((prev) => ({ count: prev.count - 1, isLikedByUser: false }));
-        break;
-    }
-    if (user?.id) debouncedToggleLikeDislike(toggleLikeDislike, post.id, user.id, action);
-  };
+  const toggleLikeDislikeWithOptimisticUpdates = useCallback(
+    (action: "LIKE" | "DISLIKE") => {
+      switch (action) {
+        case "LIKE":
+          setLikes((prev) => ({
+            count: prev.isLikedByUser ? prev.count - 1 : prev.count + 1,
+            isLikedByUser: !prev.isLikedByUser,
+          }));
+          if (post.isDislikedByUser && dislikes.count > 0)
+            setDislikes((prev) => ({ count: prev.count - 1, isDislikedByUser: false }));
+          break;
+        case "DISLIKE":
+          setDislikes((prev) => ({
+            count: prev.isDislikedByUser ? prev.count - 1 : prev.count + 1,
+            isDislikedByUser: !prev.isDislikedByUser,
+          }));
+          if (post.isLikedByUser && likes.count > 0)
+            setLikes((prev) => ({ count: prev.count - 1, isLikedByUser: false }));
+          break;
+      }
+      if (user?.id) debouncedToggleLikeDislike(toggleLikeDislike, post.id, user.id, action);
+    },
+    [user, post, likes, dislikes]
+  );
+
   const ownPost = user?.id === post.authorId;
   const distanceInKm = useMemo(
     () =>
@@ -136,7 +140,7 @@ export function PostCard({
           className={`btn btn-xs gap-1 sm:gap-2 ${
             likes.isLikedByUser ? "btn-primary" : "btn-ghost"
           }`}
-          onClick={() => debouncedToggleLikeDislikeWithOptimisticUpdates("LIKE")}
+          onClick={() => toggleLikeDislikeWithOptimisticUpdates("LIKE")}
         >
           {likes.count}
           <AiOutlineLike className="sm:text-lg" />
@@ -145,7 +149,7 @@ export function PostCard({
           className={`btn btn-xs gap-1 sm:gap-2 ${
             dislikes.isDislikedByUser ? "btn-error" : "btn-ghost"
           }`}
-          onClick={() => debouncedToggleLikeDislikeWithOptimisticUpdates("DISLIKE")}
+          onClick={() => toggleLikeDislikeWithOptimisticUpdates("DISLIKE")}
         >
           {dislikes.count}
           <AiOutlineDislike className="sm:text-lg" />

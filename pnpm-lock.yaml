@@ -49,6 +49,9 @@ dependencies:
   geofire-common:
     specifier: ^6.0.0
     version: 6.0.0
+  immer:
+    specifier: ^10.0.1
+    version: 10.0.1
   next:
     specifier: 13.3.2
     version: 13.3.2(@babel/core@7.21.5)(react-dom@18.2.0)(react@18.2.0)(sass@1.62.1)
@@ -3727,6 +3730,10 @@ packages:
     resolution: {integrity: sha512-MAb38BcSbH0eHNBxn7ql2NH/kX33OkB3lZ1BNdh7ENeRChHTYsTvWrMubiIAMNS2llXEEgZ1MUOBtXChP3kaFQ==}
     engines: {node: '>= 4'}
     dev: true
+
+  /immer@10.0.1:
+    resolution: {integrity: sha512-zg++jJLsKKTwXGeSYIw0HgChSYQGtu0UDTnbKx5aGLYgte4CwTmH9eJDYyQ6FheyUtBe+lQW9FrGxya1G+Dtmg==}
+    dev: false
 
   /immutable@4.3.0:
     resolution: {integrity: sha512-0AOCmOip+xgJwEVTQj1EfiDDOkPmuyllDuTuEX+DDXUgapLAsBIfkg3sxCYyCEA8mQqZrrxPUGjcOQ2JS3WLkg==}

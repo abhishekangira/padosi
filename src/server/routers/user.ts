@@ -11,7 +11,7 @@ export const userRouter = trpcRouter({
         name: z.string().max(191),
         longitude: z.number(),
         latitude: z.number(),
-        photo: z.string().url().optional(),
+        photo: z.string().url().nullish(),
       })
     )
     .mutation(async ({ ctx, input }) => {

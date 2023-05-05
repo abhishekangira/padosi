@@ -3,11 +3,9 @@ import { Virtuoso } from "react-virtuoso";
 import { PostCardSkeleton } from "../PostCard/PostCardSkeleton";
 import { useUserContext } from "@/lib/contexts/user-context";
 import { trpc } from "@/lib/utils/trpc";
-import { useState } from "react";
 
 export function PostList() {
   const { user } = useUserContext();
-  const [uid, setUid] = useState<number | null>(null);
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status, error } =
     trpc.post.infinitePosts.useInfiniteQuery(
       {

@@ -22,6 +22,7 @@ export function NewPost({ maxLength = 1000 }) {
       setText("");
       setTitle("");
       setShowTitleInput(false);
+      textRef.current?.blur();
       return trpcContext.post.infinitePosts.invalidate();
     },
   });

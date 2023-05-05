@@ -34,7 +34,7 @@ export function useSetLocationPage() {
         name: auth.currentUser.displayName!,
         longitude: pos.lng,
         latitude: pos.lat,
-        photo: auth.currentUser.photoURL!,
+        photo: auth.currentUser.photoURL,
       });
     }
   };

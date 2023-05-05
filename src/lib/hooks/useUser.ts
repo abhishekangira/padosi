@@ -9,7 +9,7 @@ export type UserType = User | null;
 
 export function useUser() {
   const [user, setUser] = useState<UserType>(null);
-  const rerender = useState(false)[1];
+  const rerender = useState(0)[1];
   const [userLoading, setUserLoading] = useState(true);
   const [routeLoading, setRouteLoading] = useState(true);
   trpc.user.getUser.useQuery(
@@ -29,8 +29,7 @@ export function useUser() {
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (firebaseUser) => {
       if (firebaseUser) {
-        // rerender((r) => !r);
-        rerender(true);
+        rerender((r) => r + 1);
       } else {
         console.log("NO FIREBASE USER");
         setUser(null);
@@ -75,7 +74,7 @@ export function useUser() {
     return () => {
       router.events.off("routeChangeComplete", handleRouteChangeComplete);
     };
-  }, [user, auth, router.pathname, routeLoading, userLoading, setRouteLoading]);
+  }, [user, router.pathname, routeLoading, userLoading, setRouteLoading]);
 
   return { user, loading: userLoading || routeLoading, setUser, setUserLoading };
 }

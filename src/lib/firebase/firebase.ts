@@ -19,9 +19,9 @@ const db = getFirestore(app);
 const provider = new GoogleAuthProvider();
 provider.setCustomParameters({ prompt: "select_account" });
 
-if (process.env.NODE_ENV === "development") {
-  connectAuthEmulator(auth, "http://localhost:9099", { disableWarnings: true });
-  connectFirestoreEmulator(db, "localhost", 8080);
-}
+// if (process.env.NODE_ENV === "development") {
+//   connectAuthEmulator(auth, "http://localhost:9099", { disableWarnings: true });
+//   connectFirestoreEmulator(db, "localhost", 8080);
+// }
 
 export { auth, provider, db };

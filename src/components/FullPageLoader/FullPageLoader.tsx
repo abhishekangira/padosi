@@ -9,7 +9,14 @@ export default function FullPageLoader() {
       <div className={styles.spinner}>
         <div className={styles.spinner1}></div>
       </div>
-      <Image src={logo} alt="Logo of Padosi" width={40} height={40} className={styles.imageGlow} />
+      <Image
+        src={logo}
+        alt="Logo of Padosi"
+        width={40}
+        height={40}
+        className={styles.imageGlow}
+        priority
+      />
     </div>
   );
 }
