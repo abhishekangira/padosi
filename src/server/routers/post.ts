@@ -106,8 +106,8 @@ export const postRouter = trpcRouter({
   createPost: procedure
     .input(
       z.object({
-        title: z.string().min(3).max(150).nullish(),
-        content: z.string().min(3).max(1000),
+        title: z.string().min(1).max(150).nullish(),
+        content: z.string().min(1).max(1000),
         authorId: z.number(),
       })
     )

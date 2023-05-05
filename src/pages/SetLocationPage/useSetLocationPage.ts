@@ -13,7 +13,7 @@ export function useSetLocationPage() {
     value: string;
     state: "loading" | "unavailable" | "available" | null;
   }>({ value: "", state: null });
-  const { mutate: createUser } = trpc.user.createUser.useMutation({
+  const { mutate: createUser, isLoading } = trpc.user.createUser.useMutation({
     onSuccess: (data) => {
       setUser(data);
     },
@@ -55,5 +55,6 @@ export function useSetLocationPage() {
     username,
     setUsername,
     checkUsername: refetch,
+    isLoading,
   };
 }

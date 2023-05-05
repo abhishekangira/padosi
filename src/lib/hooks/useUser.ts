@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { auth, db } from "../firebase/firebase";
 import { useRouter } from "next/router";
-import { doc, getDoc, serverTimestamp, setDoc, updateDoc } from "firebase/firestore";
 import { User } from "@prisma/client";
 import { trpc } from "../utils/trpc";
 
@@ -9,7 +8,6 @@ export type UserType = User | null;
 
 export function useUser() {
   const [user, setUser] = useState<UserType>(null);
-  const rerender = useState(0)[1];
   const [userLoading, setUserLoading] = useState(true);
   const [routeLoading, setRouteLoading] = useState(true);
   trpc.user.getUser.useQuery(
@@ -29,12 +27,13 @@ export function useUser() {
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (firebaseUser) => {
       if (firebaseUser) {
-        rerender((r) => r + 1);
+        console.log("FIREBASE USER", firebaseUser);
+        setUser({ uid: firebaseUser.uid } as User);
       } else {
         console.log("NO FIREBASE USER");
         setUser(null);
-        setUserLoading(false);
       }
+      setUserLoading(false);
     });
     return () => unsubscribe();
   }, []);
@@ -64,8 +63,9 @@ export function useUser() {
       } else if (["/set-location", "/"].includes(router.pathname)) router.push("/home");
       else setRouteLoading(false);
     } else {
-      if (router.pathname === "/") setRouteLoading(false);
-      else {
+      if (router.pathname === "/") {
+        setRouteLoading(false);
+      } else {
         console.log("No user, redirecting to /");
         router.push("/");
       }
@@ -76,5 +76,5 @@ export function useUser() {
     };
   }, [user, router.pathname, routeLoading, userLoading, setRouteLoading]);
 
-  return { user, loading: userLoading || routeLoading, setUser, setUserLoading };
+  return { user, loading: userLoading || routeLoading, setUser, setRouteLoading };
 }

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useUserContext } from "@/lib/contexts/user-context";
 
 export function TopNav({ title }: Props) {
-  const { setUserLoading } = useUserContext();
+  const { setRouteLoading } = useUserContext();
   return (
     <nav className="bg-glass navbar fixed top-0 z-10">
       <Link href="/home" className="navbar-start">
@@ -17,7 +17,7 @@ export function TopNav({ title }: Props) {
       <div className="navbar-end">
         <button
           onClick={() => {
-            setUserLoading(true);
+            setRouteLoading(true);
             auth.signOut();
           }}
           className="btn-ghost btn capitalize"

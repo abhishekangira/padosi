@@ -11,10 +11,8 @@ import * as Dropdown from "@radix-ui/react-dropdown-menu";
 import { Post, User } from "@prisma/client";
 import { useCallback, useMemo, useState } from "react";
 import { AiOutlineComment, AiOutlineDislike, AiOutlineLike } from "react-icons/ai";
-import { BiShare } from "react-icons/bi";
 import { trpc } from "@/lib/utils/trpc";
 import { debounce } from "@/lib/utils/utils";
-import { set } from "zod";
 
 dayjs.extend(relativeTime);
 dayjs.extend(utc);
@@ -96,12 +94,14 @@ export function PostCard({
     [post, user?.latitude, user?.longitude]
   );
 
+  const avatar = useMemo(() => `https://picsum.photos/${Math.ceil(Math.random() * 100) + 200}`, []);
+
   return (
     <div className="grid w-full grid-cols-[min-content_auto_min-content] grid-rows-[min-content_auto_auto] gap-3 border-b border-b-black px-3 py-4 sm:gap-4">
       <div className="avatar">
         <div className="relative h-12 sm:h-16 mask mask-squircle">
           <Image
-            src={post.author.photo || "/images/avatar.jpg"}
+            src={post.author.photo || avatar || "images/avatar.jpg"}
             alt="avatar"
             fill
             sizes="(min-width: 640px) 64px, 48px"

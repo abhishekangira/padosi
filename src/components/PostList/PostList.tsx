@@ -9,7 +9,7 @@ export function PostList() {
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status, error } =
     trpc.post.infinitePosts.useInfiniteQuery(
       {
-        limit: 5,
+        limit: 20,
         userLat: user!?.latitude,
         userLon: user!?.longitude,
         userId: user!?.id,

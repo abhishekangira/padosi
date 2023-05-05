@@ -5,23 +5,23 @@ export type UserContextType = {
   user: UserType;
   loading: boolean;
   setUser: React.Dispatch<React.SetStateAction<UserType>>;
-  setUserLoading: React.Dispatch<React.SetStateAction<boolean>>;
+  setRouteLoading: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 const UserContext = createContext<UserContextType>({
   user: null,
   loading: true,
   setUser: () => {},
-  setUserLoading: () => {},
+  setRouteLoading: () => {},
 });
 
 export const useUserContext = () => useContext(UserContext);
 
 export function UserContextProvider({ children }: { children: React.ReactNode }) {
-  const { user, loading, setUser, setUserLoading } = useUser();
+  const { user, loading, setUser, setRouteLoading } = useUser();
 
   return (
-    <UserContext.Provider value={{ user, loading, setUser, setUserLoading }}>
+    <UserContext.Provider value={{ user, loading, setUser, setRouteLoading }}>
       {children}
     </UserContext.Provider>
   );

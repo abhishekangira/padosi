@@ -18,6 +18,7 @@ export function SetLocationPage() {
     username,
     setUsername,
     checkUsername,
+    isLoading,
   } = useSetLocationPage();
   return (
     <>
@@ -74,7 +75,7 @@ export function SetLocationPage() {
           </div>
         </div>
         <button
-          className="btn-primary btn-sm btn"
+          className={`btn-primary btn-sm btn ${isLoading ? "loading" : ""}`}
           onClick={handleSubmit}
           disabled={username.state !== "available"}
         >
