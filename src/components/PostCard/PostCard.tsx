@@ -13,6 +13,7 @@ import { useMemo, useState } from "react";
 import { AiOutlineComment, AiOutlineDislike, AiOutlineLike } from "react-icons/ai";
 import { BiShare } from "react-icons/bi";
 import { trpc } from "@/lib/utils/trpc";
+import { debounce } from "@/lib/utils/utils";
 
 dayjs.extend(relativeTime);
 dayjs.extend(utc);
@@ -39,27 +40,6 @@ export function PostCard({
     isDislikedByUser: post.isDislikedByUser,
   });
   const { mutate: toggleLikeDislike } = trpc.toggleLikeDislike.useMutation({
-    onMutate(variables) {
-      trpcUtils.post.infinitePosts.cancel();
-      switch (variables.action) {
-        case "LIKE":
-          setLikes((prev) => ({
-            count: prev.isLikedByUser ? prev.count - 1 : prev.count + 1,
-            isLikedByUser: !prev.isLikedByUser,
-          }));
-          if (post.isDislikedByUser && dislikes.count > 0)
-            setDislikes((prev) => ({ count: prev.count - 1, isDislikedByUser: false }));
-          break;
-        case "DISLIKE":
-          setDislikes((prev) => ({
-            count: prev.isDislikedByUser ? prev.count - 1 : prev.count + 1,
-            isDislikedByUser: !prev.isDislikedByUser,
-          }));
-          if (post.isLikedByUser && likes.count > 0)
-            setLikes((prev) => ({ count: prev.count - 1, isLikedByUser: false }));
-          break;
-      }
-    },
     onSettled(data, error, variables, context) {
       if (error) {
         setLikes({ count: post.likesCount, isLikedByUser: post.isLikedByUser });
@@ -69,6 +49,28 @@ export function PostCard({
       }
     },
   });
+
+  const debouncedToggleLikeDislikeWithOptimisticUpdates = (action: "LIKE" | "DISLIKE") => {
+    switch (action) {
+      case "LIKE":
+        setLikes((prev) => ({
+          count: prev.isLikedByUser ? prev.count - 1 : prev.count + 1,
+          isLikedByUser: !prev.isLikedByUser,
+        }));
+        if (post.isDislikedByUser && dislikes.count > 0)
+          setDislikes((prev) => ({ count: prev.count - 1, isDislikedByUser: false }));
+        break;
+      case "DISLIKE":
+        setDislikes((prev) => ({
+          count: prev.isDislikedByUser ? prev.count - 1 : prev.count + 1,
+          isDislikedByUser: !prev.isDislikedByUser,
+        }));
+        if (post.isLikedByUser && likes.count > 0)
+          setLikes((prev) => ({ count: prev.count - 1, isLikedByUser: false }));
+        break;
+    }
+    if (user?.id) debouncedToggleLikeDislike(toggleLikeDislike, post.id, user.id, action);
+  };
   const ownPost = user?.id === post.authorId;
   const distanceInKm = useMemo(
     () =>
@@ -131,37 +133,26 @@ export function PostCard({
       <PostBody post={post} full={full} />
       <div className="card-actions col-span-full text-sm">
         <button
-          className={`btn btn-xs gap-2 ${likes.isLikedByUser ? "btn-primary" : "btn-ghost"}`}
-          onClick={() => {
-            if (user?.id)
-              toggleLikeDislike({
-                userId: user.id,
-                postId: post.id,
-                action: "LIKE",
-              });
-          }}
+          className={`btn btn-xs gap-1 sm:gap-2 ${
+            likes.isLikedByUser ? "btn-primary" : "btn-ghost"
+          }`}
+          onClick={() => debouncedToggleLikeDislikeWithOptimisticUpdates("LIKE")}
         >
           {likes.count}
-          <AiOutlineLike className="text-lg" />
+          <AiOutlineLike className="sm:text-lg" />
         </button>
         <button
-          className={`btn btn-xs gap-2 ${dislikes.isDislikedByUser ? "btn-error" : "btn-ghost"}`}
-          onClick={() => {
-            if (user?.id)
-              toggleLikeDislike({
-                userId: user.id,
-                postId: post.id,
-                action: "DISLIKE",
-              });
-          }}
+          className={`btn btn-xs gap-1 sm:gap-2 ${
+            dislikes.isDislikedByUser ? "btn-error" : "btn-ghost"
+          }`}
+          onClick={() => debouncedToggleLikeDislikeWithOptimisticUpdates("DISLIKE")}
         >
-          ``
           {dislikes.count}
-          <AiOutlineDislike className="text-lg" />
+          <AiOutlineDislike className="sm:text-lg" />
         </button>
-        <button className="btn btn-xs btn-ghost gap-2">
+        <button className="btn btn-xs btn-ghost gap-1 sm:gap-2">
           {post.commentsCount}
-          <AiOutlineComment className="text-lg" />
+          <AiOutlineComment className="sm:text-lg" />
         </button>
         {/* <button className="btn btn-xs btn-ghost gap-2">
           <div className="badge badge-sm">2</div>
@@ -193,3 +184,14 @@ const PostBody = ({ post, full }: { post: Post; full?: boolean }) =>
       </p>
     </Link>
   );
+
+const debouncedToggleLikeDislike = debounce(
+  (toggleLikeDislike: Function, postId: number, userId: number, action: "LIKE" | "DISLIKE") => {
+    return toggleLikeDislike({
+      postId,
+      userId,
+      action,
+    });
+  },
+  500
+);

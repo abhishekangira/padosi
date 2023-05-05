@@ -3,15 +3,17 @@ import { Virtuoso } from "react-virtuoso";
 import { PostCardSkeleton } from "../PostCard/PostCardSkeleton";
 import { useUserContext } from "@/lib/contexts/user-context";
 import { trpc } from "@/lib/utils/trpc";
+import { useState } from "react";
 
 export function PostList() {
   const { user } = useUserContext();
+  const [uid, setUid] = useState<number | null>(null);
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status, error } =
     trpc.post.infinitePosts.useInfiniteQuery(
       {
         limit: 5,
-        lat: user!?.latitude,
-        lng: user!?.longitude,
+        userLat: user!?.latitude,
+        userLon: user!?.longitude,
         userId: user!?.id,
       },
       {
@@ -41,9 +43,11 @@ export function PostList() {
   return (
     <div className="flex flex-col gap-4">
       <div className="tabs self-center">
-        <a className="tab tab-bordered tab-active">Latest</a>
-        <a className="tab tab-bordered">Trending</a>
-        <a className="tab tab-bordered">Following</a>
+        <button className="tab tab-bordered tab-active">Latest</button>
+        <button className="tab tab-bordered" onClick={() => {}}>
+          Trending
+        </button>
+        <button className="tab tab-bordered">Following</button>
       </div>
       {posts.length ? (
         <Virtuoso

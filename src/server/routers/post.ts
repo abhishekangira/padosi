@@ -9,20 +9,20 @@ export const postRouter = trpcRouter({
         limit: z.number().min(1).max(100).nullish(),
         cursor: z.number().nullish(),
         userId: z.number(),
-        lat: z.number(),
-        lng: z.number(),
+        userLat: z.number(),
+        userLon: z.number(),
       })
     )
     .query(async ({ input, ctx }) => {
       const limit = input.limit ?? 50;
-      const { cursor, lat, lng, userId } = input;
+      const { cursor, userLat, userLon, userId } = input;
       const km = 20;
-      const lowerLatitude = lat - (km / 6371) * (180 / Math.PI);
-      const upperLatitude = lat + (km / 6371) * (180 / Math.PI);
+      const lowerLatitude = userLat - (km / 6371) * (180 / Math.PI);
+      const upperLatitude = userLat + (km / 6371) * (180 / Math.PI);
       const lowerLongitude =
-        lng - ((km / 6371) * (180 / Math.PI)) / Math.cos((lat * Math.PI) / 180);
+        userLon - ((km / 6371) * (180 / Math.PI)) / Math.cos((userLat * Math.PI) / 180);
       const upperLongitude =
-        lng + ((km / 6371) * (180 / Math.PI)) / Math.cos((lat * Math.PI) / 180);
+        userLon + ((km / 6371) * (180 / Math.PI)) / Math.cos((userLat * Math.PI) / 180);
 
       const sqlQuery = `SELECT Post.id, Post.cuid, Post.title, Post.createdAt, Post.content,
         User.name, User.username, User.latitude, User.longitude, User.id as authorId,
@@ -36,20 +36,20 @@ export const postRouter = trpcRouter({
         LEFT JOIN LikeDislike ON Post.id = LikeDislike.postId
         LEFT JOIN Comment ON Post.id = Comment.postId
         WHERE User.latitude >= ${lowerLatitude}
-            AND User.latitude <= ${upperLatitude}
-            AND User.longitude >= ${lowerLongitude}
-            AND User.longitude <= ${upperLongitude}
-            AND ST_Distance_Sphere(
-                POINT(User.longitude, User.latitude),
-                POINT(${lng}, ${lat})) <= ${km * 1000}
-            ${cursor ? `AND Post.id < ${cursor}` : ""}
+          AND User.latitude <= ${upperLatitude}
+          AND User.longitude >= ${lowerLongitude}
+          AND User.longitude <= ${upperLongitude}
+          AND ST_Distance_Sphere(
+              POINT(User.longitude, User.latitude),
+              POINT(${userLon}, ${userLat})) <= ${km * 1000}
+          ${cursor ? `AND Post.id <= ${cursor}` : ""}
         GROUP BY Post.id
         ORDER BY Post.id DESC
         LIMIT ${limit + 1};
         `;
 
       const res = await ctx.planet.execute(sqlQuery);
-      console.log(res);
+      // console.log(res);
       const posts = res.rows.map((post) => {
         const {
           id,
