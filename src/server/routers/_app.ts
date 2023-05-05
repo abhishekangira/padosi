@@ -9,7 +9,7 @@ const toggleLikeDislike = procedure
       userId: z.number(),
       postId: z.number().optional(),
       commentId: z.number().optional(),
-      action: z.enum(["LIKE", "DISLIKE"]),
+      action: z.enum(["LIKE", "DISLIKE", "UNLIKE", "UNDISLIKE"]),
     })
   )
   .mutation(async ({ ctx, input }) => {
@@ -23,7 +23,8 @@ const toggleLikeDislike = procedure
     });
 
     if (existingLikeDislike) {
-      if (existingLikeDislike.type === action) {
+      if (existingLikeDislike.type === action) return "Already done";
+      else if (action === "UNLIKE" || action === "UNDISLIKE") {
         await ctx.prisma.likeDislike.delete({ where: { id: existingLikeDislike.id } });
       } else {
         await ctx.prisma.likeDislike.update({
@@ -32,12 +33,13 @@ const toggleLikeDislike = procedure
         });
       }
     } else {
+      if (action === "UNLIKE" || action === "UNDISLIKE") return "Already done";
       await ctx.prisma.likeDislike.create({
         data: {
           userId,
           postId,
           commentId,
-          type: action,
+          type: action === "LIKE" ? "LIKE" : "DISLIKE",
           entity: postId ? "POST" : "COMMENT",
         },
       });

@@ -14,6 +14,7 @@ import { AiOutlineComment, AiOutlineDislike, AiOutlineLike } from "react-icons/a
 import { BiShare } from "react-icons/bi";
 import { trpc } from "@/lib/utils/trpc";
 import { debounce } from "@/lib/utils/utils";
+import { set } from "zod";
 
 dayjs.extend(relativeTime);
 dayjs.extend(utc);
@@ -51,25 +52,35 @@ export function PostCard({
   });
 
   const toggleLikeDislikeWithOptimisticUpdates = useCallback(
-    (action: "LIKE" | "DISLIKE") => {
-      switch (action) {
-        case "LIKE":
-          setLikes((prev) => ({
-            count: prev.isLikedByUser ? prev.count - 1 : prev.count + 1,
-            isLikedByUser: !prev.isLikedByUser,
-          }));
-          if (post.isDislikedByUser && dislikes.count > 0)
-            setDislikes((prev) => ({ count: prev.count - 1, isDislikedByUser: false }));
-          break;
-        case "DISLIKE":
-          setDislikes((prev) => ({
-            count: prev.isDislikedByUser ? prev.count - 1 : prev.count + 1,
-            isDislikedByUser: !prev.isDislikedByUser,
-          }));
-          if (post.isLikedByUser && likes.count > 0)
-            setLikes((prev) => ({ count: prev.count - 1, isLikedByUser: false }));
-          break;
-      }
+    (action: "LIKE" | "DISLIKE" | "UNLIKE" | "UNDISLIKE") => {
+      setLikes((prev) => {
+        if (action === "LIKE") {
+          if (dislikes.isDislikedByUser) {
+            setDislikes((prev) => {
+              return { count: prev.count - 1, isDislikedByUser: false };
+            });
+          }
+          return { count: prev.count + 1, isLikedByUser: true };
+        } else if (action === "UNLIKE") {
+          return { count: prev.count - 1, isLikedByUser: false };
+        } else {
+          return prev;
+        }
+      });
+      setDislikes((prev) => {
+        if (action === "DISLIKE") {
+          if (likes.isLikedByUser) {
+            setLikes((prev) => {
+              return { count: prev.count - 1, isLikedByUser: false };
+            });
+          }
+          return { count: prev.count + 1, isDislikedByUser: true };
+        } else if (action === "UNDISLIKE") {
+          return { count: prev.count - 1, isDislikedByUser: false };
+        } else {
+          return prev;
+        }
+      });
       if (user?.id) debouncedToggleLikeDislike(toggleLikeDislike, post.id, user.id, action);
     },
     [user, post, likes, dislikes]
@@ -140,7 +151,9 @@ export function PostCard({
           className={`btn btn-xs gap-1 sm:gap-2 ${
             likes.isLikedByUser ? "btn-primary" : "btn-ghost"
           }`}
-          onClick={() => toggleLikeDislikeWithOptimisticUpdates("LIKE")}
+          onClick={() =>
+            toggleLikeDislikeWithOptimisticUpdates(likes.isLikedByUser ? "UNLIKE" : "LIKE")
+          }
         >
           {likes.count}
           <AiOutlineLike className="sm:text-lg" />
@@ -149,7 +162,11 @@ export function PostCard({
           className={`btn btn-xs gap-1 sm:gap-2 ${
             dislikes.isDislikedByUser ? "btn-error" : "btn-ghost"
           }`}
-          onClick={() => toggleLikeDislikeWithOptimisticUpdates("DISLIKE")}
+          onClick={() =>
+            toggleLikeDislikeWithOptimisticUpdates(
+              dislikes.isDislikedByUser ? "UNDISLIKE" : "DISLIKE"
+            )
+          }
         >
           {dislikes.count}
           <AiOutlineDislike className="sm:text-lg" />
