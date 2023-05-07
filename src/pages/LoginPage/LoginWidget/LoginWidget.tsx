@@ -43,7 +43,12 @@ export function LoginWidget() {
                   <label htmlFor="displayName" className="label">
                     <span className="label-text">Name</span>
                   </label>
-                  <input type="text" id="displayName" placeholder="Simran Raj" className="input" />
+                  <input
+                    type="text"
+                    id="displayName"
+                    placeholder="Raj Malhotra"
+                    className="input"
+                  />
                   <label className="label min-h-8">
                     {errors.displayName && (
                       <span className="label-text-alt text-error">{errors.displayName}</span>
@@ -60,7 +65,7 @@ export function LoginWidget() {
                 type="email"
                 id="email"
                 name="email"
-                placeholder="simran@rajmail.com"
+                placeholder="rajmalhotra@cringe.com"
                 className="input"
               />
               <label className="label min-h-8">
@@ -81,7 +86,13 @@ export function LoginWidget() {
                     </button>
                   )}
                 </label>
-                <input type="password" id="password" name="password" className="input" />
+                <input
+                  type="password"
+                  id="password"
+                  name="password"
+                  className="input"
+                  placeholder="********"
+                />
                 <label className="label min-h-8">
                   {errors.password && (
                     <span className="label-text-alt text-error">
@@ -96,7 +107,12 @@ export function LoginWidget() {
                 <label htmlFor="confirmPassword" className="label">
                   <span className="label-text">Confirm Password</span>
                 </label>
-                <input type="password" id="confirmPassword" className="input" />
+                <input
+                  type="password"
+                  id="confirmPassword"
+                  className="input"
+                  placeholder="********"
+                />
                 <label className="label min-h-8">
                   {errors.confirmPassword && (
                     <span className="label-text-alt text-error">Passwords do not match</span>

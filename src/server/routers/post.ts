@@ -2,8 +2,10 @@ import { z } from "zod";
 import { procedure, trpcRouter } from "../trpc";
 import { Post, Prisma, User } from "@prisma/client";
 
+console.log("postRouter");
+
 export const postRouter = trpcRouter({
-  infinitePosts: procedure
+  getInfinite: procedure
     .input(
       z.object({
         limit: z.number().min(1).max(100).nullish(),
@@ -11,11 +13,12 @@ export const postRouter = trpcRouter({
         userId: z.number(),
         userLat: z.number(),
         userLon: z.number(),
+        sortBy: z.enum(["LATEST", "TRENDING", "FOLLOWING"]).optional(),
       })
     )
     .query(async ({ input, ctx }) => {
       const limit = input.limit ?? 50;
-      const { cursor, userLat, userLon, userId } = input;
+      const { cursor, userLat, userLon, userId, sortBy } = input;
       const km = 20;
       const lowerLatitude = userLat - (km / 6371) * (180 / Math.PI);
       const upperLatitude = userLat + (km / 6371) * (180 / Math.PI);
@@ -24,73 +27,36 @@ export const postRouter = trpcRouter({
       const upperLongitude =
         userLon + ((km / 6371) * (180 / Math.PI)) / Math.cos((userLat * Math.PI) / 180);
 
-      const sqlQuery = `SELECT Post.id, Post.cuid, Post.title, Post.createdAt, Post.content,
-        User.name, User.username, User.latitude, User.longitude, User.photo, User.id as authorId,
-        SUM(CASE WHEN LikeDislike.type = 'LIKE' THEN 1 ELSE 0 END) AS likesCount,
-        SUM(CASE WHEN LikeDislike.type = 'DISLIKE' THEN 1 ELSE 0 END) AS dislikesCount,
-        SUM(CASE WHEN LikeDislike.userId = ${userId} AND LikeDislike.type = 'LIKE' THEN 1 ELSE 0 END) AS isLikedByUser,
-        SUM(CASE WHEN LikeDislike.userId = ${userId} AND LikeDislike.type = 'DISLIKE' THEN 1 ELSE 0 END) AS isDislikedByUser,
+      const orderBy =
+        sortBy === "TRENDING" ? "likesCount + .5*dislikesCount + 2*commentsCount" : "Post.id";
+
+      const sqlQuery = `SELECT Post.id, Post.cuid, Post.title, Post.createdAt, Post.content, Post.authorId,
+        User.name, User.username, User.latitude, User.longitude, User.photo,
+        (SELECT COUNT(*) FROM LikeDislike WHERE LikeDislike.postId = Post.id AND LikeDislike.type = 'LIKE') AS likesCount,
+        (SELECT COUNT(*) FROM LikeDislike WHERE LikeDislike.postId = Post.id AND LikeDislike.type = 'DISLIKE') AS dislikesCount,
+        (SELECT COUNT(*) FROM LikeDislike WHERE LikeDislike.postId = Post.id AND LikeDislike.userId = ${userId} AND LikeDislike.type = 'LIKE') AS isLikedByUser,
+        (SELECT COUNT(*) FROM LikeDislike WHERE LikeDislike.postId = Post.id AND LikeDislike.userId = ${userId} AND LikeDislike.type = 'DISLIKE') AS isDislikedByUser,
         COUNT(DISTINCT Comment.id) AS commentsCount
         FROM Post
         INNER JOIN User ON Post.authorId = User.id
-        LEFT JOIN LikeDislike ON Post.id = LikeDislike.postId
         LEFT JOIN Comment ON Post.id = Comment.postId
         WHERE User.latitude >= ${lowerLatitude}
-          AND User.latitude <= ${upperLatitude}
-          AND User.longitude >= ${lowerLongitude}
-          AND User.longitude <= ${upperLongitude}
-          AND ST_Distance_Sphere(
-              POINT(User.longitude, User.latitude),
-              POINT(${userLon}, ${userLat})) <= ${km * 1000}
-          ${cursor ? `AND Post.id <= ${cursor}` : ""}
+        AND User.latitude <= ${upperLatitude}
+        AND User.longitude >= ${lowerLongitude}
+        AND User.longitude <= ${upperLongitude}
+        AND ST_Distance_Sphere(
+            POINT(User.longitude, User.latitude),
+            POINT(${userLon}, ${userLat})) <= ${km * 1000}
+        ${cursor ? `AND Post.id <= ${cursor}` : ""}
         GROUP BY Post.id
-        ORDER BY Post.id DESC
+        ORDER BY ${orderBy} DESC
         LIMIT ${limit + 1};
         `;
 
       const res = await ctx.planet.execute(sqlQuery);
-      // console.log(res);
-      const posts = res.rows.map((post) => {
-        const {
-          id,
-          cuid,
-          title,
-          createdAt,
-          content,
-          name,
-          photo,
-          username,
-          latitude,
-          longitude,
-          authorId,
-          likesCount,
-          dislikesCount,
-          isLikedByUser,
-          isDislikedByUser,
-          commentsCount,
-        } = post as any;
-        return {
-          id,
-          cuid,
-          title,
-          createdAt,
-          content,
-          authorId,
-          likesCount: +likesCount,
-          dislikesCount: +dislikesCount,
-          isLikedByUser: !!+isLikedByUser,
-          isDislikedByUser: !!+isDislikedByUser,
-          commentsCount: +commentsCount,
-          author: { name, username, latitude, longitude, photo },
-        };
-      }) as (Post & {
-        author: User;
-        likesCount: number;
-        dislikesCount: number;
-        isLikedByUser: boolean;
-        isDislikedByUser: boolean;
-        commentsCount: number;
-      })[];
+      console.log(res.rows);
+
+      const posts = mapPosts(res.rows);
 
       let nextCursor: typeof cursor | undefined = undefined;
       if (posts.length > limit) {
@@ -103,7 +69,7 @@ export const postRouter = trpcRouter({
         nextCursor,
       };
     }),
-  createPost: procedure
+  add: procedure
     .input(
       z.object({
         title: z.string().min(1).max(150).nullish(),
@@ -122,24 +88,76 @@ export const postRouter = trpcRouter({
       });
       return post;
     }),
-  getPost: procedure
+  get: procedure
     .input(
       z.object({
-        cuid: z.string(),
+        cuid: z.string().cuid(),
+        userId: z.number(),
       })
     )
     .query(async ({ ctx, input }) => {
-      const post = await ctx.prisma.post.findUnique({
-        where: {
-          cuid: input.cuid,
-        },
-        include: {
-          author: true,
-        },
-      });
+      const sqlQuery = `SELECT Post.id, Post.cuid, Post.title, Post.createdAt, Post.content, Post.authorId,
+        User.name, User.username, User.latitude, User.longitude, User.photo,
+        (SELECT COUNT(*) FROM LikeDislike WHERE LikeDislike.postId = Post.id AND LikeDislike.type = 'LIKE') AS likesCount,
+        (SELECT COUNT(*) FROM LikeDislike WHERE LikeDislike.postId = Post.id AND LikeDislike.type = 'DISLIKE') AS dislikesCount,
+        (SELECT COUNT(*) FROM LikeDislike WHERE LikeDislike.postId = Post.id AND LikeDislike.userId = ${input.userId} AND LikeDislike.type = 'LIKE') AS isLikedByUser,
+        (SELECT COUNT(*) FROM LikeDislike WHERE LikeDislike.postId = Post.id AND LikeDislike.userId = ${input.userId} AND LikeDislike.type = 'DISLIKE') AS isDislikedByUser,
+        COUNT(DISTINCT Comment.id) AS commentsCount
+        FROM Post
+        INNER JOIN User ON Post.authorId = User.id
+        LEFT JOIN Comment ON Post.id = Comment.postId
+        WHERE Post.cuid = '${input.cuid}'
+        GROUP BY Post.id
+      `;
+      const res = await ctx.planet.execute(sqlQuery);
+      const post = mapPosts(res.rows)[0];
       return post;
     }),
 });
+
+function mapPosts(rows: any[]) {
+  return rows.map((post) => {
+    const {
+      id,
+      cuid,
+      title,
+      createdAt,
+      content,
+      name,
+      photo,
+      username,
+      latitude,
+      longitude,
+      authorId,
+      likesCount,
+      dislikesCount,
+      isLikedByUser,
+      isDislikedByUser,
+      commentsCount,
+    } = post as any;
+    return {
+      id,
+      cuid,
+      title,
+      createdAt,
+      content,
+      authorId,
+      likesCount: +likesCount,
+      dislikesCount: +dislikesCount,
+      isLikedByUser: !!+isLikedByUser,
+      isDislikedByUser: !!+isDislikedByUser,
+      commentsCount: +commentsCount,
+      author: { name, username, latitude, longitude, photo },
+    };
+  }) as (Post & {
+    author: User;
+    likesCount: number;
+    dislikesCount: number;
+    isLikedByUser: boolean;
+    isDislikedByUser: boolean;
+    commentsCount: number;
+  })[];
+}
 
 /* Sort by distance
 infinitePosts: procedure
@@ -210,7 +228,3 @@ infinitePosts: procedure
         nextCursor,
       };
     }), */
-
-/* Alternate SQL query for 'Latest' posts
-https://app.planetscale.com/angira/padosi/dev/console?query=fl6yjirb98d5
-*/

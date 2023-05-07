@@ -10,6 +10,8 @@ export function useUser() {
   const [user, setUser] = useState<UserType>(null);
   const [userLoading, setUserLoading] = useState(true);
   const [routeLoading, setRouteLoading] = useState(true);
+  const [globalLoading, setGlobalLoading] = useState(false);
+
   trpc.user.getUser.useQuery(
     { uid: auth.currentUser?.uid },
     {
@@ -32,8 +34,8 @@ export function useUser() {
       } else {
         console.log("NO FIREBASE USER");
         setUser(null);
+        setUserLoading(false);
       }
-      setUserLoading(false);
     });
     return () => unsubscribe();
   }, []);
@@ -65,6 +67,7 @@ export function useUser() {
     } else {
       if (router.pathname === "/") {
         setRouteLoading(false);
+        setGlobalLoading(false);
       } else {
         console.log("No user, redirecting to /");
         router.push("/");
@@ -74,7 +77,7 @@ export function useUser() {
     return () => {
       router.events.off("routeChangeComplete", handleRouteChangeComplete);
     };
-  }, [user, router.pathname, routeLoading, userLoading, setRouteLoading]);
+  }, [user, router.pathname, routeLoading, userLoading, setRouteLoading, setGlobalLoading]);
 
-  return { user, loading: userLoading || routeLoading, setUser, setRouteLoading };
+  return { user, loading: userLoading || routeLoading || globalLoading, setUser, setGlobalLoading };
 }

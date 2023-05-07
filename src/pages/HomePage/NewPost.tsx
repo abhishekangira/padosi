@@ -1,6 +1,5 @@
 import { useUserContext } from "@/lib/contexts/user-context";
 import { trpc } from "@/lib/utils/trpc";
-import { getQueryKey } from "@trpc/react-query";
 import Image from "next/image";
 import React, { useEffect, useRef, useState } from "react";
 
@@ -12,18 +11,18 @@ export function NewPost({ maxLength = 1000 }) {
   const [title, setTitle] = useState("");
   const textRef = useRef<HTMLTextAreaElement>(null);
   const titleRef = useRef<HTMLTextAreaElement>(null);
-  const trpcContext = trpc.useContext();
+  const trpcUtils = trpc.useContext();
   const {
     mutate: addPostMutation,
     isLoading: addPostLoading,
     isError: addPostError,
-  } = trpc.post.createPost.useMutation({
+  } = trpc.post.add.useMutation({
     onSuccess: async (post) => {
       setText("");
       setTitle("");
       setShowTitleInput(false);
       textRef.current?.blur();
-      return trpcContext.post.infinitePosts.invalidate();
+      return trpcUtils.post.getInfinite.invalidate();
     },
   });
 

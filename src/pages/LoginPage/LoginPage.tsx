@@ -1,6 +1,6 @@
 import styles from "./LoginPage.module.scss";
 import { Acme, Dancing_Script } from "next/font/google";
-import { LoginWidget } from "@/components/LoginWidget/LoginWidget";
+import { LoginWidget } from "@/pages/LoginPage/LoginWidget/LoginWidget";
 import logo from "public/images/logo.png";
 import Image from "next/image";
 import Link from "next/link";

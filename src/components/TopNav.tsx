@@ -3,9 +3,11 @@ import Image from "next/image";
 import { auth } from "@/lib/firebase/firebase";
 import Link from "next/link";
 import { useUserContext } from "@/lib/contexts/user-context";
+import { useRouter } from "next/router";
 
 export function TopNav({ title }: Props) {
-  const { setRouteLoading } = useUserContext();
+  const { setGlobalLoading } = useUserContext();
+  const router = useRouter();
   return (
     <nav className="bg-glass navbar fixed top-0 z-10">
       <Link href="/home" className="navbar-start">
@@ -17,8 +19,10 @@ export function TopNav({ title }: Props) {
       <div className="navbar-end">
         <button
           onClick={() => {
-            setRouteLoading(true);
-            auth.signOut();
+            setGlobalLoading(true);
+            auth.signOut().then(() => {
+              router.push("/");
+            });
           }}
           className="btn-ghost btn capitalize"
         >

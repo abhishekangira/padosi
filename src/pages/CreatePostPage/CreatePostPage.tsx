@@ -1,4 +1,4 @@
-import { NewPost } from "@/components/NewPost";
+import { NewPost } from "@/pages/HomePage/NewPost";
 
 export function CreatePostPage() {
   return (

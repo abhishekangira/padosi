@@ -1,5 +1,6 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["filteredRelationCount"]
 }
 
 datasource db {
@@ -78,12 +79,14 @@ model Comment {
   content      String        @db.VarChar(1000)
   authorId     Int           @db.UnsignedInt
   postId       Int           @db.UnsignedInt
+  postCuid     String        @db.VarChar(30)
   author       User          @relation(fields: [authorId], references: [id])
   post         Post          @relation(fields: [postId], references: [id])
   likeDislikes LikeDislike[]
 
   @@index([authorId])
   @@index([postId])
+  @@index([postCuid])
 }
 
 enum EntityType {

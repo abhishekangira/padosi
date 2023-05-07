@@ -2,7 +2,7 @@ import { BiCheck, BiCurrentLocation, BiLoader, BiX } from "react-icons/bi";
 import { getCurrentPosition } from "./locationUtils";
 import { useSetLocationPage } from "./useSetLocationPage";
 import Script from "next/script";
-import { debounce } from "@/lib/utils/utils";
+import { debounce } from "@/lib/utils/general";
 import { Dispatch, SetStateAction } from "react";
 import { User } from "@prisma/client";
 
@@ -18,7 +18,7 @@ export function SetLocationPage() {
     username,
     setUsername,
     checkUsername,
-    isLoading,
+    submitLoading,
   } = useSetLocationPage();
   return (
     <>
@@ -75,7 +75,7 @@ export function SetLocationPage() {
           </div>
         </div>
         <button
-          className={`btn-primary btn-sm btn ${isLoading ? "loading" : ""}`}
+          className={`btn-primary btn-sm btn ${submitLoading ? "loading" : ""}`}
           onClick={handleSubmit}
           disabled={username.state !== "available"}
         >

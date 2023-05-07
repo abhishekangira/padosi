@@ -3,21 +3,26 @@ import { getMarkerPosition, initMap } from "./locationUtils";
 import { useEffect, useRef, useState } from "react";
 import { auth, db } from "@/lib/firebase/firebase";
 import { trpc } from "@/lib/utils/trpc";
+import { useRouter } from "next/router";
 
 export function useSetLocationPage() {
-  const { setUser, user } = useUserContext();
+  const { setUser } = useUserContext();
+  const router = useRouter();
   const mapRef = useRef<HTMLDivElement>(null);
+  const [submitLoading, setSubmitLoading] = useState(false);
   const addressInputRef = useRef<HTMLInputElement>(null);
   const [locationLoading, setLocationLoading] = useState(false);
   const [username, setUsername] = useState<{
     value: string;
     state: "loading" | "unavailable" | "available" | null;
   }>({ value: "", state: null });
-  const { mutate: createUser, isLoading } = trpc.user.createUser.useMutation({
+  const { mutate: createUser } = trpc.user.createUser.useMutation({
     onSuccess: (data) => {
       setUser(data);
+      router.push("/home");
     },
     onError(error, variables, context) {
+      setSubmitLoading(false);
       console.log("Error creating user", error, variables, context);
     },
   });
@@ -25,6 +30,7 @@ export function useSetLocationPage() {
   const { refetch } = trpc.user.getUser.useQuery({ username: username.value }, { enabled: false });
 
   const handleSubmit = () => {
+    setSubmitLoading(true);
     const pos = getMarkerPosition();
     if (auth.currentUser && pos.lat && pos.lng && username.value) {
       createUser({
@@ -55,6 +61,6 @@ export function useSetLocationPage() {
     username,
     setUsername,
     checkUsername: refetch,
-    isLoading,
+    submitLoading,
   };
 }
