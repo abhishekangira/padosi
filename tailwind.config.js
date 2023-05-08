@@ -3,13 +3,6 @@ module.exports = {
   content: ["./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
     extend: {
-      colors: {
-        primary: {
-          light: "#94d2ff",
-          DEFAULT: "#5bbaff",
-          dark: "#2b7db8",
-        },
-      },
       boxShadow: {
         neu: "7px 7px 13px #06080f, -7px -7px 13px #32162b",
       },
@@ -29,10 +22,10 @@ module.exports = {
     themes: [
       {
         mytheme: {
-          primary: "#5bbaff",
+          primary: "#5b94ff",
           secondary: "#D926AA",
           accent: "#1FB2A5",
-          neutral: "#191D24",
+          neutral: "#003154",
           "neutral-focus": "#666666",
           "base-100": "#1b2735",
           info: "#3ABFF8",

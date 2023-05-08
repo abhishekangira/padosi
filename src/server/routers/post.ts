@@ -31,7 +31,7 @@ export const postRouter = trpcRouter({
         sortBy === "TRENDING" ? "likesCount + .5*dislikesCount + 2*commentsCount" : "Post.id";
 
       const sqlQuery = `SELECT Post.id, Post.cuid, Post.title, Post.createdAt, Post.content, Post.authorId,
-        User.name, User.username, User.latitude, User.longitude, User.photo,
+        User.name, User.username, User.latitude, User.longitude, User.photo, User.tagline,
         (SELECT COUNT(*) FROM LikeDislike WHERE LikeDislike.postId = Post.id AND LikeDislike.type = 'LIKE') AS likesCount,
         (SELECT COUNT(*) FROM LikeDislike WHERE LikeDislike.postId = Post.id AND LikeDislike.type = 'DISLIKE') AS dislikesCount,
         (SELECT COUNT(*) FROM LikeDislike WHERE LikeDislike.postId = Post.id AND LikeDislike.userId = ${userId} AND LikeDislike.type = 'LIKE') AS isLikedByUser,
@@ -134,6 +134,7 @@ function mapPosts(rows: any[]) {
       isLikedByUser,
       isDislikedByUser,
       commentsCount,
+      tagline,
     } = post as any;
     return {
       id,
@@ -147,7 +148,7 @@ function mapPosts(rows: any[]) {
       isLikedByUser: !!+isLikedByUser,
       isDislikedByUser: !!+isDislikedByUser,
       commentsCount: +commentsCount,
-      author: { name, username, latitude, longitude, photo },
+      author: { name, username, latitude, longitude, photo, tagline },
     };
   }) as (Post & {
     author: User;

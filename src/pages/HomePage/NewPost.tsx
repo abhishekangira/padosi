@@ -36,6 +36,19 @@ export function NewPost({ maxLength = 1000 }) {
     });
   };
 
+  const handleCancel = () => {
+    setText("");
+    setTitle("");
+    textRef.current?.blur();
+    setShowTitleInput(false);
+  };
+
+  useEffect(() => {
+    const textArea = titleRef.current! as HTMLTextAreaElement;
+    if (!textArea) return;
+    if (showTitleInput) textArea.focus();
+  }, [titleRef, showTitleInput]);
+
   useEffect(() => {
     const textAreas = [
       textRef.current! as HTMLTextAreaElement,
@@ -52,6 +65,7 @@ export function NewPost({ maxLength = 1000 }) {
     if (target.id === "postTitle") setTitle(target.value);
     else setText(target.value);
   };
+
   return (
     <div className="relative flex-col flex">
       <textarea
@@ -60,7 +74,7 @@ export function NewPost({ maxLength = 1000 }) {
         id="postTitle"
         onChange={handleChange}
         maxLength={150}
-        className={`peer textarea pl-24 resize-none overflow-hidden textarea-ghost focus:bg-inherit focus:outline-none sm:text-lg font-bold ${
+        className={`peer textarea textarea-sm pl-24 resize-none overflow-hidden textarea-ghost focus:bg-inherit focus:outline-none sm:text-lg font-bold ${
           showTitleInput ? "block" : "hidden"
         }`}
         placeholder="Your catchy title"
@@ -68,6 +82,8 @@ export function NewPost({ maxLength = 1000 }) {
           if (event.key === "Enter" && !event.shiftKey && text && title) {
             event.preventDefault();
             handleSubmit();
+          } else if (event.key === "Escape") {
+            handleCancel();
           }
         }}
       />
@@ -82,6 +98,8 @@ export function NewPost({ maxLength = 1000 }) {
           if (event.key === "Enter" && !event.shiftKey && text) {
             event.preventDefault();
             handleSubmit();
+          } else if (event.key === "Escape") {
+            handleCancel();
           }
         }}
       />
@@ -95,12 +113,19 @@ export function NewPost({ maxLength = 1000 }) {
           />
         </div>
       </div>
-      <div className="self-end hidden focus:flex active:flex peer-focus:flex">
+      <div
+        className={`self-end gap-2 focus:flex active:flex peer-focus:flex ${
+          text || title ? "flex" : "hidden"
+        }`}
+      >
         <button
-          className="btn btn-sm capitalize"
+          className="btn btn-sm"
           onClick={() => {
-            setShowTitleInput((prev) => !prev);
-            textRef.current?.focus();
+            setShowTitleInput((prev) => {
+              if (prev) textRef.current?.focus();
+              return !prev;
+            });
+            setTitle("");
           }}
         >
           {showTitleInput ? "Remove Title" : "Add Title"}
@@ -108,7 +133,7 @@ export function NewPost({ maxLength = 1000 }) {
         <button
           onClick={handleSubmit}
           disabled={text.length === 0}
-          className={`btn-ghost btn-sm btn text-primary ${addPostLoading ? "loading" : ""} `}
+          className={`btn-primary btn-sm btn ${addPostLoading ? "loading" : ""} `}
         >
           Post
         </button>

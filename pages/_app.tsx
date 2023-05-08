@@ -21,7 +21,7 @@ function App({ Component, pageProps }: AppProps) {
         <LayoutContextProvider>
           <Layout>
             <Component {...pageProps} />
-            <ReactQueryDevtools initialIsOpen={false} />
+            {/* <ReactQueryDevtools initialIsOpen={false} /> */}
           </Layout>
         </LayoutContextProvider>
       </UserContextProvider>

@@ -13,6 +13,7 @@ import { useCallback, useMemo, useState } from "react";
 import { AiOutlineComment, AiOutlineDislike, AiOutlineLike } from "react-icons/ai";
 import { trpc } from "@/lib/utils/trpc";
 import { debounce } from "@/lib/utils/general";
+import { useRouter } from "next/router";
 
 dayjs.extend(relativeTime);
 dayjs.extend(utc);
@@ -32,6 +33,7 @@ export function PostCard({
   full?: boolean;
 }) {
   const { user } = useUserContext();
+  const router = useRouter();
   const trpcUtils = trpc.useContext();
   const [likes, setLikes] = useState({ count: post.likesCount, isLikedByUser: post.isLikedByUser });
   const [dislikes, setDislikes] = useState({
@@ -98,25 +100,30 @@ export function PostCard({
 
   return (
     <div className="grid w-full grid-cols-[min-content_1fr_min-content] grid-rows-[min-content_auto_auto] gap-3 border-b border-b-black px-3 py-4 sm:gap-4">
-      <div className="avatar">
-        <div className="relative h-12 sm:h-16 mask mask-squircle">
+      <div
+        className="avatar cursor-pointer"
+        onClick={() => router.push(`/${post.author.username}`)}
+      >
+        <div className="relative h-14 sm:h-16 mask mask-squircle">
           <Image
             src={post.author.photo || avatar || "images/avatar.jpg"}
             alt="avatar"
             fill
-            sizes="(min-width: 640px) 64px, 48px"
+            sizes="(min-width: 640px) 64px, 56px"
           />
         </div>
       </div>
-      <div className="flex h-full flex-col justify-center gap-1 self-center">
+      <div
+        className="flex h-full flex-col justify-center self-center cursor-pointer"
+        onClick={() => router.push(`/${post.author.username}`)}
+      >
         <div className="flex items-center gap-1">
-          <h2 className="text-sm font-bold leading-none text-slate-300 sm:text-base">
-            {post.author.name}
-          </h2>
+          <h2 className="text-sm font-bold leading-none sm:text-base">{post.author.name}</h2>
           <span className="text-sm leading-none text-slate-500 sm:text-base">
             @{post.author.username}
           </span>
         </div>
+        <h3 className="text-slate-600 text-xs sm:text-sm">{post.author.tagline}</h3>
         <div className="flex items-center gap-1">
           <span className="text-xs text-slate-500 sm:text-sm">
             {dayjs(post.createdAt).utc(true).fromNow()}
@@ -171,10 +178,13 @@ export function PostCard({
           {dislikes.count}
           <AiOutlineDislike className="sm:text-lg" />
         </button>
-        <button className="btn btn-xs btn-ghost gap-1 sm:gap-2">
+        <Link
+          href={`/post/${post.cuid}?addComment=true`}
+          className="btn btn-xs btn-ghost gap-1 sm:gap-2"
+        >
           {post.commentsCount}
           <AiOutlineComment className="sm:text-lg" />
-        </button>
+        </Link>
         {/* <button className="btn btn-xs btn-ghost gap-2">
           <div className="badge badge-sm">2</div>
           <BiShare className="text-lg" />
@@ -187,8 +197,10 @@ export function PostCard({
 const PostBody = ({ post, full }: { post: Post; full?: boolean }) =>
   full ? (
     <div className="col-span-full grid gap-2">
-      <h2 className="text-base font-bold text-primary-light sm:text-lg break-all">{post.title}</h2>
-      <p className="text-sm font-light leading-snug sm:text-base break-all">{post.content}</p>
+      <h2 className="text-base font-bold text-primary-light sm:text-lg break-all ml-1">
+        {post.title}
+      </h2>
+      <p className="text-sm font-light leading-snug sm:text-base break-all ml-1">{post.content}</p>
     </div>
   ) : (
     <Link href={`/post/${post.cuid}`} className="col-span-full grid gap-2">

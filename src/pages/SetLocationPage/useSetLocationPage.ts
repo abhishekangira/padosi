@@ -16,7 +16,7 @@ export function useSetLocationPage() {
     value: string;
     state: "loading" | "unavailable" | "available" | null;
   }>({ value: "", state: null });
-  const { mutate: createUser } = trpc.user.createUser.useMutation({
+  const { mutate: createUser } = trpc.user.create.useMutation({
     onSuccess: (data) => {
       setUser(data);
       router.push("/home");
@@ -27,7 +27,7 @@ export function useSetLocationPage() {
     },
   });
   const mapInitiatedRef = useRef(false);
-  const { refetch } = trpc.user.getUser.useQuery({ username: username.value }, { enabled: false });
+  const { refetch } = trpc.user.get.useQuery({ username: username.value }, { enabled: false });
 
   const handleSubmit = () => {
     setSubmitLoading(true);

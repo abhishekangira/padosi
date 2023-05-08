@@ -2,13 +2,14 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { trpc } from "@/lib/utils/trpc";
 import { useUserContext } from "@/lib/contexts/user-context";
+import { useRouter } from "next/router";
 
 export function AddComment({ postId, postCuid }: { postId: number; postCuid: string }) {
   const trpcUtils = trpc.useContext();
   const [text, setText] = useState("");
   const textRef = useRef<HTMLTextAreaElement>(null);
   const { user } = useUserContext();
-
+  const { addComment } = useRouter().query;
   const {
     mutate: addCommentMutation,
     isLoading: addCommentLoading,
@@ -20,6 +21,12 @@ export function AddComment({ postId, postCuid }: { postId: number; postCuid: str
       return [trpcUtils.comment.getInfinite.invalidate(), trpcUtils.post.get.invalidate()];
     },
   });
+
+  useEffect(() => {
+    const textArea = textRef.current! as HTMLTextAreaElement;
+    if (!textArea) return;
+    if (addComment) textArea.focus();
+  }, [textRef, addComment]);
 
   useEffect(() => {
     const textArea = textRef.current! as HTMLTextAreaElement;

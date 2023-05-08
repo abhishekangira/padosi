@@ -3,6 +3,9 @@
 @tailwind utilities;
 
 @layer components {
+  .bg-glass-2 {
+    @apply bg-primary/5 backdrop-blur-[2px];
+  }
   .bg-glass {
     @apply bg-base-300/30 backdrop-blur;
   }
@@ -17,8 +20,9 @@ body,
 
 *::placeholder {
   color: #49587a !important;
-}
 
+  /* color: #5b94ff; */
+}
 .bg-radial {
   background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
 }

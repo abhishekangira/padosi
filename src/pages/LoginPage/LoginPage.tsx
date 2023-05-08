@@ -21,7 +21,14 @@ export function LoginPage() {
     <div className="isolate flex min-h-screen flex-col">
       <main className="relative grid flex-grow grid-rows-[12rem_auto_auto] place-items-center gap-8 md:grid-cols-2 md:grid-rows-[auto_auto] md:px-8">
         <section className="mt-8 grid gap-2 self-start text-center md:mt-[35vh]">
-          <h1 className={`${acme.className} text-5xl text-primary lg:text-7xl`}>Padosi</h1>
+          <div className="flex items-baseline justify-center">
+            <div className="relative h-36 sm:w-[4.5rem] sm:h-[4.5rem]">
+              <Image src={logo} alt="logo of Padosi" fill sizes="(min-width: 640px) 192px, 112px" />
+            </div>
+            <h1 className={`font-bold text-5xl text-primary lg:text-7xl -ml-1 sm:-ml-[13px]`}>
+              adosi
+            </h1>
+          </div>
           <h2
             className={`${dancing_script.className} animate-fade whitespace-nowrap text-3xl font-bold lg:text-5xl`}
           >

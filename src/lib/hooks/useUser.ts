@@ -12,7 +12,7 @@ export function useUser() {
   const [routeLoading, setRouteLoading] = useState(true);
   const [globalLoading, setGlobalLoading] = useState(false);
 
-  trpc.user.getUser.useQuery(
+  trpc.user.get.useQuery(
     { uid: auth.currentUser?.uid },
     {
       enabled: !!auth.currentUser && !user?.id,

@@ -29,7 +29,7 @@ model User {
   uid          String        @unique
   email        String        @unique
   username     String        @unique @db.VarChar(20)
-  name         String
+  name         String        @db.VarChar(35)
   photo        String?       @db.VarChar(255)
   latitude     Float
   longitude    Float
