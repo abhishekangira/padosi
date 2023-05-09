@@ -114,16 +114,16 @@ export function PostCard({
         </div>
       </div>
       <div
-        className="flex h-full flex-col justify-center self-center cursor-pointer"
+        className="flex h-full flex-col justify-center gap-[2px] sm:gap-0 self-center cursor-pointer"
         onClick={() => router.push(`/${post.author.username}`)}
       >
         <div className="flex items-center gap-1">
-          <h2 className="text-sm font-bold leading-none sm:text-base">{post.author.name}</h2>
-          <span className="text-sm leading-none text-slate-500 sm:text-base">
+          <h2 className="text-sm font-bold sm:text-base leading-tight">{post.author.name}</h2>
+          <span className="text-sm text-slate-500 sm:text-base leading-tight">
             @{post.author.username}
           </span>
         </div>
-        <h3 className="text-slate-600 text-xs sm:text-sm">{post.author.tagline}</h3>
+        <h3 className="text-cyan-600 text-xs sm:text-sm">{post.author.tagline}</h3>
         <div className="flex items-center gap-1">
           <span className="text-xs text-slate-500 sm:text-sm">
             {dayjs(post.createdAt).utc(true).fromNow()}
@@ -204,8 +204,10 @@ const PostBody = ({ post, full }: { post: Post; full?: boolean }) =>
     </div>
   ) : (
     <Link href={`/post/${post.cuid}`} className="col-span-full grid gap-2">
-      <h2 className="text-base font-bold text-primary-light sm:text-lg break-all">{post.title}</h2>
-      <p className="text-sm font-light leading-snug sm:text-base break-all">
+      <h2 className="text-base font-bold text-primary-light sm:text-lg break-all ml-1">
+        {post.title}
+      </h2>
+      <p className="text-sm font-light leading-snug sm:text-base break-all ml-1">
         {post.content.length > 220 ? (
           <>
             {post.content.slice(0, 220) + "... "}

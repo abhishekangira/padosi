@@ -113,6 +113,68 @@ export const postRouter = trpcRouter({
       const post = mapPosts(res.rows)[0];
       return post;
     }),
+  delete: procedure
+    .input(
+      z.object({
+        cuid: z.string().cuid(),
+        authorId: z.number(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const post = await ctx.prisma.post.delete({
+        where: {
+          cuid: input.cuid,
+        },
+      });
+      return post;
+    }),
+  getInfiniteOfUser: procedure
+    .input(
+      z.object({
+        currentUserId: z.number(),
+        username: z.string(),
+        cursor: z.number().nullish(),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const limit = 20;
+      const sqlQuery = `SELECT Post.id, Post.cuid, Post.title, Post.createdAt, Post.content, Post.authorId,
+        User.name, User.username, User.latitude, User.longitude, User.photo,
+        (SELECT COUNT(*) FROM LikeDislike WHERE LikeDislike.postId = Post.id AND LikeDislike.type = 'LIKE') AS likesCount,
+        (SELECT COUNT(*) FROM LikeDislike WHERE LikeDislike.postId = Post.id AND LikeDislike.type = 'DISLIKE') AS dislikesCount,
+        (SELECT COUNT(*) FROM LikeDislike WHERE LikeDislike.postId = Post.id AND LikeDislike.userId = ${
+          input.currentUserId
+        } AND LikeDislike.type = 'LIKE') AS isLikedByUser,
+        (SELECT COUNT(*) FROM LikeDislike WHERE LikeDislike.postId = Post.id AND LikeDislike.userId = ${
+          input.currentUserId
+        } AND LikeDislike.type = 'DISLIKE') AS isDislikedByUser,
+        COUNT(DISTINCT Comment.id) AS commentsCount
+        FROM Post
+        INNER JOIN User ON Post.authorId = User.id
+        LEFT JOIN Comment ON Post.id = Comment.postId
+        WHERE User.username = '${input.username}'
+        ${input.cursor ? `AND Post.id <= ${input.cursor}` : ""}
+        GROUP BY Post.id
+        ORDER BY Post.id DESC
+        LIMIT ${limit + 1};
+      `;
+
+      const res = await ctx.planet.execute(sqlQuery);
+      console.log(res.rows);
+
+      const posts = mapPosts(res.rows);
+
+      let nextCursor: typeof input.cursor | undefined = undefined;
+      if (posts.length > limit) {
+        const nextItem = posts.pop();
+        nextCursor = nextItem!.id;
+      }
+
+      return {
+        posts,
+        nextCursor,
+      };
+    }),
 });
 
 function mapPosts(rows: any[]) {

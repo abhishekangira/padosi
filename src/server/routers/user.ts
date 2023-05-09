@@ -50,4 +50,66 @@ export const userRouter = trpcRouter({
       });
       return user;
     }),
+  update: procedure
+    .input(
+      z.object({
+        id: z.number(),
+        username: z.string().min(3).max(20),
+        email: z.string().email(),
+        name: z.string().min(1).max(35),
+        longitude: z.number(),
+        latitude: z.number(),
+        photo: z.string().url().nullish(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { id, username, email, name, longitude, latitude, photo } = input;
+      const user = await ctx.prisma.user.update({
+        where: { id },
+        data: {
+          username,
+          email,
+          name,
+          longitude,
+          latitude,
+          photo,
+        },
+      });
+      return user;
+    }),
+  togglefollow: procedure
+    .input(
+      z.object({
+        followerId: z.number(),
+        followingId: z.number(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { followerId, followingId } = input;
+      const follow = await ctx.prisma.follow.findFirst({
+        where: {
+          followerId,
+          followingId,
+        },
+      });
+      if (follow) {
+        await ctx.prisma.follow.delete({
+          where: {
+            followerId_followingId: {
+              followerId,
+              followingId,
+            },
+          },
+        });
+        return false;
+      } else {
+        await ctx.prisma.follow.create({
+          data: {
+            followerId,
+            followingId,
+          },
+        });
+        return { success: true };
+      }
+    }),
 });
