@@ -22,6 +22,10 @@ export function NewPost({ maxLength = 1000 }) {
       setTitle("");
       setShowTitleInput(false);
       textRef.current?.blur();
+      const modalCheckbox = document.getElementById("my-modal") as HTMLInputElement;
+      if (modalCheckbox) {
+        modalCheckbox.checked = false;
+      }
       return trpcUtils.post.getInfinite.invalidate();
     },
   });

@@ -40,10 +40,7 @@ export function HomePage() {
       </div>
       <input type="checkbox" id="my-modal" className="modal-toggle" />
       <label htmlFor="my-modal" className="modal cursor-pointer">
-        <label
-          className="modal-box w-11/12 h-1/2 flex flex-col justify-between relative"
-          htmlFor=""
-        >
+        <label className="modal-box w-11/12 h-1/2 flex flex-col justify-between relative">
           <NewPost />
         </label>
       </label>
