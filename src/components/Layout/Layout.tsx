@@ -1,7 +1,7 @@
 import { useLayoutContext } from "@/lib/contexts/layout-context";
 import Head from "next/head";
-import { TopNav } from "../TopNav";
-import { BottomNav } from "../BottomNav";
+import { TopNav } from "./TopNav";
+import { BottomNav } from "./BottomNav";
 import { useUserContext } from "@/lib/contexts/user-context";
 import FullPageLoader from "../FullPageLoader/FullPageLoader";
 

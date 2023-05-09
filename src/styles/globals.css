@@ -35,6 +35,22 @@ label.modal {
   @apply bg-transparent backdrop-blur;
 }
 
+.golden-text {
+  background: linear-gradient(
+    to bottom,
+    #cfc09f 22%,
+    #ffa200 24%,
+    #cfc09f 26%,
+    #cfc09f 27%,
+    #ffecb3 40%,
+    #b4a995 78%
+  );
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: #fff;
+}
+
 /* google maps autocomplete related styling */
 .pac-container {
   background-color: #1b2735;

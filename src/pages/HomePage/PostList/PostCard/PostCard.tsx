@@ -124,7 +124,13 @@ export function PostCard({
         onClick={() => router.push(`/${post.author.username}`)}
       >
         <div className="flex items-center gap-1">
-          <h2 className="text-sm font-bold sm:text-base leading-tight">{post.author.name}</h2>
+          <h2
+            className={`${
+              post.author.username === "bubu" ? "golden-text" : ""
+            } text-sm font-bold sm:text-base leading-tight`}
+          >
+            {post.author.name}
+          </h2>
           <span className="text-sm text-slate-500 sm:text-base leading-tight">
             @{post.author.username}
           </span>

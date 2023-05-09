@@ -47,10 +47,10 @@ export function LoginPage() {
           <div className={styles.stars3}></div>
         </div>
       </main>
-      <footer className="bg-glass footer place-items-center gap-y-4 self-end p-4 text-neutral-content">
+      <footer className="bg-glass-2 footer place-items-center gap-y-4 self-end p-4 text-neutral-content">
         <div className="grid-flow-col items-center md:justify-self-start">
           <Image src={logo} alt="Logo of Padosi" width={30} height={30} />
-          <p>Padosi © 2023 - All right reserved</p>
+          <p>Padosi © 2023 - All rights reserved</p>
         </div>
         <div className="grid-flow-col gap-4 md:place-self-center md:justify-self-end">
           <Link className="link-hover link-primary link" href="/privacy-policy">

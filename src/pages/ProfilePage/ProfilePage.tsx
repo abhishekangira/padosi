@@ -2,7 +2,7 @@ import { useUserContext } from "@/lib/contexts/user-context";
 import { trpc } from "@/lib/utils/trpc";
 import { distanceBetween } from "geofire-common";
 import Image from "next/image";
-import dp from "public/images/memoji.gif";
+import dp from "public/images/giftp.gif";
 import { useRouter } from "next/router";
 import { useMemo } from "react";
 import { BsTextareaT } from "react-icons/bs";

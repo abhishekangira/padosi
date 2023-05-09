@@ -33,7 +33,7 @@ export function LoginWidget() {
           </button>
         ))}
       </div>
-      <div className="bg-glass card rounded-none rounded-b-2xl rounded-tr-2xl sm:card-normal lg:card-side">
+      <div className="bg-glass-2 card rounded-none rounded-b-2xl rounded-tr-2xl sm:card-normal lg:card-side">
         <div className="card-body">
           <h2 className="card-title">{message}</h2>
           <form className="form-control" onSubmit={handleSubmit}>
