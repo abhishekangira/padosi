@@ -145,7 +145,7 @@ export function CommentCard({
           )}
         </Dropdown.Content>
       </Dropdown.Root>
-      <p className="col-span-full text-sm font-light leading-snug sm:text-base break-all">
+      <p className="col-span-full text-sm ml-1 font-light leading-snug sm:text-base whitespace-pre-wrap overflow-x-scroll">
         {comment.content}
       </p>
       <div className="card-actions col-span-full text-sm">

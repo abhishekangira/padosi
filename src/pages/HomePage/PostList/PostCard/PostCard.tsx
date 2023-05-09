@@ -10,7 +10,13 @@ import Link from "next/link";
 import * as Dropdown from "@radix-ui/react-dropdown-menu";
 import { Post, User } from "@prisma/client";
 import { useCallback, useMemo, useState } from "react";
-import { AiOutlineComment, AiOutlineDislike, AiOutlineLike } from "react-icons/ai";
+import {
+  AiFillDislike,
+  AiFillLike,
+  AiOutlineComment,
+  AiOutlineDislike,
+  AiOutlineLike,
+} from "react-icons/ai";
 import { trpc } from "@/lib/utils/trpc";
 import { debounce } from "@/lib/utils/general";
 import { useRouter } from "next/router";
@@ -153,21 +159,25 @@ export function PostCard({
         </Dropdown.Content>
       </Dropdown.Root>
       <PostBody post={post} full={full} />
-      <div className="card-actions col-span-full text-sm">
+      <div className="card-actions col-span-full">
         <button
-          className={`btn btn-xs gap-1 sm:gap-2 ${
-            likes.isLikedByUser ? "btn-primary" : "btn-ghost"
+          className={`btn btn-ghost btn-xs sm:text-sm gap-1 sm:gap-2 ${
+            likes.isLikedByUser ? "text-primary" : "text-slate-400"
           }`}
           onClick={() =>
             toggleLikeDislikeWithOptimisticUpdates(likes.isLikedByUser ? "UNLIKE" : "LIKE")
           }
         >
           {likes.count}
-          <AiOutlineLike className="sm:text-lg" />
+          {likes.isLikedByUser ? (
+            <AiFillLike className="text-base sm:text-lg" />
+          ) : (
+            <AiOutlineLike className="text-base sm:text-lg" />
+          )}
         </button>
         <button
-          className={`btn btn-xs gap-1 sm:gap-2 ${
-            dislikes.isDislikedByUser ? "btn-error" : "btn-ghost"
+          className={`btn btn-ghost btn-xs sm:text-sm gap-1 sm:gap-2 ${
+            dislikes.isDislikedByUser ? "text-error" : "text-slate-400"
           }`}
           onClick={() =>
             toggleLikeDislikeWithOptimisticUpdates(
@@ -176,14 +186,18 @@ export function PostCard({
           }
         >
           {dislikes.count}
-          <AiOutlineDislike className="sm:text-lg" />
+          {dislikes.isDislikedByUser ? (
+            <AiFillDislike className="text-base sm:text-lg" />
+          ) : (
+            <AiOutlineDislike className="text-base sm:text-lg" />
+          )}
         </button>
         <Link
           href={`/post/${post.cuid}?addComment=true`}
-          className="btn btn-xs btn-ghost gap-1 sm:gap-2"
+          className="btn btn-xs text-slate-400 sm:text-sm btn-ghost gap-1 sm:gap-2"
         >
           {post.commentsCount}
-          <AiOutlineComment className="sm:text-lg" />
+          <AiOutlineComment className="text-base sm:text-lg" />
         </Link>
         {/* <button className="btn btn-xs btn-ghost gap-2">
           <div className="badge badge-sm">2</div>
@@ -197,17 +211,19 @@ export function PostCard({
 const PostBody = ({ post, full }: { post: Post; full?: boolean }) =>
   full ? (
     <div className="col-span-full grid gap-2">
-      <h2 className="text-base font-bold text-primary-light sm:text-lg break-all ml-1">
+      <h2 className="text-base font-bold text-primary-light sm:text-lg overflow-x-scroll ml-1">
         {post.title}
       </h2>
-      <p className="text-sm font-light leading-snug sm:text-base break-all ml-1">{post.content}</p>
+      <p className="text-sm font-light leading-snug whitespace-pre-wrap sm:text-base overflow-x-scroll ml-1">
+        {post.content}
+      </p>
     </div>
   ) : (
     <Link href={`/post/${post.cuid}`} className="col-span-full grid gap-2">
-      <h2 className="text-base font-bold text-primary-light sm:text-lg break-all ml-1">
+      <h2 className="text-base font-bold text-primary-light sm:text-lg overflow-x-scroll ml-1">
         {post.title}
       </h2>
-      <p className="text-sm font-light leading-snug sm:text-base break-all ml-1">
+      <p className="text-sm font-light leading-snug sm:text-base overflow-x-scroll ml-1">
         {post.content.length > 220 ? (
           <>
             {post.content.slice(0, 220) + "... "}

@@ -28,7 +28,7 @@ export const postRouter = trpcRouter({
         userLon + ((km / 6371) * (180 / Math.PI)) / Math.cos((userLat * Math.PI) / 180);
 
       const orderBy =
-        sortBy === "TRENDING" ? "likesCount + .5*dislikesCount + 2*commentsCount" : "Post.id";
+        sortBy === "TRENDING" ? "likesCount + .5*dislikesCount + 1.5*commentsCount" : "Post.id";
 
       const sqlQuery = `SELECT Post.id, Post.cuid, Post.title, Post.createdAt, Post.content, Post.authorId,
         User.name, User.username, User.latitude, User.longitude, User.photo, User.tagline,

@@ -3,7 +3,13 @@ import { Virtuoso } from "react-virtuoso";
 import { PostCardSkeleton } from "./PostCard/PostCardSkeleton";
 import { useUserContext } from "@/lib/contexts/user-context";
 import { trpc } from "@/lib/utils/trpc";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { debounce } from "@/lib/utils/general";
+
+const debouncedScrollHandler = debounce(
+  (range: any) => sessionStorage.setItem("scrollTop", range.startIndex.toString()),
+  500
+);
 
 export function PostList({ sortBy }: { sortBy: "LATEST" | "TRENDING" }) {
   const { user } = useUserContext();
@@ -21,6 +27,14 @@ export function PostList({ sortBy }: { sortBy: "LATEST" | "TRENDING" }) {
         enabled: !!user?.id,
       }
     );
+
+  // useEffect(() => {
+  //   window.addEventListener("scroll", debouncedScrollHandler);
+  //   return () => {
+  //     window.removeEventListener("scroll", debouncedScrollHandler);
+  //   };
+  // }, []);
+
   console.log(
     "data",
     data?.pages.flatMap((page) => page.posts)
@@ -43,6 +57,8 @@ export function PostList({ sortBy }: { sortBy: "LATEST" | "TRENDING" }) {
   return posts.length ? (
     <Virtuoso
       useWindowScroll
+      rangeChanged={debouncedScrollHandler}
+      initialTopMostItemIndex={+(sessionStorage.getItem("scrollTop") ?? "0")}
       data={posts}
       endReached={() => {
         if (hasNextPage) fetchNextPage();

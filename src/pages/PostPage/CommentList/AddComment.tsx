@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { trpc } from "@/lib/utils/trpc";
 import { useUserContext } from "@/lib/contexts/user-context";
 import { useRouter } from "next/router";
@@ -22,10 +22,13 @@ export function AddComment({ postId, postCuid }: { postId: number; postCuid: str
     },
   });
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const textArea = textRef.current! as HTMLTextAreaElement;
     if (!textArea) return;
-    if (addComment) textArea.focus();
+    if (addComment) {
+      textArea.scrollIntoView();
+      textArea.focus();
+    }
   }, [textRef, addComment]);
 
   useEffect(() => {

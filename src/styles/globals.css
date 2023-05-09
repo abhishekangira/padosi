@@ -31,6 +31,10 @@ body,
   border: none;
 }
 
+label.modal {
+  @apply bg-transparent backdrop-blur;
+}
+
 /* google maps autocomplete related styling */
 .pac-container {
   background-color: #1b2735;

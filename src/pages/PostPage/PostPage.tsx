@@ -5,10 +5,14 @@ import { trpc } from "@/lib/utils/trpc";
 import { useRouter } from "next/router";
 import { AddComment } from "./CommentList/AddComment";
 import { CommentList } from "./CommentList/CommentList";
+import Head from "next/head";
+import { useLayout } from "@/lib/hooks/useLayout";
 
 export default function PostPage() {
   const router = useRouter();
   const { user } = useUserContext();
+
+  useLayout({ navbarTitle: `${user?.username}'s Post` });
 
   const { id } = router.query;
 
@@ -23,17 +27,27 @@ export default function PostPage() {
     { enabled: !!id && !!user?.id, getNextPageParam: (lastPage) => lastPage.nextCursor }
   );
 
-  if (postLoading || !user?.id) return <PostCardSkeleton />;
+  if (postLoading || !user?.id)
+    return (
+      <div className="max-w-3xl mx-auto">
+        <PostCardSkeleton />
+      </div>
+    );
   if (postError) return <pre>Something went wrong!!</pre>;
   if (!post) return <div>Post not found</div>;
 
   return (
-    <div className="max-w-3xl mx-auto pb-3">
-      <PostCard post={post} full />
-      <div className="py-2 border-b border-b-black">
-        <AddComment postId={post.id} postCuid={post.cuid} />
+    <>
+      <Head>
+        <title>{user.username}&#39;s Post | Padosi</title>
+      </Head>
+      <div className="max-w-3xl mx-auto pb-3">
+        <PostCard post={post} full />
+        <div className="py-2 border-b border-b-black">
+          <AddComment postId={post.id} postCuid={post.cuid} />
+        </div>
+        <CommentList commentsData={commentsData} />
       </div>
-      <CommentList commentsData={commentsData} />
-    </div>
+    </>
   );
 }

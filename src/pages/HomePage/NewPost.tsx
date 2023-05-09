@@ -31,8 +31,8 @@ export function NewPost({ maxLength = 1000 }) {
     const { id } = user;
     addPostMutation({
       authorId: id,
-      title: title || null,
-      content: text,
+      title: title.trim() || null,
+      content: text.trim(),
     });
   };
 
@@ -132,7 +132,7 @@ export function NewPost({ maxLength = 1000 }) {
         </button>
         <button
           onClick={handleSubmit}
-          disabled={text.length === 0}
+          disabled={text.trim().length === 0}
           className={`btn-primary btn-sm btn ${addPostLoading ? "loading" : ""} `}
         >
           Post

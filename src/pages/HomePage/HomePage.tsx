@@ -3,12 +3,16 @@ import { TbPencilPlus } from "react-icons/tb";
 import { NewPost } from "@/pages/HomePage/NewPost";
 import { PostList } from "@/pages/HomePage/PostList/PostList";
 import { useState } from "react";
+import Head from "next/head";
 
 export function HomePage() {
   useLayout({ navbarTitle: "Home" });
   const [sortBy, setSortBy] = useState<"LATEST" | "TRENDING">("LATEST");
   return (
     <>
+      <Head>
+        <title>Home | Padosi</title>
+      </Head>
       <div className="mx-auto max-w-3xl py-6">
         <div className="hidden sm:block">
           <NewPost />
