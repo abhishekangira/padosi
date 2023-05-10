@@ -27,6 +27,8 @@ export default function PostPage() {
     { enabled: !!id && !!user?.id, getNextPageParam: (lastPage) => lastPage.nextCursor }
   );
 
+  console.log({ data: commentsData.data });
+
   if (postLoading || !user?.id)
     return (
       <div className="max-w-3xl mx-auto">

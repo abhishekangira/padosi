@@ -16,7 +16,7 @@ export const commentRouter = trpcRouter({
       const limit = input.limit ?? 20;
       const { cursor, postCuid, userId } = input;
 
-      const sqlQuery = `SELECT Comment.id, Comment.createdAt, Comment.content, Comment.authorId,
+      const sqlQuery = `SELECT Comment.id, Comment.createdAt, Comment.content, Comment.authorId, Comment.postCuid,
         User.name, User.username, User.latitude, User.longitude, User.photo,
         SUM(CASE WHEN LikeDislike.type = 'LIKE' THEN 1 ELSE 0 END) AS likesCount,
         SUM(CASE WHEN LikeDislike.type = 'DISLIKE' THEN 1 ELSE 0 END) AS dislikesCount,
@@ -86,12 +86,14 @@ function mapComments(rows: any[]) {
       dislikesCount,
       isLikedByUser,
       isDislikedByUser,
+      postCuid,
     } = comment as any;
     return {
       id,
       createdAt,
       content,
       authorId,
+      postCuid,
       likesCount: +likesCount,
       dislikesCount: +dislikesCount,
       isLikedByUser: !!+isLikedByUser,

@@ -10,9 +10,16 @@ import Link from "next/link";
 import * as Dropdown from "@radix-ui/react-dropdown-menu";
 import { Comment, Post, User } from "@prisma/client";
 import { useCallback, useMemo, useState } from "react";
-import { AiOutlineComment, AiOutlineDislike, AiOutlineLike } from "react-icons/ai";
+import {
+  AiFillDislike,
+  AiFillLike,
+  AiOutlineComment,
+  AiOutlineDislike,
+  AiOutlineLike,
+} from "react-icons/ai";
 import { trpc } from "@/lib/utils/trpc";
 import { debounce } from "@/lib/utils/general";
+import { produce } from "immer";
 
 dayjs.extend(relativeTime);
 dayjs.extend(utc);
@@ -44,7 +51,38 @@ export function CommentCard({
         setLikes({ count: comment.likesCount, isLikedByUser: comment.isLikedByUser });
         setDislikes({ count: comment.dislikesCount, isDislikedByUser: comment.isDislikedByUser });
       } else {
-        console.log("data", data);
+        console.log({ user: user?.id, comment: comment.postCuid });
+
+        trpcUtils.comment.getInfinite.setInfiniteData(
+          {
+            userId: user!?.id,
+            postCuid: comment.postCuid,
+          },
+          (prev) => {
+            console.log({ prev });
+            const updated = produce(prev, (draft: any) => {
+              let postIndex;
+              const pageIndex = draft.pages.findIndex((page) => {
+                postIndex = page.comments.findIndex((c) => c.id === comment.id);
+                console.log({ postIndex });
+                return postIndex !== -1;
+              });
+              console.log({ pageIndex });
+              if (postIndex !== undefined && postIndex !== -1) {
+                draft.pages[pageIndex].comments[postIndex] = {
+                  ...draft.pages[pageIndex].comments[postIndex],
+                  likesCount: likes.count,
+                  dislikesCount: dislikes.count,
+                  isLikedByUser: likes.isLikedByUser,
+                  isDislikedByUser: dislikes.isDislikedByUser,
+                };
+              }
+            });
+            console.log({ updated });
+
+            return updated;
+          }
+        );
       }
     },
   });
@@ -150,19 +188,19 @@ export function CommentCard({
       </p>
       <div className="card-actions col-span-full text-sm">
         <button
-          className={`btn btn-xs gap-1 sm:gap-2 ${
-            likes.isLikedByUser ? "btn-primary" : "btn-ghost"
+          className={`btn btn-ghost btn-xs sm:text-sm gap-1 sm:gap-2 ${
+            likes.isLikedByUser ? "text-primary" : "text-slate-400"
           }`}
           onClick={() =>
             toggleLikeDislikeWithOptimisticUpdates(likes.isLikedByUser ? "UNLIKE" : "LIKE")
           }
         >
           {likes.count}
-          <AiOutlineLike className="sm:text-lg" />
+          {likes.isLikedByUser ? <AiFillLike className="" /> : <AiOutlineLike className="" />}
         </button>
         <button
-          className={`btn btn-xs gap-1 sm:gap-2 ${
-            dislikes.isDislikedByUser ? "btn-error" : "btn-ghost"
+          className={`btn btn-ghost btn-xs sm:text-sm gap-1 sm:gap-2 ${
+            dislikes.isDislikedByUser ? "text-error" : "text-slate-400"
           }`}
           onClick={() =>
             toggleLikeDislikeWithOptimisticUpdates(
@@ -171,7 +209,11 @@ export function CommentCard({
           }
         >
           {dislikes.count}
-          <AiOutlineDislike className="sm:text-lg" />
+          {dislikes.isDislikedByUser ? (
+            <AiFillDislike className="" />
+          ) : (
+            <AiOutlineDislike className="" />
+          )}
         </button>
       </div>
     </div>
