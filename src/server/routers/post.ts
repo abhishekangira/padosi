@@ -69,7 +69,7 @@ export const postRouter = trpcRouter({
         nextCursor,
       };
     }),
-  add: procedure
+  create: procedure
     .input(
       z.object({
         title: z.string().min(1).max(150).nullish(),

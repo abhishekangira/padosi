@@ -16,7 +16,7 @@ export function NewPost({ maxLength = 1000 }) {
     mutate: addPostMutation,
     isLoading: addPostLoading,
     isError: addPostError,
-  } = trpc.post.add.useMutation({
+  } = trpc.post.create.useMutation({
     onSuccess: async (post) => {
       setText("");
       setTitle("");
