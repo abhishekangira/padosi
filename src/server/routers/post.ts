@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { procedure, trpcRouter } from "../trpc";
 import { Post, Prisma, User } from "@prisma/client";
+import { usernameRegex } from "@/pages/SetLocationPage/SetLocationPage";
 
 console.log("postRouter");
 
@@ -30,6 +31,8 @@ export const postRouter = trpcRouter({
       const orderBy =
         sortBy === "TRENDING" ? "likesCount + .5*dislikesCount + 1.5*commentsCount" : "Post.id";
 
+      const cursorCondition = cursor ? `AND Post.id <= ${cursor}` : "";
+
       const sqlQuery = `SELECT Post.id, Post.cuid, Post.title, Post.createdAt, Post.content, Post.authorId,
         User.name, User.username, User.latitude, User.longitude, User.photo, User.tagline,
         (SELECT COUNT(*) FROM LikeDislike WHERE LikeDislike.postId = Post.id AND LikeDislike.type = 'LIKE') AS likesCount,
@@ -47,11 +50,12 @@ export const postRouter = trpcRouter({
         AND ST_Distance_Sphere(
             POINT(User.longitude, User.latitude),
             POINT(${userLon}, ${userLat})) <= ${km * 1000}
-        ${cursor ? `AND Post.id <= ${cursor}` : ""}
+        ${cursorCondition}
         GROUP BY Post.id
         ORDER BY ${orderBy} DESC
         LIMIT ${limit + 1};
         `;
+      console.log(sqlQuery);
 
       const res = await ctx.planet.execute(sqlQuery);
       console.log(res.rows);
@@ -132,7 +136,7 @@ export const postRouter = trpcRouter({
     .input(
       z.object({
         currentUserId: z.number(),
-        username: z.string(),
+        username: z.string().regex(usernameRegex),
         cursor: z.number().nullish(),
       })
     )

@@ -11,17 +11,26 @@ import { Virtuoso } from "react-virtuoso";
 import { PostCard } from "../HomePage/PostList/PostCard/PostCard";
 import { useLayout } from "@/lib/hooks/useLayout";
 import Head from "next/head";
+import { useLayoutContext } from "@/lib/contexts/layout-context";
 
 export function ProfilePage() {
   const { user: currentUser } = useUserContext();
+  const { setLayout } = useLayoutContext();
   const router = useRouter();
   const { username: uname } = router.query;
-  useLayout({ navbarTitle: uname ? `${uname}'s Profile` : "Profile" });
   const {
     data: user,
     isLoading,
     isError,
-  } = trpc.user.get.useQuery({ username: uname as string }, { enabled: !!uname });
+  } = trpc.user.get.useQuery(
+    { username: uname as string },
+    {
+      enabled: !!uname,
+      onSuccess: (data) => {
+        setLayout({ navbarTitle: `${data?.username}'s Profile` });
+      },
+    }
+  );
 
   const {
     data,

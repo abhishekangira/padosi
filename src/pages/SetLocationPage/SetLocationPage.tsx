@@ -87,6 +87,8 @@ export function SetLocationPage() {
   );
 }
 
+export const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/;
+
 const debouncedCheckUsernameExists = debounce(
   (
     username: string,
@@ -99,7 +101,6 @@ const debouncedCheckUsernameExists = debounce(
     checkUsername: () => Promise<{ data: User }>
   ) => {
     const inputVal = username.trim().toLowerCase();
-    const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/;
     if (!usernameRegex.test(inputVal)) {
       console.log("checking regex fail", inputVal);
       return setUsername((prev) => ({ ...prev, state: "unavailable" }));

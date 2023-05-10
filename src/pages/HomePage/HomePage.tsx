@@ -17,7 +17,7 @@ export function HomePage() {
         <div className="hidden sm:block">
           <NewPost />
         </div>
-        <div className="tabs justify-center">
+        {/* <div className="tabs justify-center">
           {["LATEST", "TRENDING"].map((tab: any) => (
             <button
               key={tab}
@@ -29,7 +29,7 @@ export function HomePage() {
               {tab}
             </button>
           ))}
-        </div>
+        </div> */}
         <PostList sortBy={sortBy} />
         <label
           htmlFor="my-modal"

@@ -71,7 +71,7 @@ export function NewPost({ maxLength = 1000 }) {
   };
 
   return (
-    <div className="relative flex-col flex">
+    <div className="relative flex-col flex border-b border-black py-2">
       <textarea
         ref={titleRef}
         value={title}

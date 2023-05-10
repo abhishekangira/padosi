@@ -20,6 +20,7 @@ import {
 import { trpc } from "@/lib/utils/trpc";
 import { debounce } from "@/lib/utils/general";
 import { useRouter } from "next/router";
+import { produce } from "immer";
 
 dayjs.extend(relativeTime);
 dayjs.extend(utc);
@@ -48,11 +49,45 @@ export function PostCard({
   });
   const { mutate: toggleLikeDislike } = trpc.toggleLikeDislike.useMutation({
     onSettled(data, error, variables, context) {
+      console.log({ variables, context });
+
       if (error) {
         setLikes({ count: post.likesCount, isLikedByUser: post.isLikedByUser });
         setDislikes({ count: post.dislikesCount, isDislikedByUser: post.isDislikedByUser });
       } else {
-        console.log("data", data);
+        trpcUtils.post.getInfinite.setInfiniteData(
+          {
+            userId: user!?.id,
+            userLat: user!?.latitude,
+            userLon: user!?.longitude,
+            limit: 20,
+            sortBy: "LATEST",
+          },
+          (prev) => {
+            console.log({ prev });
+            const updated = produce(prev, (draft: any) => {
+              let postIndex;
+              const pageIndex = draft.pages.findIndex((page) => {
+                postIndex = page.posts.findIndex((p) => p.id === post.id);
+                console.log({ postIndex });
+                return postIndex !== -1;
+              });
+              console.log({ pageIndex });
+              if (postIndex !== undefined && postIndex !== -1) {
+                draft.pages[pageIndex].posts[postIndex] = {
+                  ...draft.pages[pageIndex].posts[postIndex],
+                  likesCount: likes.count,
+                  dislikesCount: dislikes.count,
+                  isLikedByUser: likes.isLikedByUser,
+                  isDislikedByUser: dislikes.isDislikedByUser,
+                };
+              }
+            });
+            console.log({ updated });
+
+            return updated;
+          }
+        );
       }
     },
   });
