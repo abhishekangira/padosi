@@ -55,10 +55,10 @@ export const postRouter = trpcRouter({
         ORDER BY ${orderBy} DESC
         LIMIT ${limit + 1};
         `;
-      console.log(sqlQuery);
+      // console.log(sqlQuery);
 
       const res = await ctx.planet.execute(sqlQuery);
-      console.log(res.rows);
+      // console.log(res.rows);
 
       const posts = mapPosts(res.rows);
 

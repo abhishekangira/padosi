@@ -3,6 +3,7 @@ import { z } from "zod";
 import { postRouter } from "./post";
 import { userRouter } from "./user";
 import { commentRouter } from "./comment";
+import { searchRouter } from "./search";
 
 const toggleLikeDislike = procedure
   .input(
@@ -53,6 +54,7 @@ export const appRouter = trpcRouter({
   post: postRouter,
   user: userRouter,
   comment: commentRouter,
+  search: searchRouter,
   toggleLikeDislike,
 });
 

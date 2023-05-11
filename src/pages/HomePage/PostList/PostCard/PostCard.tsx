@@ -64,7 +64,7 @@ export function PostCard({
             sortBy: "LATEST",
           },
           (prev) => {
-            console.log({ prev });
+            // console.log({ prev });
             const updated = produce(prev, (draft: any) => {
               let postIndex;
               const pageIndex = draft.pages.findIndex((page) => {
@@ -72,7 +72,7 @@ export function PostCard({
                 console.log({ postIndex });
                 return postIndex !== -1;
               });
-              console.log({ pageIndex });
+              // console.log({ pageIndex });
               if (postIndex !== undefined && postIndex !== -1) {
                 draft.pages[pageIndex].posts[postIndex] = {
                   ...draft.pages[pageIndex].posts[postIndex],
@@ -83,11 +83,16 @@ export function PostCard({
                 };
               }
             });
-            console.log({ updated });
+            // console.log({ updated });
 
             return updated;
           }
         );
+        trpcUtils.post.get.refetch({ cuid: post.cuid, userId: user!?.id });
+        trpcUtils.post.getInfiniteOfUser.refetch({
+          currentUserId: user!?.id,
+          username: post.author.username,
+        });
       }
     },
   });
@@ -160,9 +165,7 @@ export function PostCard({
       >
         <div className="flex items-center gap-1">
           <h2
-            className={`${
-              post.author.username === "bubu" ? "golden-text" : ""
-            } text-sm font-bold sm:text-base leading-tight`}
+            className={`${false ? "golden-text" : ""} text-sm font-bold sm:text-base leading-tight`}
           >
             {post.author.name}
           </h2>

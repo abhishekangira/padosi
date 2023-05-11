@@ -7,12 +7,12 @@ import { AddComment } from "./CommentList/AddComment";
 import { CommentList } from "./CommentList/CommentList";
 import Head from "next/head";
 import { useLayout } from "@/lib/hooks/useLayout";
+import { useLayoutContext } from "@/lib/contexts/layout-context";
 
 export default function PostPage() {
   const router = useRouter();
   const { user } = useUserContext();
-
-  useLayout({ navbarTitle: `${user?.username}'s Post` });
+  const { setLayout } = useLayoutContext();
 
   const { id } = router.query;
 
@@ -20,14 +20,20 @@ export default function PostPage() {
     data: post,
     isLoading: postLoading,
     isError: postError,
-  } = trpc.post.get.useQuery({ cuid: id as string, userId: user!?.id }, { enabled: !!user?.id });
+  } = trpc.post.get.useQuery(
+    { cuid: id as string, userId: user!?.id },
+    {
+      enabled: !!user?.id && !!id,
+      onSuccess(data) {
+        setLayout({ navbarTitle: `${data.author.username}'s Post` });
+      },
+    }
+  );
 
   const commentsData = trpc.comment.getInfinite.useInfiniteQuery(
     { postCuid: id as string, userId: user!?.id },
     { enabled: !!id && !!user?.id, getNextPageParam: (lastPage) => lastPage.nextCursor }
   );
-
-  console.log({ data: commentsData.data });
 
   if (postLoading || !user?.id)
     return (

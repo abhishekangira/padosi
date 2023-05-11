@@ -22,6 +22,8 @@ model Post {
   comments     Comment[]
 
   @@index([authorId])
+  @@fulltext([content])
+  @@fulltext([content, title])
 }
 
 model User {

@@ -4,15 +4,36 @@ import { auth } from "@/lib/firebase/firebase";
 import Link from "next/link";
 import { useUserContext } from "@/lib/contexts/user-context";
 import { useRouter } from "next/router";
+import { GoSearch } from "react-icons/go";
 
 export function TopNav({ title }: Props) {
   const { setGlobalLoading } = useUserContext();
   const router = useRouter();
   return (
     <nav className="bg-glass navbar fixed top-0 z-10">
-      <Link href="/home" className="navbar-start">
-        <Image src={logo} alt="Logo of Padosi" width={30} height={30} />
-      </Link>
+      <div className="navbar-start">
+        <Link href="/home">
+          <Image src={logo} alt="Logo of Padosi" width={30} height={30} />
+        </Link>
+        {router.pathname !== "/search" && (
+          <div className="input-group input-group-sm ml-8">
+            <input
+              type="text"
+              placeholder="Search…"
+              className="input input-sm"
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  const inputVal = e.currentTarget.value.trim();
+                  router.push(`/search?q=${inputVal}`);
+                }
+              }}
+            />
+            <button className={`btn btn-square btn-sm bg-base-100 border-none pointer-events-none`}>
+              <GoSearch />
+            </button>
+          </div>
+        )}
+      </div>
       <div className="navbar-center">
         <h1 className={`text-2xl font-bold text-primary`}>{title}</h1>
       </div>
