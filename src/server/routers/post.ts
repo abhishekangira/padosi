@@ -181,7 +181,7 @@ export const postRouter = trpcRouter({
     }),
 });
 
-function mapPosts(rows: any[]) {
+export function mapPosts(rows: any[]) {
   return rows.map((post) => {
     const {
       id,

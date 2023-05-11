@@ -8,22 +8,38 @@ import { debounce } from "@/lib/utils/general";
 import { set } from "zod";
 import { useRouter } from "next/router";
 import { PostCardSkeleton } from "../HomePage/PostList/PostCard/PostCardSkeleton";
+import { useUserContext } from "@/lib/contexts/user-context";
+import { Virtuoso } from "react-virtuoso";
 
 export function SearchPage() {
   useLayout({ navbarTitle: "Search" });
+  const { user } = useUserContext();
   const router = useRouter();
   const { q } = router.query;
   const [searchTerm, setSearchTerm] = useState((q as string) || "");
   const [loading, setLoading] = useState(false);
   const [statusText, setStatusText] = useState("");
-  const { data, isError, isFetching, refetch } = trpc.search.posts.useQuery(
+  const {
+    data,
+    isError,
+    isLoading,
+    isFetching,
+    isFetchingNextPage,
+    hasNextPage,
+    fetchNextPage,
+    refetch,
+  } = trpc.search.posts.useInfiniteQuery(
     {
-      searchTerm,
+      searchTerm: searchTerm.replace(/[%_*]/g, ``),
+      userId: user!?.id,
+      userLat: user!?.latitude,
+      userLon: user!?.longitude,
     },
     {
       enabled: false,
+      getNextPageParam: (lastPage) => lastPage.nextCursor,
       onSuccess(data) {
-        if (!data.length) {
+        if (!data.pages[0].posts.length) {
           setStatusText(`No results found for '${searchTerm}'`);
         }
         setLoading(false);
@@ -49,6 +65,8 @@ export function SearchPage() {
 
   if (isError) return <div>Error</div>;
 
+  const posts = data?.pages.flatMap((page) => page.posts) || [];
+
   return (
     <>
       <Head>
@@ -59,9 +77,10 @@ export function SearchPage() {
           <input
             type="text"
             autoFocus
-            placeholder="Search…"
+            placeholder="Search posts…"
             className="input flex-1"
             value={searchTerm}
+            maxLength={50}
             onChange={(e) => {
               const inputVal = e.target.value;
               setSearchTerm(inputVal);
@@ -83,8 +102,19 @@ export function SearchPage() {
             <PostCardSkeleton />
             <PostCardSkeleton />
           </>
-        ) : data?.length && searchTerm.length > 2 ? (
-          data.map((post) => <PostCard post={post} key={post.id} />)
+        ) : posts?.length && searchTerm.length > 2 ? (
+          <Virtuoso
+            useWindowScroll
+            data={posts}
+            endReached={() => {
+              if (hasNextPage) fetchNextPage();
+            }}
+            overscan={20}
+            itemContent={(index, post) => {
+              return <PostCard key={post.cuid} post={post} />;
+            }}
+            components={{ Footer: () => (isFetchingNextPage ? <div>Loading...</div> : null) }}
+          />
         ) : (
           <div className="text-center">{statusText}</div>
         )}

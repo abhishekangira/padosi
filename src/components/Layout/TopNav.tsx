@@ -13,13 +13,13 @@ export function TopNav({ title }: Props) {
     <nav className="bg-glass navbar fixed top-0 z-10">
       <div className="navbar-start">
         <Link href="/home">
-          <Image src={logo} alt="Logo of Padosi" width={30} height={30} />
+          <Image src={logo} alt="Logo of Padosi" width={40} height={40} />
         </Link>
         {router.pathname !== "/search" && (
           <div className="input-group input-group-sm ml-8">
             <input
               type="text"
-              placeholder="Search…"
+              placeholder="Search posts…"
               className="input input-sm"
               onKeyDown={(e) => {
                 if (e.key === "Enter") {

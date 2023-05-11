@@ -83,7 +83,7 @@ export function PostCard({
                 };
               }
             });
-            // console.log({ updated });
+            console.log({ updated });
 
             return updated;
           }
@@ -288,5 +288,5 @@ const debouncedToggleLikeDislike = debounce(
       action,
     });
   },
-  500
+  300
 );
