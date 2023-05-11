@@ -88,13 +88,13 @@ export function SearchPage() {
               debouncedSearch(inputVal.trim(), refetch);
             }}
           />
-          <button
+          <div
             className={`btn btn-square bg-base-100 border-none pointer-events-none ${
               isFetching ? "loading" : ""
             }`}
           >
             {isFetching ? "" : <GoSearch />}
-          </button>
+          </div>
         </div>
         {loading ? (
           <>

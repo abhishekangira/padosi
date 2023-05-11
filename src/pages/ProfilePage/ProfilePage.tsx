@@ -114,9 +114,9 @@ export function ProfilePage() {
             <span className="">{user._count.following} Following</span>
           </div>
         </div>
-        <div className="mt-4 grid grid-cols-2 gap-2 px-2">
-          <button className="btn btn-sm btn-outline btn-primary">Follow</button>
-          <button className="btn btn-sm btn-primary">Message</button>
+        <div className="mt-4 grid justify-items-center px-4">
+          <button className="btn btn-sm btn-outline btn-primary w-full max-w-sm">Follow</button>
+          {/* <button className="btn btn-sm btn-primary">Message</button> */}
         </div>
         {user.bio && (
           <div className="mt-4 px-2">
