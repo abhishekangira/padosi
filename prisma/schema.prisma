@@ -1,6 +1,6 @@
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["filteredRelationCount", "fullTextSearch", "fullTextIndex"]
+  previewFeatures = ["fullTextSearch", "fullTextIndex", "filteredRelationCount"]
 }
 
 datasource db {
@@ -22,7 +22,6 @@ model Post {
   comments     Comment[]
 
   @@index([authorId])
-  @@fulltext([content])
   @@fulltext([content, title])
 }
 

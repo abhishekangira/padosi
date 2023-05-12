@@ -5,6 +5,9 @@ import { useUserContext } from "@/lib/contexts/user-context";
 import { trpc } from "@/lib/utils/trpc";
 import { useEffect, useState } from "react";
 import { debounce } from "@/lib/utils/general";
+import Image from "next/image";
+import emptyImage from "public/images/empty-posts.png";
+import follow from "public/images/follow.png";
 
 const debouncedScrollHandler = debounce(
   (range: any) => sessionStorage.setItem("scrollTop", range.startIndex.toString()),
@@ -27,13 +30,6 @@ export function PostList({ sortBy }: { sortBy: "LATEST" | "TRENDING" }) {
         enabled: !!user?.id,
       }
     );
-
-  // useEffect(() => {
-  //   window.addEventListener("scroll", debouncedScrollHandler);
-  //   return () => {
-  //     window.removeEventListener("scroll", debouncedScrollHandler);
-  //   };
-  // }, []);
 
   console.log(
     "data",
@@ -70,6 +66,27 @@ export function PostList({ sortBy }: { sortBy: "LATEST" | "TRENDING" }) {
       components={{ Footer: () => (isFetchingNextPage ? <div>Loading...</div> : null) }}
     />
   ) : (
-    <span>no posts in your area!</span>
+    <div className="mt-32 grid place-items-center">
+      <div className="w-2/3 grid place-items-center text-center">
+        <div className="relative h-20 sm:h-28 aspect-square">
+          <Image
+            src={sortBy === "LATEST" ? emptyImage : follow}
+            alt="avatar"
+            fill
+            sizes="(min-width: 640px) 112px, 80px"
+          />
+        </div>
+        <p className="text-primary">
+          {sortBy === "LATEST"
+            ? "Go ahead and create the first post in your area!"
+            : "Posts from people you follow will show here!"}
+        </p>
+        <span className="text-secondary mt-2">
+          {sortBy === "LATEST"
+            ? "Don't be shy to say Hi👋"
+            : "Tap 👆 on the triple dots on the right side of any post and click 'follow @user'"}
+        </span>
+      </div>
+    </div>
   );
 }
