@@ -35,7 +35,7 @@ model User {
   latitude     Float
   longitude    Float
   tagline      String?       @db.VarChar(30)
-  bio          String?       @db.VarChar(255)
+  bio          String?       @db.VarChar(510)
   createdAt    DateTime      @default(now())
   posts        Post[]
   likeDislikes LikeDislike[]

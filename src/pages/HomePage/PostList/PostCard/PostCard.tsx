@@ -205,13 +205,13 @@ export function PostCard({
             @{post.author.username}
           </span>
         </div>
-        <h3 className="text-cyan-600 text-xs sm:text-sm">{post.author.tagline}</h3>
+        <h3 className="text-accent text-xs sm:text-sm">{post.author.tagline}</h3>
         <div className="flex items-center gap-1">
-          <span className="text-xs text-slate-500 sm:text-sm">
+          <span className="text-xs text-secondary sm:text-sm">
             {dayjs(post.createdAt).utc(true).fromNow()}
           </span>
-          <span className="text-xs leading-none text-slate-500">•</span>
-          <span className="text-xs text-slate-500 sm:text-sm">{distanceInKm} km</span>
+          <span className="text-xs leading-none text-secondary">•</span>
+          <span className="text-xs text-secondary sm:text-sm">{distanceInKm} km</span>
         </div>
       </div>
       <Dropdown.Root>
@@ -316,7 +316,7 @@ const PostBody = ({ post, full }: { post: Post; full?: boolean }) =>
       <h2 className="text-base font-bold text-primary-focus sm:text-lg overflow-x-auto ml-1">
         {post.title}
       </h2>
-      <p className="text-sm font-light leading-snug sm:text-base overflow-x-auto ml-1">
+      <p className="text-sm leading-snug sm:text-base overflow-x-auto ml-1">
         {post.content.length > 220 ? (
           <>
             {post.content.slice(0, 220) + "... "}

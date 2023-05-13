@@ -12,6 +12,7 @@ import { PostCard } from "../HomePage/PostList/PostCard/PostCard";
 import { useLayout } from "@/lib/hooks/useLayout";
 import Head from "next/head";
 import { useLayoutContext } from "@/lib/contexts/layout-context";
+import { ProfilePageSkeleton } from "./ProfilePageSkeleton";
 
 export function ProfilePage() {
   const { user: currentUser } = useUserContext();
@@ -27,6 +28,8 @@ export function ProfilePage() {
     {
       enabled: !!uname && !!currentUser?.id,
       onSuccess: (data) => {
+        console.log(data, "data");
+
         setLayout({ navbarTitle: data?.username ? `${data?.username}'s Profile` : "Padosi" });
       },
     }
@@ -63,12 +66,15 @@ export function ProfilePage() {
     [user, currentUser?.latitude, currentUser?.longitude]
   );
 
-  if (isLoading || postsLoading) return <div>Loading...</div>;
+  if (isLoading || postsLoading) return <ProfilePageSkeleton />;
   if (isError || postsError) return <div>Error loading user</div>;
   if (!user) return <div>User not found</div>;
 
   const posts = data.pages.flatMap((page) => page.posts) || [];
   const ownProfile = currentUser?.id === user.id;
+  const isFollowedByUser = user.followers.some(
+    (followUser) => followUser.followerId === currentUser?.id
+  );
 
   return (
     <>
@@ -90,8 +96,11 @@ export function ProfilePage() {
             </div>
           </div>
           <div className="flex flex-col justify-center gap-1 sm:gap-2">
-            <h2 className="sm:text-2xl text-lg font-semibold !leading-none">{user.name}</h2>
-            <p className="text-primary sm:text-xl">@{user.username}</p>
+            <div className="flex flex-col gap-1 sm:items-center sm:flex-row">
+              <h2 className="sm:text-2xl text-lg font-semibold !leading-none">{user.name}</h2>
+              <p className="text-primary sm:text-xl !leading-none">@{user.username}</p>
+            </div>
+            <h3 className="text-sm text-accent sm:text-lg">{user.tagline}</h3>
             <div className="flex gap-4 sm:gap-4">
               <div className="flex gap-1 sm:gap-2 items-center">
                 <RiMapPinUserFill className="text-lg sm:text-xl" />
@@ -104,7 +113,6 @@ export function ProfilePage() {
                 </span>
               </div>
             </div>
-            <h3 className="text-sm text-accent sm:text-lg">{user.tagline}</h3>
           </div>
         </div>
         <div className="grid grid-cols-2 place-items-center mt-4">
@@ -120,12 +128,14 @@ export function ProfilePage() {
           </div>
         </div>
         <div className="mt-4 grid justify-items-center px-4">
-          <button className="btn btn-sm btn-outline btn-primary w-full max-w-sm">Follow</button>
+          <button className="btn btn-sm btn-outline btn-primary w-full max-w-sm">
+            {isFollowedByUser ? "Unfollow" : "Follow"}
+          </button>
           {/* <button className="btn btn-sm btn-primary">Message</button> */}
         </div>
         {user.bio && (
           <div className="mt-4 px-2">
-            <p className="leading-snug text-sm sm:text-base">{user.bio}</p>
+            <p className="leading-snug text-accent text-sm sm:text-base">{user.bio}</p>
           </div>
         )}
         {posts.length ? (
@@ -141,9 +151,7 @@ export function ProfilePage() {
             }}
             components={{ Footer: () => (isFetchingNextPage ? <div>Loading...</div> : null) }}
           />
-        ) : (
-          <span>no posts in your area!</span>
-        )}
+        ) : null}
       </div>
     </>
   );
