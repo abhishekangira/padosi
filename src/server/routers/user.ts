@@ -35,6 +35,7 @@ export const userRouter = trpcRouter({
         uid: z.string().optional(),
         id: z.number().optional(),
         username: z.string().optional(),
+        currentUserId: z.number().optional(),
       })
     )
     .query(async ({ ctx, input }) => {
@@ -46,6 +47,11 @@ export const userRouter = trpcRouter({
           _count: {
             select: { followers: true, following: true, posts: true },
           },
+          followers: {
+            where: {
+              OR: [{ followerId: input?.currentUserId }, { followingId: input?.currentUserId }],
+            },
+          }
         },
       });
       return user;

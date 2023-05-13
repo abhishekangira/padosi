@@ -14,7 +14,7 @@ const debouncedScrollHandler = debounce(
   500
 );
 
-export function PostList({ sortBy }: { sortBy: "LATEST" | "TRENDING" }) {
+export function PostList({ sortBy }: { sortBy: "LATEST" | "FOLLOWING" }) {
   const { user } = useUserContext();
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status, error } =
     trpc.post.getInfinite.useInfiniteQuery(

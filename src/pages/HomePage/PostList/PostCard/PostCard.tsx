@@ -1,5 +1,5 @@
 import { TbDots, TbTrash } from "react-icons/tb";
-import { BsPersonFillAdd } from "react-icons/bs";
+import { BsPersonFillAdd, BsPersonFillX } from "react-icons/bs";
 import Image from "next/image";
 import { useUserContext } from "@/lib/contexts/user-context";
 import dayjs from "dayjs";
@@ -21,6 +21,7 @@ import { trpc } from "@/lib/utils/trpc";
 import { debounce } from "@/lib/utils/general";
 import { useRouter } from "next/router";
 import { produce } from "immer";
+import avatar from "public/images/avatar.png";
 
 dayjs.extend(relativeTime);
 dayjs.extend(utc);
@@ -36,6 +37,8 @@ export function PostCard({
     isLikedByUser: boolean;
     isDislikedByUser: boolean;
     commentsCount: number;
+    isFollowedByUser: boolean;
+    isFollowingUser: boolean;
   };
   full?: boolean;
 }) {
@@ -64,11 +67,11 @@ export function PostCard({
             sortBy: "LATEST",
           },
           (prev) => {
-            // console.log({ prev });
+            console.log({ prev });
             const updated = produce(prev, (draft: any) => {
               let postIndex;
-              const pageIndex = draft.pages.findIndex((page) => {
-                postIndex = page.posts.findIndex((p) => p.id === post.id);
+              const pageIndex = draft.pages.findIndex((page: any) => {
+                postIndex = page.posts.findIndex((p: any) => p.id === post.id);
                 console.log({ postIndex });
                 return postIndex !== -1;
               });
@@ -86,6 +89,41 @@ export function PostCard({
             console.log({ updated });
 
             return updated;
+          }
+        );
+        trpcUtils.post.getInfinite.setInfiniteData(
+          {
+            userId: user!?.id,
+            userLat: user!?.latitude,
+            userLon: user!?.longitude,
+            limit: 20,
+            sortBy: "FOLLOWING",
+          },
+          (prev) => {
+            console.log({ prev });
+            if (prev) {
+              const updated = produce(prev, (draft: any) => {
+                let postIndex;
+                const pageIndex = draft.pages.findIndex((page: any) => {
+                  postIndex = page.posts.findIndex((p: any) => p.id === post.id);
+                  console.log({ postIndex });
+                  return postIndex !== -1;
+                });
+                // console.log({ pageIndex });
+                if (postIndex !== undefined && postIndex !== -1) {
+                  draft.pages[pageIndex].posts[postIndex] = {
+                    ...draft.pages[pageIndex].posts[postIndex],
+                    likesCount: likes.count,
+                    dislikesCount: dislikes.count,
+                    isLikedByUser: likes.isLikedByUser,
+                    isDislikedByUser: dislikes.isDislikedByUser,
+                  };
+                }
+              });
+              console.log({ updated });
+
+              return updated;
+            }
           }
         );
         trpcUtils.post.get.refetch({ cuid: post.cuid, userId: user!?.id });
@@ -150,7 +188,7 @@ export function PostCard({
       >
         <div className="relative h-14 sm:h-16 mask mask-squircle">
           <Image
-            src={post.author.photo || "images/avatar.jpg"}
+            src={post.author.photo || avatar}
             alt="avatar"
             fill
             sizes="(min-width: 640px) 64px, 56px"
@@ -162,12 +200,8 @@ export function PostCard({
         onClick={() => router.push(`/${post.author.username}`)}
       >
         <div className="flex items-center gap-1">
-          <h2
-            className={`${false ? "golden-text" : ""} text-sm font-bold sm:text-base leading-tight`}
-          >
-            {post.author.name}
-          </h2>
-          <span className="text-sm text-slate-500 sm:text-base leading-tight">
+          <h2 className={`text-sm font-bold sm:text-base leading-tight`}>{post.author.name}</h2>
+          <span className="text-sm text-primary sm:text-base leading-tight">
             @{post.author.username}
           </span>
         </div>
@@ -194,8 +228,25 @@ export function PostCard({
             </Dropdown.Item>
           )}
           {!ownPost && (
-            <Dropdown.Item className="flex gap-2 cursor-pointer text-primary items-center rounded p-2">
-              <BsPersonFillAdd /> Follow @{post.author.username}
+            <Dropdown.Item
+              className={`flex gap-2 cursor-pointer ${
+                post.isFollowedByUser ? "text-error" : "text-primary"
+              } items-center rounded p-2`}
+            >
+              {post.isFollowedByUser ? (
+                <>
+                  <BsPersonFillX /> Unfollow
+                </>
+              ) : post.isFollowingUser ? (
+                <>
+                  <BsPersonFillAdd /> Follow Back
+                </>
+              ) : (
+                <>
+                  <BsPersonFillAdd /> Follow
+                </>
+              )}{" "}
+              @{post.author.username}
             </Dropdown.Item>
           )}
         </Dropdown.Content>
@@ -253,19 +304,19 @@ export function PostCard({
 const PostBody = ({ post, full }: { post: Post; full?: boolean }) =>
   full ? (
     <div className="col-span-full grid gap-2">
-      <h2 className="text-base font-bold text-primary-light sm:text-lg overflow-x-scroll ml-1">
+      <h2 className="text-base font-bold text-primary-focus sm:text-xl overflow-x-auto ml-1">
         {post.title}
       </h2>
-      <p className="text-sm font-light leading-snug whitespace-pre-wrap sm:text-base overflow-x-scroll ml-1">
+      <p className="text-sm leading-snug whitespace-pre-wrap sm:text-base overflow-x-auto ml-1">
         {post.content}
       </p>
     </div>
   ) : (
     <Link href={`/post/${post.cuid}`} className="col-span-full grid gap-2">
-      <h2 className="text-base font-bold text-primary-light sm:text-lg overflow-x-scroll ml-1">
+      <h2 className="text-base font-bold text-primary-focus sm:text-lg overflow-x-auto ml-1">
         {post.title}
       </h2>
-      <p className="text-sm font-light leading-snug sm:text-base overflow-x-scroll ml-1">
+      <p className="text-sm font-light leading-snug sm:text-base overflow-x-auto ml-1">
         {post.content.length > 220 ? (
           <>
             {post.content.slice(0, 220) + "... "}

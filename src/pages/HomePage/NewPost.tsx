@@ -2,6 +2,7 @@ import { useUserContext } from "@/lib/contexts/user-context";
 import { trpc } from "@/lib/utils/trpc";
 import Image from "next/image";
 import React, { useEffect, useRef, useState } from "react";
+import avatar from "public/images/avatar.png";
 
 export function NewPost({ maxLength = 1000 }) {
   const { user } = useUserContext();
@@ -110,7 +111,7 @@ export function NewPost({ maxLength = 1000 }) {
       <div className="avatar absolute top-0 left-3">
         <div className="relative h-12 mask mask-squircle sm:h-16">
           <Image
-            src={user?.photo || "/images/avatar.jpg"}
+            src={user?.photo || avatar}
             alt="avatar"
             fill
             sizes="(min-width: 640px) 64px, 48px"

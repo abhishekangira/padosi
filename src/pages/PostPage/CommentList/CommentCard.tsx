@@ -20,6 +20,7 @@ import {
 import { trpc } from "@/lib/utils/trpc";
 import { debounce } from "@/lib/utils/general";
 import { produce } from "immer";
+import avatar from "public/images/avatar.png";
 
 dayjs.extend(relativeTime);
 dayjs.extend(utc);
@@ -132,14 +133,12 @@ export function CommentCard({
     [comment, user?.latitude, user?.longitude]
   );
 
-  const avatar = useMemo(() => `https://picsum.photos/${Math.ceil(Math.random() * 100) + 200}`, []);
-
   return (
     <div className="grid w-full grid-cols-[min-content_1fr_min-content] grid-rows-[min-content_auto_auto] gap-3 border-b border-b-black px-3 py-4 sm:gap-4">
       <div className="avatar">
         <div className="relative h-12 sm:h-14 mask mask-squircle">
           <Image
-            src={comment.author.photo || avatar || "images/avatar.jpg"}
+            src={comment.author.photo || avatar}
             alt="avatar"
             fill
             sizes="(min-width: 640px) 56px, 48px"
@@ -183,7 +182,7 @@ export function CommentCard({
           )}
         </Dropdown.Content>
       </Dropdown.Root>
-      <p className="col-span-full text-sm ml-1 font-light leading-snug sm:text-base whitespace-pre-wrap overflow-x-scroll">
+      <p className="col-span-full text-sm ml-1 font-light leading-snug sm:text-base whitespace-pre-wrap overflow-x-auto">
         {comment.content}
       </p>
       <div className="card-actions col-span-full text-sm">

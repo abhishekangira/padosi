@@ -30,13 +30,13 @@ export function Layout({ children }: { children: React.ReactNode }) {
       ) : (
         <>
           {!hideNavbar && (
-            <header className="hidden md:block">
+            <header className="hidden lg:block">
               <TopNav title={navbarTitle} />
             </header>
           )}
-          <main className="pb-12 md:pt-16">{children}</main>
+          <main className="pb-12 lg:pt-16">{children}</main>
           {!hideNavbar && (
-            <footer className="md:hidden">
+            <footer className="lg:hidden">
               <BottomNav active={navbarTitle} />
             </footer>
           )}

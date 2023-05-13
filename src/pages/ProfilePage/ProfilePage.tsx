@@ -2,7 +2,7 @@ import { useUserContext } from "@/lib/contexts/user-context";
 import { trpc } from "@/lib/utils/trpc";
 import { distanceBetween } from "geofire-common";
 import Image from "next/image";
-import dp from "public/images/giftp.gif";
+import avatar from "public/images/avatar.png";
 import { useRouter } from "next/router";
 import { useMemo } from "react";
 import { BsTextareaT } from "react-icons/bs";
@@ -23,11 +23,11 @@ export function ProfilePage() {
     isLoading,
     isError,
   } = trpc.user.get.useQuery(
-    { username: uname as string },
+    { username: uname as string, currentUserId: currentUser!?.id },
     {
-      enabled: !!uname,
+      enabled: !!uname && !!currentUser?.id,
       onSuccess: (data) => {
-        setLayout({ navbarTitle: `${data?.username}'s Profile` });
+        setLayout({ navbarTitle: data?.username ? `${data?.username}'s Profile` : "Padosi" });
       },
     }
   );
@@ -46,6 +46,11 @@ export function ProfilePage() {
     },
     { enabled: !!uname || !!currentUser?.id, getNextPageParam: (lastPage) => lastPage.nextCursor }
   );
+
+  const { mutate: toggleFollow, isLoading: toggleFollowLoading } =
+    trpc.user.togglefollow.useMutation({
+      onSuccess: (data) => {},
+    });
 
   const distanceInKm = useMemo(
     () =>
@@ -73,11 +78,11 @@ export function ProfilePage() {
         </title>
       </Head>
       <div className="max-w-3xl mx-auto py-6">
-        <div className="grid grid-cols-[min-content_auto] gap-4 sm:gap-8 px-2 sm:px-4">
+        <div className="grid grid-cols-[min-content_auto] gap-4 sm:gap-8 px-4">
           <div className="avatar self-center">
             <div className="relative h-28 sm:h-52 mask mask-squircle">
               <Image
-                src={dp || user.photo || "/images/avatar.jpg"}
+                src={user.photo || avatar}
                 alt="avatar"
                 fill
                 sizes="(min-width: 640px) 192px, 112px"

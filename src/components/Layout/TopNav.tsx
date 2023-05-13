@@ -11,12 +11,12 @@ export function TopNav({ title }: Props) {
   const router = useRouter();
   return (
     <nav className="bg-glass navbar fixed top-0 z-10">
-      <div className="navbar-start">
+      <div className="navbar-start gap-8">
         <Link href="/home">
           <Image src={logo} alt="Logo of Padosi" width={40} height={40} />
         </Link>
         {router.pathname !== "/search" && (
-          <div className="input-group input-group-sm ml-8">
+          <div className="input-group shrink input-group-sm w-min">
             <input
               type="text"
               placeholder="Search posts…"

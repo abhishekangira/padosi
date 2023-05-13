@@ -7,7 +7,7 @@ import Head from "next/head";
 
 export function HomePage() {
   useLayout({ navbarTitle: "Home" });
-  const [sortBy, setSortBy] = useState<"LATEST" | "TRENDING">("LATEST");
+  const [sortBy, setSortBy] = useState<"LATEST" | "FOLLOWING">("LATEST");
   return (
     <>
       <Head>

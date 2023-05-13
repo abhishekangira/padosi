@@ -3,8 +3,6 @@ import { procedure, trpcRouter } from "../trpc";
 import { Post, Prisma, User } from "@prisma/client";
 import { usernameRegex } from "@/pages/SetLocationPage/SetLocationPage";
 
-console.log("postRouter");
-
 export const postRouter = trpcRouter({
   getInfinite: procedure
     .input(
@@ -14,7 +12,7 @@ export const postRouter = trpcRouter({
         userId: z.number(),
         userLat: z.number(),
         userLon: z.number(),
-        sortBy: z.enum(["LATEST", "TRENDING", "FOLLOWING"]).optional(),
+        sortBy: z.enum(["LATEST", "FOLLOWING"]).optional(),
       })
     )
     .query(async ({ input, ctx }) => {
@@ -28,8 +26,8 @@ export const postRouter = trpcRouter({
       const upperLongitude =
         userLon + ((km / 6371) * (180 / Math.PI)) / Math.cos((userLat * Math.PI) / 180);
 
-      const orderBy =
-        sortBy === "TRENDING" ? "likesCount + .5*dislikesCount + 1.5*commentsCount" : "Post.id";
+      const followingCondition =
+        sortBy === "FOLLOWING" ? `AND Follow.followerId = ${userId}` : "";
 
       const cursorCondition = cursor ? `AND Post.id <= ${cursor}` : "";
 
@@ -39,10 +37,13 @@ export const postRouter = trpcRouter({
         (SELECT COUNT(*) FROM LikeDislike WHERE LikeDislike.postId = Post.id AND LikeDislike.type = 'DISLIKE') AS dislikesCount,
         (SELECT COUNT(*) FROM LikeDislike WHERE LikeDislike.postId = Post.id AND LikeDislike.userId = ${userId} AND LikeDislike.type = 'LIKE') AS isLikedByUser,
         (SELECT COUNT(*) FROM LikeDislike WHERE LikeDislike.postId = Post.id AND LikeDislike.userId = ${userId} AND LikeDislike.type = 'DISLIKE') AS isDislikedByUser,
+        (SELECT COUNT(*) FROM Follow WHERE Follow.followerId = ${userId} AND Follow.followingId = Post.authorId) AS isFollowedByUser,
+        (SELECT COUNT(*) FROM Follow WHERE Follow.followerId = Post.authorId AND Follow.followingId = ${userId}) AS isFollowingUser,
         COUNT(DISTINCT Comment.id) AS commentsCount
         FROM Post
         INNER JOIN User ON Post.authorId = User.id
         LEFT JOIN Comment ON Post.id = Comment.postId
+        LEFT JOIN Follow ON Post.authorId = Follow.followingId
         WHERE User.latitude >= ${lowerLatitude}
         AND User.latitude <= ${upperLatitude}
         AND User.longitude >= ${lowerLongitude}
@@ -50,15 +51,16 @@ export const postRouter = trpcRouter({
         AND ST_Distance_Sphere(
             POINT(User.longitude, User.latitude),
             POINT(${userLon}, ${userLat})) <= ${km * 1000}
+        ${followingCondition}
         ${cursorCondition}
         GROUP BY Post.id
-        ORDER BY ${orderBy} DESC
+        ORDER BY Post.id DESC
         LIMIT ${limit + 1};
         `;
       // console.log(sqlQuery);
 
       const res = await ctx.planet.execute(sqlQuery);
-      // console.log(res.rows);
+      console.log(res.rows);
 
       const posts = mapPosts(res.rows);
 
@@ -146,11 +148,9 @@ export const postRouter = trpcRouter({
         User.name, User.username, User.latitude, User.longitude, User.photo,
         (SELECT COUNT(*) FROM LikeDislike WHERE LikeDislike.postId = Post.id AND LikeDislike.type = 'LIKE') AS likesCount,
         (SELECT COUNT(*) FROM LikeDislike WHERE LikeDislike.postId = Post.id AND LikeDislike.type = 'DISLIKE') AS dislikesCount,
-        (SELECT COUNT(*) FROM LikeDislike WHERE LikeDislike.postId = Post.id AND LikeDislike.userId = ${
-          input.currentUserId
+        (SELECT COUNT(*) FROM LikeDislike WHERE LikeDislike.postId = Post.id AND LikeDislike.userId = ${input.currentUserId
         } AND LikeDislike.type = 'LIKE') AS isLikedByUser,
-        (SELECT COUNT(*) FROM LikeDislike WHERE LikeDislike.postId = Post.id AND LikeDislike.userId = ${
-          input.currentUserId
+        (SELECT COUNT(*) FROM LikeDislike WHERE LikeDislike.postId = Post.id AND LikeDislike.userId = ${input.currentUserId
         } AND LikeDislike.type = 'DISLIKE') AS isDislikedByUser,
         COUNT(DISTINCT Comment.id) AS commentsCount
         FROM Post
@@ -164,7 +164,7 @@ export const postRouter = trpcRouter({
       `;
 
       const res = await ctx.planet.execute(sqlQuery);
-      console.log(res.rows);
+      // console.log("response", res.rows);
 
       const posts = mapPosts(res.rows);
 
@@ -201,6 +201,8 @@ export function mapPosts(rows: any[]) {
       isDislikedByUser,
       commentsCount,
       tagline,
+      isFollowedByUser,
+      isFollowingUser,
     } = post as any;
     return {
       id,
@@ -214,6 +216,8 @@ export function mapPosts(rows: any[]) {
       isLikedByUser: !!+isLikedByUser,
       isDislikedByUser: !!+isDislikedByUser,
       commentsCount: +commentsCount,
+      isFollowedByUser: !!+isFollowedByUser,
+      isFollowingUser: !!+isFollowingUser,
       author: { name, username, latitude, longitude, photo, tagline },
     };
   }) as (Post & {
@@ -223,6 +227,8 @@ export function mapPosts(rows: any[]) {
     isLikedByUser: boolean;
     isDislikedByUser: boolean;
     commentsCount: number;
+    isFollowedByUser: boolean;
+    isFollowingUser: boolean;
   })[];
 }
 

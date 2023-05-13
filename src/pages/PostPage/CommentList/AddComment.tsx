@@ -3,6 +3,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { trpc } from "@/lib/utils/trpc";
 import { useUserContext } from "@/lib/contexts/user-context";
 import { useRouter } from "next/router";
+import avatar from "public/images/avatar.png";
 
 export function AddComment({ postId, postCuid }: { postId: number; postCuid: string }) {
   const trpcUtils = trpc.useContext();
@@ -74,7 +75,7 @@ export function AddComment({ postId, postCuid }: { postId: number; postCuid: str
       <div className="avatar absolute top-1 left-3">
         <div className="relative h-12 mask mask-squircle sm:h-14">
           <Image
-            src={user?.photo || "/images/avatar.jpg"}
+            src={user?.photo || avatar}
             alt="avatar"
             fill
             sizes="(min-width: 640px) 56px, 48px"

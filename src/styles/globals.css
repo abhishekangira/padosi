@@ -18,8 +18,18 @@ body,
   min-height: 100dvh;
 }
 
+html::-webkit-scrollbar {
+  width: 10px;
+  background-color: transparent;
+}
+
+html::-webkit-scrollbar-thumb {
+  background-color: #55575e;
+  border-radius: 10px;
+}
+
 *::placeholder {
-  color: #49587a !important;
+  color: #51638b !important;
 
   /* color: #5b94ff; */
 }
@@ -40,11 +50,11 @@ label.modal {
     to bottom right,
     #cfa31f 0,
     #ff9900 22%,
-    #f6e27a 45%,
+    #bae02e 45%,
     #cdc21d 50%,
     #f6e27a 55%,
-    #cb9b51 78%,
-    #c45d1d 100%
+    #f0bb0c 78%,
+    #ee8340 100%
   );
   color: transparent;
   -webkit-background-clip: text;
