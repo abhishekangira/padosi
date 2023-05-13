@@ -118,7 +118,7 @@ devDependencies:
     specifier: ^3.3.2
     version: 3.3.2
   typescript:
-    specifier: 5.0.4
+    specifier: ^5.0.4
     version: 5.0.4
 
 packages:
