@@ -22,11 +22,7 @@ export function useLoginWidget() {
     async function submitForm(event: React.FormEvent<HTMLFormElement>) {
       event.preventDefault();
       setErrors(defaultErrors);
-
       const email = (event.currentTarget as HTMLFormElement).email.value;
-      const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
-      const endsWithNonAlphabet = (text: string) =>
-        /[^A-Za-z\u00C0-\u1FFF\u2800-\uFFFD]+$/u.test(text);
       let password = "";
       let displayName = "";
 
@@ -119,6 +115,11 @@ export function useLoginWidget() {
 
   return { handleSubmit, formView, setFormView, errors, loading };
 }
+
+export const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+
+export const endsWithNonAlphabet = (text: string) =>
+  /[^A-Za-z\u00C0-\u1FFF\u2800-\uFFFD]+$/u.test(text);
 
 async function handleSubmitWithPassword(
   type: "Sign In" | "Sign Up",

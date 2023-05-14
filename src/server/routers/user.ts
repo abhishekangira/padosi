@@ -8,7 +8,7 @@ export const userRouter = trpcRouter({
         username: z.string().min(3).max(20),
         uid: z.string(),
         email: z.string().email(),
-        name: z.string().min(1).max(35),
+        name: z.string().min(1).max(30),
         longitude: z.number(),
         latitude: z.number(),
         photo: z.string().url().nullish(),
@@ -60,16 +60,18 @@ export const userRouter = trpcRouter({
     .input(
       z.object({
         id: z.number(),
-        username: z.string().min(3).max(20),
-        email: z.string().email(),
-        name: z.string().min(1).max(35),
-        longitude: z.number(),
-        latitude: z.number(),
+        username: z.string().min(3).max(20).optional(),
+        email: z.string().email().optional(),
+        tagline: z.string().min(1).max(50).optional(),
+        bio: z.string().min(1).max(500).optional(),
+        name: z.string().min(1).max(30).optional(),
+        longitude: z.number().optional(),
+        latitude: z.number().optional(),
         photo: z.string().url().nullish(),
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const { id, username, email, name, longitude, latitude, photo } = input;
+      const { id, username, email, name, longitude, latitude, photo, tagline, bio } = input;
       const user = await ctx.prisma.user.update({
         where: { id },
         data: {
@@ -79,6 +81,8 @@ export const userRouter = trpcRouter({
           longitude,
           latitude,
           photo,
+          tagline,
+          bio,
         },
       });
       return user;

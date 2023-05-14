@@ -49,7 +49,7 @@ export function TopNav({ title }: Props) {
               <button className="btn btn-ghost gap-4">
                 <span className="text-primary lowercase">{user?.username}</span>
                 <Image
-                  src={auth.currentUser?.photoURL || avatar}
+                  src={user?.photo || auth.currentUser?.photoURL || avatar}
                   alt="Profile picture"
                   width={40}
                   height={40}

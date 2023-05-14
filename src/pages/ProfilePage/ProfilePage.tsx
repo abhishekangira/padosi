@@ -137,15 +137,20 @@ export function ProfilePage() {
             className={`btn btn-sm btn-outline w-full max-w-sm ${
               isFollowedByUser ? "btn-error" : "btn-primary"
             } ${toggleFollowLoading ? "loading" : ""}`}
-            onClick={() => toggleFollow({ followerId: currentUser!.id, followingId: user.id })}
+            onClick={() => {
+              if (ownProfile) router.push("/settings/edit-profile");
+              else toggleFollow({ followerId: currentUser!.id, followingId: user.id });
+            }}
           >
-            {isFollowedByUser ? "Unfollow" : "Follow"}
+            {ownProfile ? "Edit Profile" : isFollowedByUser ? "Unfollow" : "Follow"}
           </button>
           {/* <button className="btn btn-sm btn-primary">Message</button> */}
         </div>
         {user.bio && (
           <div className="mt-4 px-2">
-            <p className="leading-snug text-accent text-sm sm:text-base">{user.bio}</p>
+            <p className="leading-snug whitespace-pre-wrap text-accent text-sm sm:text-base">
+              {user.bio}
+            </p>
           </div>
         )}
         {posts.length ? (

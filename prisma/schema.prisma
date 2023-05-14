@@ -34,7 +34,7 @@ model User {
   photo        String?       @db.VarChar(255)
   latitude     Float
   longitude    Float
-  tagline      String?       @db.VarChar(30)
+  tagline      String?       @db.VarChar(50)
   bio          String?       @db.VarChar(510)
   createdAt    DateTime      @default(now())
   posts        Post[]

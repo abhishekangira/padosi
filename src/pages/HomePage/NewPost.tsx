@@ -79,7 +79,7 @@ export function NewPost({ maxLength = 1000 }) {
         id="postTitle"
         onChange={handleChange}
         maxLength={150}
-        className={`peer textarea textarea-sm pl-24 resize-none overflow-hidden textarea-ghost focus:bg-inherit focus:outline-none sm:text-lg font-bold ${
+        className={`peer textarea textarea-sm pl-24 resize-none overflow-hidden textarea-ghost focus:bg-inherit focus:outline-none text-lg font-bold ${
           showTitleInput ? "block" : "hidden"
         }`}
         placeholder="Your catchy title"
@@ -108,7 +108,7 @@ export function NewPost({ maxLength = 1000 }) {
           }
         }}
       />
-      <div className="avatar absolute top-0 left-3">
+      <div className="avatar absolute top-4 sm:top-0 left-3">
         <div className="relative h-12 mask mask-squircle sm:h-16">
           <Image
             src={user?.photo || avatar}
@@ -119,7 +119,7 @@ export function NewPost({ maxLength = 1000 }) {
         </div>
       </div>
       <div
-        className={`self-end gap-2 focus:flex active:flex peer-focus:flex ${
+        className={`self-end mt-10 sm:mt-0 gap-2 focus:flex active:flex peer-focus:flex ${
           text || title ? "flex" : "hidden"
         }`}
       >

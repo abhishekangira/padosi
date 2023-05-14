@@ -89,7 +89,7 @@ export function SetLocationPage() {
 
 export const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/;
 
-const debouncedCheckUsernameExists = debounce(
+export const debouncedCheckUsernameExists = debounce(
   (
     username: string,
     setUsername: Dispatch<
@@ -98,18 +98,31 @@ const debouncedCheckUsernameExists = debounce(
         state: "loading" | "unavailable" | "available" | null;
       }>
     >,
-    checkUsername: () => Promise<{ data: User }>
+    checkUsername: () => Promise<{ data: User }>,
+    setErrors: Dispatch<any>
   ) => {
     const inputVal = username.trim().toLowerCase();
+    console.log("checking regex", inputVal);
     if (!usernameRegex.test(inputVal)) {
       console.log("checking regex fail", inputVal);
-      return setUsername((prev) => ({ ...prev, state: "unavailable" }));
+      setUsername((prev) => ({ ...prev, state: "unavailable" }));
+      setErrors((prev: any) => ({
+        ...prev,
+        username:
+          "Username must be between 3 and 20 characters long and can only contain letters, numbers and underscores",
+      }));
+      return;
     }
     console.log("checking username");
-
     checkUsername().then((res) => {
       setUsername((prev) => ({ ...prev, state: res.data ? "unavailable" : "available" }));
+      if (res.data)
+        setErrors((prev: any) => ({
+          ...prev,
+          username: "Username taken",
+        }));
+      else setErrors((prev: any) => ({ ...prev, username: "" }));
     });
   },
-  600
+  700
 );
