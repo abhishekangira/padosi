@@ -50,9 +50,14 @@ export function ProfilePage() {
     { enabled: !!uname || !!currentUser?.id, getNextPageParam: (lastPage) => lastPage.nextCursor }
   );
 
+  const trpcUtils = trpc.useContext();
+
   const { mutate: toggleFollow, isLoading: toggleFollowLoading } =
     trpc.user.togglefollow.useMutation({
-      onSuccess: (data) => {},
+      onSuccess: (data) => {
+        trpcUtils.user.get.invalidate();
+        trpcUtils.post.getInfiniteOfUser.invalidate();
+      },
     });
 
   const distanceInKm = useMemo(
@@ -128,7 +133,12 @@ export function ProfilePage() {
           </div>
         </div>
         <div className="mt-4 grid justify-items-center px-4">
-          <button className="btn btn-sm btn-outline btn-primary w-full max-w-sm">
+          <button
+            className={`btn btn-sm btn-outline w-full max-w-sm ${
+              isFollowedByUser ? "btn-error" : "btn-primary"
+            } ${toggleFollowLoading ? "loading" : ""}`}
+            onClick={() => toggleFollow({ followerId: currentUser!.id, followingId: user.id })}
+          >
             {isFollowedByUser ? "Unfollow" : "Follow"}
           </button>
           {/* <button className="btn btn-sm btn-primary">Message</button> */}

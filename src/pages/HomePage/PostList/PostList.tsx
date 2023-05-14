@@ -22,7 +22,7 @@ export function PostList({ sortBy }: { sortBy: "LATEST" | "FOLLOWING" }) {
         limit: 20,
         userLat: user!?.latitude,
         userLon: user!?.longitude,
-        userId: user!?.id,
+        currentUserId: user!?.id,
         sortBy,
       },
       {

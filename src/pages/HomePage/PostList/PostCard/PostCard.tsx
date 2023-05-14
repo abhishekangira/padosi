@@ -54,77 +54,66 @@ export function PostCard({
     onSettled(data, error, variables, context) {
       console.log({ variables, context });
 
+      const updateInCache = (prev: any, payload: {}) => {
+        if (prev) {
+          const updated = produce(prev, (draft: any) => {
+            let postIndex;
+            const pageIndex = draft.pages.findIndex((page: any) => {
+              postIndex = page.posts.findIndex((p: any) => p.id === post.id);
+              console.log({ postIndex });
+              return postIndex !== -1;
+            });
+            // console.log({ pageIndex });
+            if (postIndex !== undefined && postIndex !== -1) {
+              draft.pages[pageIndex].posts[postIndex] = {
+                ...draft.pages[pageIndex].posts[postIndex],
+                ...payload,
+              };
+            }
+          });
+          console.log({ updated });
+          return updated;
+        }
+      };
+
       if (error) {
         setLikes({ count: post.likesCount, isLikedByUser: post.isLikedByUser });
         setDislikes({ count: post.dislikesCount, isDislikedByUser: post.isDislikedByUser });
       } else {
         trpcUtils.post.getInfinite.setInfiniteData(
           {
-            userId: user!?.id,
+            currentUserId: user!?.id,
             userLat: user!?.latitude,
             userLon: user!?.longitude,
             limit: 20,
             sortBy: "LATEST",
           },
-          (prev) => {
-            console.log({ prev });
-            const updated = produce(prev, (draft: any) => {
-              let postIndex;
-              const pageIndex = draft.pages.findIndex((page: any) => {
-                postIndex = page.posts.findIndex((p: any) => p.id === post.id);
-                console.log({ postIndex });
-                return postIndex !== -1;
-              });
-              // console.log({ pageIndex });
-              if (postIndex !== undefined && postIndex !== -1) {
-                draft.pages[pageIndex].posts[postIndex] = {
-                  ...draft.pages[pageIndex].posts[postIndex],
-                  likesCount: likes.count,
-                  dislikesCount: dislikes.count,
-                  isLikedByUser: likes.isLikedByUser,
-                  isDislikedByUser: dislikes.isDislikedByUser,
-                };
-              }
-            });
-            console.log({ updated });
-
-            return updated;
-          }
+          // @ts-ignore
+          (prev) =>
+            updateInCache(prev, {
+              likesCount: likes.count,
+              dislikesCount: dislikes.count,
+              isLikedByUser: likes.isLikedByUser,
+              isDislikedByUser: dislikes.isDislikedByUser,
+            })
         );
+
         trpcUtils.post.getInfinite.setInfiniteData(
           {
-            userId: user!?.id,
+            currentUserId: user!?.id,
             userLat: user!?.latitude,
             userLon: user!?.longitude,
             limit: 20,
             sortBy: "FOLLOWING",
           },
-          (prev) => {
-            console.log({ prev });
-            if (prev) {
-              const updated = produce(prev, (draft: any) => {
-                let postIndex;
-                const pageIndex = draft.pages.findIndex((page: any) => {
-                  postIndex = page.posts.findIndex((p: any) => p.id === post.id);
-                  console.log({ postIndex });
-                  return postIndex !== -1;
-                });
-                // console.log({ pageIndex });
-                if (postIndex !== undefined && postIndex !== -1) {
-                  draft.pages[pageIndex].posts[postIndex] = {
-                    ...draft.pages[pageIndex].posts[postIndex],
-                    likesCount: likes.count,
-                    dislikesCount: dislikes.count,
-                    isLikedByUser: likes.isLikedByUser,
-                    isDislikedByUser: dislikes.isDislikedByUser,
-                  };
-                }
-              });
-              console.log({ updated });
-
-              return updated;
-            }
-          }
+          // @ts-ignore
+          (prev) =>
+            updateInCache(prev, {
+              likesCount: likes.count,
+              dislikesCount: dislikes.count,
+              isLikedByUser: likes.isLikedByUser,
+              isDislikedByUser: dislikes.isDislikedByUser,
+            })
         );
         trpcUtils.post.get.refetch({ cuid: post.cuid, userId: user!?.id });
         trpcUtils.post.getInfiniteOfUser.refetch({
@@ -169,6 +158,14 @@ export function PostCard({
     },
     [user, post, likes, dislikes]
   );
+
+  const { mutate: toggleFollow, isLoading: toggleFollowLoading } =
+    trpc.user.togglefollow.useMutation({
+      onSuccess: (data) => {
+        trpcUtils.user.get.invalidate();
+        trpcUtils.post.getInfiniteOfUser.invalidate();
+      },
+    });
 
   const ownPost = user?.id === post.authorId;
   const distanceInKm = useMemo(
@@ -232,6 +229,7 @@ export function PostCard({
               className={`flex gap-2 cursor-pointer ${
                 post.isFollowedByUser ? "text-error" : "text-primary"
               } items-center rounded p-2`}
+              onClick={() => toggleFollow({ followerId: user!.id, followingId: post.authorId })}
             >
               {post.isFollowedByUser ? (
                 <>

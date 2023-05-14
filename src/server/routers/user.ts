@@ -51,7 +51,7 @@ export const userRouter = trpcRouter({
             where: {
               OR: [{ followerId: input?.currentUserId }, { followingId: input?.currentUserId }],
             },
-          }
+          },
         },
       });
       return user;
@@ -107,7 +107,6 @@ export const userRouter = trpcRouter({
             },
           },
         });
-        return false;
       } else {
         await ctx.prisma.follow.create({
           data: {
@@ -115,7 +114,7 @@ export const userRouter = trpcRouter({
             followingId,
           },
         });
-        return { success: true };
       }
+      return { success: true };
     }),
 });

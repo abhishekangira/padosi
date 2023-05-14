@@ -9,7 +9,7 @@ export const postRouter = trpcRouter({
       z.object({
         limit: z.number().min(1).max(100).nullish(),
         cursor: z.number().nullish(),
-        userId: z.number(),
+        currentUserId: z.number(),
         userLat: z.number(),
         userLon: z.number(),
         sortBy: z.enum(["LATEST", "FOLLOWING"]).optional(),
@@ -17,7 +17,7 @@ export const postRouter = trpcRouter({
     )
     .query(async ({ input, ctx }) => {
       const limit = input.limit ?? 50;
-      const { cursor, userLat, userLon, userId, sortBy } = input;
+      const { cursor, userLat, userLon, currentUserId, sortBy } = input;
       const km = 20;
       const lowerLatitude = userLat - (km / 6371) * (180 / Math.PI);
       const upperLatitude = userLat + (km / 6371) * (180 / Math.PI);
@@ -27,7 +27,7 @@ export const postRouter = trpcRouter({
         userLon + ((km / 6371) * (180 / Math.PI)) / Math.cos((userLat * Math.PI) / 180);
 
       const followingCondition =
-        sortBy === "FOLLOWING" ? `AND Follow.followerId = ${userId}` : "";
+        sortBy === "FOLLOWING" ? `AND Follow.followerId = ${currentUserId}` : "";
 
       const cursorCondition = cursor ? `AND Post.id <= ${cursor}` : "";
 
@@ -35,10 +35,10 @@ export const postRouter = trpcRouter({
         User.name, User.username, User.latitude, User.longitude, User.photo, User.tagline,
         (SELECT COUNT(*) FROM LikeDislike WHERE LikeDislike.postId = Post.id AND LikeDislike.type = 'LIKE') AS likesCount,
         (SELECT COUNT(*) FROM LikeDislike WHERE LikeDislike.postId = Post.id AND LikeDislike.type = 'DISLIKE') AS dislikesCount,
-        (SELECT COUNT(*) FROM LikeDislike WHERE LikeDislike.postId = Post.id AND LikeDislike.userId = ${userId} AND LikeDislike.type = 'LIKE') AS isLikedByUser,
-        (SELECT COUNT(*) FROM LikeDislike WHERE LikeDislike.postId = Post.id AND LikeDislike.userId = ${userId} AND LikeDislike.type = 'DISLIKE') AS isDislikedByUser,
-        (SELECT COUNT(*) FROM Follow WHERE Follow.followerId = ${userId} AND Follow.followingId = Post.authorId) AS isFollowedByUser,
-        (SELECT COUNT(*) FROM Follow WHERE Follow.followerId = Post.authorId AND Follow.followingId = ${userId}) AS isFollowingUser,
+        (SELECT COUNT(*) FROM LikeDislike WHERE LikeDislike.postId = Post.id AND LikeDislike.userId = ${currentUserId} AND LikeDislike.type = 'LIKE') AS isLikedByUser,
+        (SELECT COUNT(*) FROM LikeDislike WHERE LikeDislike.postId = Post.id AND LikeDislike.userId = ${currentUserId} AND LikeDislike.type = 'DISLIKE') AS isDislikedByUser,
+        (SELECT COUNT(*) FROM Follow WHERE Follow.followerId = ${currentUserId} AND Follow.followingId = Post.authorId) AS isFollowedByUser,
+        (SELECT COUNT(*) FROM Follow WHERE Follow.followerId = Post.authorId AND Follow.followingId = ${currentUserId}) AS isFollowingUser,
         COUNT(DISTINCT Comment.id) AS commentsCount
         FROM Post
         INNER JOIN User ON Post.authorId = User.id
@@ -148,10 +148,18 @@ export const postRouter = trpcRouter({
         User.name, User.username, User.latitude, User.longitude, User.photo,
         (SELECT COUNT(*) FROM LikeDislike WHERE LikeDislike.postId = Post.id AND LikeDislike.type = 'LIKE') AS likesCount,
         (SELECT COUNT(*) FROM LikeDislike WHERE LikeDislike.postId = Post.id AND LikeDislike.type = 'DISLIKE') AS dislikesCount,
-        (SELECT COUNT(*) FROM LikeDislike WHERE LikeDislike.postId = Post.id AND LikeDislike.userId = ${input.currentUserId
+        (SELECT COUNT(*) FROM LikeDislike WHERE LikeDislike.postId = Post.id AND LikeDislike.userId = ${
+          input.currentUserId
         } AND LikeDislike.type = 'LIKE') AS isLikedByUser,
-        (SELECT COUNT(*) FROM LikeDislike WHERE LikeDislike.postId = Post.id AND LikeDislike.userId = ${input.currentUserId
+        (SELECT COUNT(*) FROM LikeDislike WHERE LikeDislike.postId = Post.id AND LikeDislike.userId = ${
+          input.currentUserId
         } AND LikeDislike.type = 'DISLIKE') AS isDislikedByUser,
+        (SELECT COUNT(*) FROM Follow WHERE Follow.followerId = ${
+          input.currentUserId
+        } AND Follow.followingId = Post.authorId) AS isFollowedByUser,
+        (SELECT COUNT(*) FROM Follow WHERE Follow.followerId = Post.authorId AND Follow.followingId = ${
+          input.currentUserId
+        }) AS isFollowingUser,
         COUNT(DISTINCT Comment.id) AS commentsCount
         FROM Post
         INNER JOIN User ON Post.authorId = User.id
