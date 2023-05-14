@@ -27,7 +27,10 @@ export function useSetLocationPage() {
     },
   });
   const mapInitiatedRef = useRef(false);
-  const { refetch } = trpc.user.get.useQuery({ username: username.value }, { enabled: false });
+  const { refetch } = trpc.user.get.useQuery(
+    { username: username.value },
+    { enabled: false, retry: false }
+  );
 
   const handleSubmit = () => {
     setSubmitLoading(true);
