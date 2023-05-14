@@ -9,7 +9,8 @@
     "lint": "next lint",
     "test:e2e": "playwright test",
     "test": "jest --watch",
-    "firebase": "firebase emulators:start"
+    "firebase": "firebase emulators:start",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@planetscale/database": "^1.7.0",
