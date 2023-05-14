@@ -16,9 +16,9 @@ export function useUser() {
     { uid: auth.currentUser?.uid },
     {
       enabled: !!auth.currentUser && !user?.id,
-      onSuccess(data) {
-        console.log("useUser getUser onSuccess", data);
-        setUser(data);
+      onSettled(data, error) {
+        if (data) setUser(data);
+        else console.log("Error getting user", error);
         setUserLoading(false);
       },
     }
