@@ -16,7 +16,6 @@ export function useUser() {
     { uid: auth.currentUser?.uid },
     {
       enabled: !!auth.currentUser && !user?.id,
-      retry: false,
       onSettled(data, error) {
         if (data) setUser(data);
         else console.log("Error getting user", error);
