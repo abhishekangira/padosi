@@ -9,19 +9,21 @@ export const commentRouter = trpcRouter({
         limit: z.number().min(1).max(100).nullish(),
         cursor: z.number().nullish(),
         postCuid: z.string().cuid(),
-        userId: z.number(),
+        currentUserId: z.number(),
       })
     )
     .query(async ({ input, ctx }) => {
       const limit = input.limit ?? 20;
-      const { cursor, postCuid, userId } = input;
+      const { cursor, postCuid, currentUserId } = input;
 
-      const sqlQuery = `SELECT Comment.id, Comment.createdAt, Comment.content, Comment.authorId, Comment.postCuid,
+      const sqlQuery = `SELECT Comment.id, Comment.createdAt, Comment.content, Comment.authorId, Comment.postCuid, Comment.postId,
         User.name, User.username, User.latitude, User.longitude, User.photo,
         SUM(CASE WHEN LikeDislike.type = 'LIKE' THEN 1 ELSE 0 END) AS likesCount,
         SUM(CASE WHEN LikeDislike.type = 'DISLIKE' THEN 1 ELSE 0 END) AS dislikesCount,
-        SUM(CASE WHEN LikeDislike.userId = ${userId} AND LikeDislike.type = 'LIKE' THEN 1 ELSE 0 END) AS isLikedByUser,
-        SUM(CASE WHEN LikeDislike.userId = ${userId} AND LikeDislike.type = 'DISLIKE' THEN 1 ELSE 0 END) AS isDislikedByUser
+        SUM(CASE WHEN LikeDislike.userId = ${currentUserId} AND LikeDislike.type = 'LIKE' THEN 1 ELSE 0 END) AS isLikedByUser,
+        SUM(CASE WHEN LikeDislike.userId = ${currentUserId} AND LikeDislike.type = 'DISLIKE' THEN 1 ELSE 0 END) AS isDislikedByUser,
+        (SELECT COUNT(*) FROM Follow WHERE Follow.followerId = ${currentUserId} AND Follow.followingId = Comment.authorId) AS isFollowedByUser,
+        (SELECT COUNT(*) FROM Follow WHERE Follow.followerId = Comment.authorId AND Follow.followingId = ${currentUserId}) AS isFollowingUser
         FROM Comment
         INNER JOIN User ON Comment.authorId = User.id
         LEFT JOIN LikeDislike ON Comment.id = LikeDislike.commentId
@@ -68,6 +70,25 @@ export const commentRouter = trpcRouter({
       });
       return post;
     }),
+  delete: procedure
+    .input(
+      z.object({
+        id: z.number(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const deleteLikeDislikes = ctx.prisma.likeDislike.deleteMany({
+        where: {
+          commentId: input.id,
+        },
+      });
+      const deleteComment = ctx.prisma.comment.delete({
+        where: {
+          id: input.id,
+        },
+      });
+      return await ctx.prisma.$transaction([deleteLikeDislikes, deleteComment]);
+    }),
 });
 
 function mapComments(rows: any[]) {
@@ -87,6 +108,9 @@ function mapComments(rows: any[]) {
       isLikedByUser,
       isDislikedByUser,
       postCuid,
+      postId,
+      isFollowedByUser,
+      isFollowingUser,
     } = comment as any;
     return {
       id,
@@ -94,10 +118,13 @@ function mapComments(rows: any[]) {
       content,
       authorId,
       postCuid,
+      postId,
       likesCount: +likesCount,
       dislikesCount: +dislikesCount,
       isLikedByUser: !!+isLikedByUser,
       isDislikedByUser: !!+isDislikedByUser,
+      isFollowedByUser: !!+isFollowedByUser,
+      isFollowingUser: !!+isFollowingUser,
       author: { name, username, photo, latitude, longitude },
     };
   }) as (Comment & {
@@ -106,5 +133,7 @@ function mapComments(rows: any[]) {
     dislikesCount: number;
     isLikedByUser: boolean;
     isDislikedByUser: boolean;
+    isFollowedByUser: boolean;
+    isFollowingUser: boolean;
   })[];
 }

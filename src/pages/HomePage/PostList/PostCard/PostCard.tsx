@@ -50,31 +50,38 @@ export function PostCard({
     count: post.dislikesCount,
     isDislikedByUser: post.isDislikedByUser,
   });
-  const { mutate: toggleLikeDislike } = trpc.toggleLikeDislike.useMutation({
-    onSettled(data, error, variables, context) {
-      console.log({ variables, context });
 
-      const updateInCache = (prev: any, payload: {}) => {
-        if (prev) {
-          const updated = produce(prev, (draft: any) => {
-            let postIndex;
-            const pageIndex = draft.pages.findIndex((page: any) => {
-              postIndex = page.posts.findIndex((p: any) => p.id === post.id);
-              console.log({ postIndex });
-              return postIndex !== -1;
-            });
-            // console.log({ pageIndex });
-            if (postIndex !== undefined && postIndex !== -1) {
+  const updateInfiniteListInCache = useCallback(
+    (prev: any, payload: {}, action: "delete" | "update" = "update") => {
+      if (prev) {
+        const updated = produce(prev, (draft: any) => {
+          let postIndex;
+          const pageIndex = draft.pages.findIndex((page: any) => {
+            postIndex = page.posts.findIndex((p: any) => p.id === post.id);
+            console.log({ postIndex });
+            return postIndex !== -1;
+          });
+          // console.log({ pageIndex });
+          if (postIndex !== undefined && postIndex !== -1) {
+            if (action === "delete") {
+              draft.pages[pageIndex].posts.splice(postIndex, 1);
+            } else
               draft.pages[pageIndex].posts[postIndex] = {
                 ...draft.pages[pageIndex].posts[postIndex],
                 ...payload,
               };
-            }
-          });
-          console.log({ updated });
-          return updated;
-        }
-      };
+          }
+        });
+        console.log({ updated });
+        return updated;
+      }
+    },
+    [post.id]
+  );
+
+  const { mutate: toggleLikeDislike } = trpc.toggleLikeDislike.useMutation({
+    onSettled(data, error, variables, context) {
+      console.log({ variables, context });
 
       if (error) {
         setLikes({ count: post.likesCount, isLikedByUser: post.isLikedByUser });
@@ -90,7 +97,7 @@ export function PostCard({
           },
           // @ts-ignore
           (prev) =>
-            updateInCache(prev, {
+            updateInfiniteListInCache(prev, {
               likesCount: likes.count,
               dislikesCount: dislikes.count,
               isLikedByUser: likes.isLikedByUser,
@@ -108,14 +115,14 @@ export function PostCard({
           },
           // @ts-ignore
           (prev) =>
-            updateInCache(prev, {
+            updateInfiniteListInCache(prev, {
               likesCount: likes.count,
               dislikesCount: dislikes.count,
               isLikedByUser: likes.isLikedByUser,
               isDislikedByUser: dislikes.isDislikedByUser,
             })
         );
-        trpcUtils.post.get.refetch({ cuid: post.cuid, userId: user!?.id });
+        trpcUtils.post.get.refetch({ cuid: post.cuid, currentUserId: user!?.id });
         trpcUtils.post.getInfiniteOfUser.refetch({
           currentUserId: user!?.id,
           username: post.author.username,
@@ -163,9 +170,63 @@ export function PostCard({
     trpc.user.togglefollow.useMutation({
       onSuccess: (data) => {
         trpcUtils.user.get.invalidate();
+        trpcUtils.post.get.invalidate();
         trpcUtils.post.getInfiniteOfUser.invalidate();
+        trpcUtils.post.getInfinite.setInfiniteData(
+          {
+            currentUserId: user!?.id,
+            userLat: user!?.latitude,
+            userLon: user!?.longitude,
+            limit: 20,
+            sortBy: "LATEST",
+          },
+          // @ts-ignore
+          (prev) =>
+            updateInfiniteListInCache(prev, {
+              isFollowedByUser: !post.isFollowedByUser,
+            })
+        );
+
+        trpcUtils.post.getInfinite.setInfiniteData(
+          {
+            currentUserId: user!?.id,
+            userLat: user!?.latitude,
+            userLon: user!?.longitude,
+            limit: 20,
+            sortBy: "FOLLOWING",
+          },
+          // @ts-ignore
+          (prev) =>
+            updateInfiniteListInCache(prev, {
+              likesCount: likes.count,
+              dislikesCount: dislikes.count,
+              isLikedByUser: likes.isLikedByUser,
+              isDislikedByUser: dislikes.isDislikedByUser,
+            })
+        );
       },
     });
+
+  const { mutate: deletePost, isLoading: deletePostLoading } = trpc.post.delete.useMutation({
+    onSuccess: (data) => {
+      console.log("delete", { data }, router.pathname);
+      if (router.pathname === "/post/[cuid]") {
+        router.push("/home");
+      }
+      trpcUtils.post.getInfiniteOfUser.invalidate();
+      trpcUtils.post.getInfinite.setInfiniteData(
+        {
+          currentUserId: user!?.id,
+          userLat: user!?.latitude,
+          userLon: user!?.longitude,
+          limit: 20,
+          sortBy: "LATEST",
+        },
+        // @ts-ignore
+        (prev) => updateInfiniteListInCache(prev, {}, "delete")
+      );
+    },
+  });
 
   const ownPost = user?.id === post.authorId;
   const distanceInKm = useMemo(
@@ -178,11 +239,12 @@ export function PostCard({
   );
 
   return (
-    <div className="grid w-full grid-cols-[min-content_1fr_min-content] grid-rows-[min-content_auto_auto] gap-3 border-b border-b-black px-3 py-4 sm:gap-4">
-      <div
-        className="avatar cursor-pointer"
-        onClick={() => router.push(`/${post.author.username}`)}
-      >
+    <div
+      className={`grid w-full grid-cols-[min-content_1fr_min-content] grid-rows-[min-content_auto_auto] gap-3 border-b border-b-black px-3 py-4 sm:gap-4 ${
+        deletePostLoading ? "pointer-events-none brightness-50 animate-pulse" : ""
+      }`}
+    >
+      <Link href={`/${post.author.username}`} className="avatar">
         <div className="relative h-14 sm:h-16 mask mask-squircle">
           <Image
             src={post.author.photo || avatar}
@@ -191,10 +253,10 @@ export function PostCard({
             sizes="(min-width: 640px) 64px, 56px"
           />
         </div>
-      </div>
-      <div
-        className="flex h-full flex-col justify-center gap-[2px] sm:gap-0 self-center cursor-pointer"
-        onClick={() => router.push(`/${post.author.username}`)}
+      </Link>
+      <Link
+        href={`/${post.author.username}`}
+        className="flex h-full flex-col justify-center gap-[2px] sm:gap-0 self-center"
       >
         <div className="flex items-center gap-1">
           <h2 className={`text-sm font-bold sm:text-base leading-tight`}>{post.author.name}</h2>
@@ -210,7 +272,7 @@ export function PostCard({
           <span className="text-xs leading-none text-secondary">•</span>
           <span className="text-xs text-secondary sm:text-sm">{distanceInKm} km</span>
         </div>
-      </div>
+      </Link>
       <Dropdown.Root>
         <Dropdown.Trigger className="btn-ghost btn">
           <TbDots />
@@ -220,7 +282,14 @@ export function PostCard({
           className="bg-glass dropdown-content menu rounded-box p-2 text-sm shadow"
         >
           {ownPost && (
-            <Dropdown.Item className="flex gap-2 cursor-pointer text-error items-center rounded p-2">
+            <Dropdown.Item
+              className="flex gap-2 cursor-pointer text-error items-center rounded p-2"
+              onClick={() =>
+                deletePost({
+                  id: post.id,
+                })
+              }
+            >
               <TbTrash /> Delete Post
             </Dropdown.Item>
           )}

@@ -9,7 +9,7 @@ const toggleLikeDislike = procedure
   .input(
     z.object({
       userId: z.number(),
-      postId: z.number().optional(),
+      postId: z.number(),
       commentId: z.number().optional(),
       action: z.enum(["LIKE", "DISLIKE", "UNLIKE", "UNDISLIKE"]),
     })
@@ -42,7 +42,6 @@ const toggleLikeDislike = procedure
           postId,
           commentId,
           type: action === "LIKE" ? "LIKE" : "DISLIKE",
-          entity: postId ? "POST" : "COMMENT",
         },
       });
     }

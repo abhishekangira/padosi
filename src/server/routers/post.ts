@@ -98,7 +98,7 @@ export const postRouter = trpcRouter({
     .input(
       z.object({
         cuid: z.string().cuid(),
-        userId: z.number(),
+        currentUserId: z.number(),
       })
     )
     .query(async ({ ctx, input }) => {
@@ -106,8 +106,10 @@ export const postRouter = trpcRouter({
         User.name, User.username, User.latitude, User.longitude, User.photo,
         (SELECT COUNT(*) FROM LikeDislike WHERE LikeDislike.postId = Post.id AND LikeDislike.type = 'LIKE') AS likesCount,
         (SELECT COUNT(*) FROM LikeDislike WHERE LikeDislike.postId = Post.id AND LikeDislike.type = 'DISLIKE') AS dislikesCount,
-        (SELECT COUNT(*) FROM LikeDislike WHERE LikeDislike.postId = Post.id AND LikeDislike.userId = ${input.userId} AND LikeDislike.type = 'LIKE') AS isLikedByUser,
-        (SELECT COUNT(*) FROM LikeDislike WHERE LikeDislike.postId = Post.id AND LikeDislike.userId = ${input.userId} AND LikeDislike.type = 'DISLIKE') AS isDislikedByUser,
+        (SELECT COUNT(*) FROM LikeDislike WHERE LikeDislike.postId = Post.id AND LikeDislike.userId = ${input.currentUserId} AND LikeDislike.type = 'LIKE') AS isLikedByUser,
+        (SELECT COUNT(*) FROM LikeDislike WHERE LikeDislike.postId = Post.id AND LikeDislike.userId = ${input.currentUserId} AND LikeDislike.type = 'DISLIKE') AS isDislikedByUser,
+        (SELECT COUNT(*) FROM Follow WHERE Follow.followerId = ${input.currentUserId} AND Follow.followingId = Post.authorId) AS isFollowedByUser,
+        (SELECT COUNT(*) FROM Follow WHERE Follow.followerId = Post.authorId AND Follow.followingId = ${input.currentUserId}) AS isFollowingUser,
         COUNT(DISTINCT Comment.id) AS commentsCount
         FROM Post
         INNER JOIN User ON Post.authorId = User.id
@@ -117,22 +119,31 @@ export const postRouter = trpcRouter({
       `;
       const res = await ctx.planet.execute(sqlQuery);
       const post = mapPosts(res.rows)[0];
-      return post;
+      return post || null;
     }),
   delete: procedure
     .input(
       z.object({
-        cuid: z.string().cuid(),
-        authorId: z.number(),
+        id: z.number(),
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const post = await ctx.prisma.post.delete({
+      const deleteLikeDislikes = ctx.prisma.likeDislike.deleteMany({
         where: {
-          cuid: input.cuid,
+          postId: input.id,
         },
       });
-      return post;
+      const deleteComments = ctx.prisma.comment.deleteMany({
+        where: {
+          postId: input.id,
+        },
+      });
+      const deletePost = ctx.prisma.post.delete({
+        where: {
+          id: input.id,
+        },
+      });
+      return await ctx.prisma.$transaction([deleteLikeDislikes, deleteComments, deletePost]);
     }),
   getInfiniteOfUser: procedure
     .input(

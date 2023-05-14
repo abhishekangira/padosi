@@ -34,8 +34,8 @@ export function ProfilePageSkeleton() {
         <div className="mt-4 px-2">
           <p className="leading-snug text-sm sm:text-base"></p>
         </div>
+        <PostCardSkeleton />
       </div>
-      <PostCardSkeleton />
     </>
   );
 }

@@ -31,7 +31,7 @@ html::-webkit-scrollbar-thumb {
 *::placeholder {
   color: #51638b !important;
 
-  /* color: #5b94ff; */
+  /* color: #14284e; */
 }
 .bg-radial {
   background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);

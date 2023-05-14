@@ -14,25 +14,25 @@ export default function PostPage() {
   const { user } = useUserContext();
   const { setLayout } = useLayoutContext();
 
-  const { id } = router.query;
+  const { cuid } = router.query;
 
   const {
     data: post,
     isLoading: postLoading,
     isError: postError,
   } = trpc.post.get.useQuery(
-    { cuid: id as string, userId: user!?.id },
+    { cuid: cuid as string, currentUserId: user!?.id },
     {
-      enabled: !!user?.id && !!id,
+      enabled: !!user?.id && !!cuid,
       onSuccess(data) {
-        setLayout({ navbarTitle: `${data.author.username}'s Post` });
+        setLayout({ navbarTitle: data?.author.username ? `${data.author.username}'s Post` : "" });
       },
     }
   );
 
   const commentsData = trpc.comment.getInfinite.useInfiniteQuery(
-    { postCuid: id as string, userId: user!?.id },
-    { enabled: !!id && !!user?.id, getNextPageParam: (lastPage) => lastPage.nextCursor }
+    { postCuid: cuid as string, currentUserId: user!?.id },
+    { enabled: !!cuid && !!user?.id, getNextPageParam: (lastPage) => lastPage.nextCursor }
   );
 
   if (postLoading || !user?.id)
