@@ -120,7 +120,7 @@ export function ProfilePage() {
             </div>
           </div>
         </div>
-        <div className="grid grid-cols-2 place-items-center mt-4">
+        <div className="grid grid-cols-2 place-items-center mt-6 sm:mt-8">
           <div className="flex gap-1 sm:gap-2 items-center">
             <RiUserStarLine className="text-2xl" />
             <span className="">
@@ -132,7 +132,7 @@ export function ProfilePage() {
             <span className="">{user._count.following} Following</span>
           </div>
         </div>
-        <div className="mt-4 grid justify-items-center px-4">
+        <div className="mt-6 sm:mt-8 grid justify-items-center px-4">
           <button
             className={`btn btn-sm btn-outline w-full max-w-sm ${
               isFollowedByUser ? "btn-error" : "btn-primary"
@@ -147,7 +147,7 @@ export function ProfilePage() {
           {/* <button className="btn btn-sm btn-primary">Message</button> */}
         </div>
         {user.bio && (
-          <div className="mt-4 px-2">
+          <div className="mt-2 sm:mt-4 p-4">
             <p className="leading-snug whitespace-pre-wrap text-accent text-sm sm:text-base">
               {user.bio}
             </p>
