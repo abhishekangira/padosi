@@ -5,7 +5,7 @@ import { getStorage } from "firebase/storage";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: "padosi.me",
+  authDomain: "padosi-webapp.firebaseapp.com",
   projectId: "padosi-webapp",
   storageBucket: "padosi-webapp.appspot.com",
   messagingSenderId: "202304249193",

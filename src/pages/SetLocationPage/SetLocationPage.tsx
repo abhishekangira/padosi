@@ -99,14 +99,14 @@ export const debouncedCheckUsernameExists = debounce(
       }>
     >,
     checkUsername: () => Promise<{ data: User }>,
-    setErrors: Dispatch<any>
+    setErrors?: Dispatch<any>
   ) => {
     const inputVal = username.trim().toLowerCase();
     console.log("checking regex", inputVal);
     if (!usernameRegex.test(inputVal)) {
       console.log("checking regex fail", inputVal);
       setUsername((prev) => ({ ...prev, state: "unavailable" }));
-      setErrors((prev: any) => ({
+      setErrors?.((prev: any) => ({
         ...prev,
         username:
           "Username must be between 3 and 20 characters long and can only contain letters, numbers and underscores",
@@ -117,11 +117,11 @@ export const debouncedCheckUsernameExists = debounce(
     checkUsername().then((res) => {
       setUsername((prev) => ({ ...prev, state: res.data ? "unavailable" : "available" }));
       if (res.data)
-        setErrors((prev: any) => ({
+        setErrors?.((prev: any) => ({
           ...prev,
           username: "Username taken",
         }));
-      else setErrors((prev: any) => ({ ...prev, username: "" }));
+      else setErrors?.((prev: any) => ({ ...prev, username: "" }));
     });
   },
   700

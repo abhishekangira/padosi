@@ -1,4 +1,4 @@
-import { signInWithRedirect } from "firebase/auth";
+import { signInWithPopup, signInWithRedirect } from "firebase/auth";
 import { auth, provider } from "@/lib/firebase/firebase";
 import { BsGoogle } from "react-icons/bs";
 import { useLoginWidget, FormViewType } from "./useLoginWidget";
@@ -137,7 +137,7 @@ export function LoginWidget() {
               <div className="divider -mt-1">OR</div>
               <button
                 className="btn-outline btn gap-2"
-                onClick={() => signInWithRedirect(auth, provider)}
+                onClick={() => signInWithPopup(auth, provider)}
               >
                 <BsGoogle />
                 {formView} with Google
