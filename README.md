@@ -1,45 +1,58 @@
-# 🏠 Padosi
+<p align="center">
+  <img height="200" src="https://github.com/abhishekangira/padosi/assets/9019874/d9f83d8c-b0fa-48a3-bb86-0fd2cae5a02c" alt="Your Image" />
+</p>
 
-Welcome to Padosi, your new favorite location-based social media app that connects you to your neighbors! 🎉
+# Padosi - [Live](http://padosi.me/)
 
-With Padosi, you can stay up-to-date with the latest news, events, and gossip in your 5km radius. No more scrolling through posts from people on the other side of the world! 🌎
+### Tech Stack
+Next.js - Tailwind - tRPC - Firebase - Planetscale (MySQL)
 
-## Features 🔥
+### 🏘 Welcome to the neighborhood
 
-### Location-based posts 📍
-Discover posts from other users in your neighborhood and share your own content with your local community.
+Padosi helps you connect with your neighbors and community.
 
-### Post sorting 🗄️
-Sort posts by "latest," "trending," or "nearest" to discover the content that's most relevant to you.
+### ⁉ Why Padosi when I already have twitter and whatsapp?
+- Have you every moved to a new place for job or education and felt a bit overwhelmed how to find relevant things and services?
+- Do you wish there was an easier way to find friends or like-minded people around you?
+- Do you wish it was easier to find sales/deals/offers from shops and services around you?
+- Do you like to be updated about the latest news near you?
+- If the answer to any of the above questions is yes, Padosi is here to your rescue!
 
-### Multi-media content 📷
-In addition to text-based posts, Padosi supports image uploads, so you can share pictures of your community with your neighbors.
+### 🌟Features
+- Read posts from 10 km radius
+- CRUD own posts
+- infinite main wall
+- Add title to posts
+- Like, dislike and comment on posts
+- Like/Dislike comments
+- Customize profile
+- Full text search for posts
 
-### Online chat 💬
-Connect with other users in real-time using Padosi's built-in chat feature. See who's online and start chatting right away!
+### 👁 Views/Pages
+- Login/SignUp Page
+- Main Wall Page
+- Post Page
+- Profile Page
+- Settings Page
+- Edit Profile Page
+- Search Page
 
-### Pro subscription 💰
-Padosi offers a Pro subscription that removes ads and unlocks additional features, such as the ability to change your neighborhood radius and become a global Padosi.
+### 👨‍💻 Frontend Architecture
+- **Framework** - Next.js
+- **Styling** - Tailwind, DaisyUI, RadixUI
+- **External API** - Google Maps
 
-## Tech Stack 🛠️
+### 👨‍💻 Backend Architecture
+- **Language** - JavaScript (Node.js)
+- **Database** - Planetscale (MySQL)
+- **Auth** - Firebase
+- **Framework** - tRPC
 
-Padosi is built with Next.js, using Planetscale as the primary database and Firebase for authentication and real-time database functionality. The user interface is designed with Tailwind CSS.
+### 🚀 Features in Pipeline
+- Messaging
+- Sort posts by popularity/trending
+- Sponsored posts
 
-## Installation 🚀
+### ⚡ Performance
+<img width="865" alt="image" src="https://github.com/abhishekangira/padosi/assets/9019874/7f32cdd1-b196-4200-8c93-7c8b4837bc9f">
 
-To run Padosi locally, follow these steps:
-
-1. Clone the repository to your local machine.
-2. Install the necessary dependencies by running `npm install`.
-3. Create a `.env` file in the root directory and add your Firebase credentials.
-4. Run the app locally using `npm run dev`.
-
-## Contributing 🤝
-
-We welcome contributions from the community! If you'd like to contribute to Padosi, please fork the repository and submit a pull request.
-
-## License 📄
-
-Padosi is open source and available under the [MIT License](https://opensource.org/licenses/MIT). 
-
-🎉 Thanks for checking out Padosi! We hope you enjoy using it as much as we do.
