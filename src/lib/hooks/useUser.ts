@@ -28,6 +28,7 @@ export function useUser() {
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (firebaseUser) => {
+      setUserLoading(true);
       if (firebaseUser) {
         console.log("FIREBASE USER", firebaseUser);
         setUser({ uid: firebaseUser.uid } as User);
@@ -77,7 +78,7 @@ export function useUser() {
     return () => {
       router.events.off("routeChangeComplete", handleRouteChangeComplete);
     };
-  }, [user, router.pathname, routeLoading, userLoading, setRouteLoading, setGlobalLoading]);
+  }, [user?.id, router.pathname, routeLoading, userLoading, setRouteLoading, setGlobalLoading]);
 
   return { user, loading: userLoading || routeLoading || globalLoading, setUser, setGlobalLoading };
 }

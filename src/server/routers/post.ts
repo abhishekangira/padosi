@@ -103,7 +103,7 @@ export const postRouter = trpcRouter({
     )
     .query(async ({ ctx, input }) => {
       const sqlQuery = `SELECT Post.id, Post.cuid, Post.title, Post.createdAt, Post.content, Post.authorId,
-        User.name, User.username, User.latitude, User.longitude, User.photo,
+        User.name, User.username, User.latitude, User.longitude, User.photo, User.tagline,
         (SELECT COUNT(*) FROM LikeDislike WHERE LikeDislike.postId = Post.id AND LikeDislike.type = 'LIKE') AS likesCount,
         (SELECT COUNT(*) FROM LikeDislike WHERE LikeDislike.postId = Post.id AND LikeDislike.type = 'DISLIKE') AS dislikesCount,
         (SELECT COUNT(*) FROM LikeDislike WHERE LikeDislike.postId = Post.id AND LikeDislike.userId = ${input.currentUserId} AND LikeDislike.type = 'LIKE') AS isLikedByUser,
@@ -156,7 +156,7 @@ export const postRouter = trpcRouter({
     .query(async ({ ctx, input }) => {
       const limit = 20;
       const sqlQuery = `SELECT Post.id, Post.cuid, Post.title, Post.createdAt, Post.content, Post.authorId,
-        User.name, User.username, User.latitude, User.longitude, User.photo,
+        User.name, User.username, User.latitude, User.longitude, User.photo, User.tagline,
         (SELECT COUNT(*) FROM LikeDislike WHERE LikeDislike.postId = Post.id AND LikeDislike.type = 'LIKE') AS likesCount,
         (SELECT COUNT(*) FROM LikeDislike WHERE LikeDislike.postId = Post.id AND LikeDislike.type = 'DISLIKE') AS dislikesCount,
         (SELECT COUNT(*) FROM LikeDislike WHERE LikeDislike.postId = Post.id AND LikeDislike.userId = ${

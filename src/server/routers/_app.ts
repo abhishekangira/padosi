@@ -10,7 +10,7 @@ const toggleLikeDislike = procedure
     z.object({
       userId: z.number(),
       postId: z.number(),
-      commentId: z.number().optional(),
+      commentId: z.number().nullish(),
       action: z.enum(["LIKE", "DISLIKE", "UNLIKE", "UNDISLIKE"]),
     })
   )

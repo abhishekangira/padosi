@@ -17,7 +17,7 @@ export const commentRouter = trpcRouter({
       const { cursor, postCuid, currentUserId } = input;
 
       const sqlQuery = `SELECT Comment.id, Comment.createdAt, Comment.content, Comment.authorId, Comment.postCuid, Comment.postId,
-        User.name, User.username, User.latitude, User.longitude, User.photo,
+        User.name, User.username, User.latitude, User.longitude, User.photo, User.tagline,
         SUM(CASE WHEN LikeDislike.type = 'LIKE' THEN 1 ELSE 0 END) AS likesCount,
         SUM(CASE WHEN LikeDislike.type = 'DISLIKE' THEN 1 ELSE 0 END) AS dislikesCount,
         SUM(CASE WHEN LikeDislike.userId = ${currentUserId} AND LikeDislike.type = 'LIKE' THEN 1 ELSE 0 END) AS isLikedByUser,
@@ -111,6 +111,7 @@ function mapComments(rows: any[]) {
       postId,
       isFollowedByUser,
       isFollowingUser,
+      tagline,
     } = comment as any;
     return {
       id,
@@ -125,7 +126,7 @@ function mapComments(rows: any[]) {
       isDislikedByUser: !!+isDislikedByUser,
       isFollowedByUser: !!+isFollowedByUser,
       isFollowingUser: !!+isFollowingUser,
-      author: { name, username, photo, latitude, longitude },
+      author: { name, username, photo, latitude, longitude, tagline },
     };
   }) as (Comment & {
     author: User;

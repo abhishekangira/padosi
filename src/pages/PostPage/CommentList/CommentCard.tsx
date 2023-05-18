@@ -197,16 +197,13 @@ export function CommentCard({
       </Link>
       <Link
         href={`/${comment.author.username}`}
-        className="flex h-full flex-col justify-center gap-1 self-center"
+        className="flex h-full flex-col justify-center self-center"
       >
         <div className="flex items-center gap-1">
-          <h2 className="text-sm font-bold leading-none text-slate-300 sm:text-base">
-            {comment.author.name}
-          </h2>
-          <span className="text-sm leading-none text-slate-500 sm:text-base">
-            @{comment.author.username}
-          </span>
+          <h2 className="text-sm font-bold text-slate-300 sm:text-base">{comment.author.name}</h2>
+          <span className="text-sm text-slate-500 sm:text-base">@{comment.author.username}</span>
         </div>
+        <h3 className="text-accent text-xs sm:text-sm">{comment.author.tagline}</h3>
         <div className="flex items-center gap-1">
           <span className="text-xs text-slate-500 sm:text-sm">
             {dayjs(comment.createdAt).utc(true).fromNow()}

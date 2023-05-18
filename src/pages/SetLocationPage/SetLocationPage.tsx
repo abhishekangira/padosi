@@ -52,12 +52,16 @@ export function SetLocationPage() {
 
         <h1 className="self-start text-lg">
           2. Auto detect, type your address or click on the map to set your location
+          <br />
+          <span className="text-sm text-accent italic">
+            Keep the default location if you want to see demo posts
+          </span>
         </h1>
         <div className="input-group">
           <input type="text" ref={addressInputRef} className="input w-full" autoComplete="off" />
           <div className="tooltip tooltip-left" data-tip="Auto Detect Location">
             <button
-              className={`btn-square btn rounded-l-none text-xl text-primary ${
+              className={`btn-square btn bg-base-300 rounded-l-none text-xl ${
                 locationLoading ? "loading" : ""
               }`}
               onClick={async () => {

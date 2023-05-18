@@ -56,7 +56,7 @@ export function EditProfilePage() {
       tagline = form.tagline.value.trim(),
       photoFile = fileInputRef.current?.files?.[0];
     if (!name) {
-      setErrors((prev: any) => ({ ...prev, name: "Name cannot be empty" }));
+      setErrors((prev: any) => ({ ...prev, displayName: "Name cannot be empty" }));
       return setLoading(false);
     } else if (endsWithNonAlphabet(name)) {
       setErrors((prev: any) => ({
@@ -112,12 +112,12 @@ export function EditProfilePage() {
         hidden
         onChange={(e) => {
           const file = e.target.files?.[0];
-          const maxSize = 1000000;
+          // const maxSize = 1000000;
           if (file) {
-            if (file.size > maxSize) {
-              alert("File size too large. Max size is 1MB");
-              return;
-            }
+            // if (file.size > maxSize) {
+            //   alert("File size too large. Max size is 1MB");
+            //   return;
+            // }
             setDpUrl(URL.createObjectURL(file));
           }
         }}

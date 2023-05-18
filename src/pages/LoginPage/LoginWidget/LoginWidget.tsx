@@ -43,12 +43,7 @@ export function LoginWidget() {
                   <label htmlFor="displayName" className="label">
                     <span className="label-text">Name</span>
                   </label>
-                  <input
-                    type="text"
-                    id="displayName"
-                    placeholder="Raj Malhotra"
-                    className="input"
-                  />
+                  <input type="text" id="displayName" placeholder="Jay Smith" className="input" />
                   <label className="label min-h-8">
                     {errors.displayName && (
                       <span className="label-text-alt text-error">{errors.displayName}</span>
@@ -65,7 +60,7 @@ export function LoginWidget() {
                 type="email"
                 id="email"
                 name="email"
-                placeholder="rajmalhotra@cringe.com"
+                placeholder="smith@mail.com"
                 className="input"
               />
               <label className="label min-h-8">
