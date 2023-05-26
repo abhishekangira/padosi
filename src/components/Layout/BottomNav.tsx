@@ -1,9 +1,8 @@
 import Link from "next/link";
-import { GoHome, GoSearch, GoGear } from "react-icons/go";
+import { GoHome, GoSearch } from "react-icons/go";
 import { FiSettings, FiUser } from "react-icons/fi";
 import { useUserContext } from "@/lib/contexts/user-context";
 import { useRouter } from "next/router";
-import { useLayout } from "@/lib/hooks/useLayout";
 
 const activeLink = "active bg-transparent text-primary";
 
